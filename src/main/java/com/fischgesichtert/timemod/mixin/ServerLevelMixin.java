@@ -192,4 +192,15 @@ public abstract class ServerLevelMixin {
             timemod$engine().journal().onEntitySpawned(entity);
         }
     }
+
+    /** {@code /locate} und Karten finden Bauwerke der Zukunft dort, wo sie wirklich stehen (Biome von heute). */
+    @org.spongepowered.asm.mixin.injection.ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/structure/"
+        + "StructureCheck;<init>(Lnet/minecraft/world/level/chunk/storage/ChunkScanAccess;Lnet/minecraft/core/RegistryAccess;"
+        + "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplateManager;Lnet/minecraft/resources/ResourceKey;"
+        + "Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/world/level/levelgen/RandomState;"
+        + "Lnet/minecraft/world/level/LevelHeightAccessor;Lnet/minecraft/world/level/biome/BiomeSource;JLcom/mojang/datafixers/DataFixer;)V"),
+        index = 7)
+    private net.minecraft.world.level.biome.BiomeSource timemod$presentStructures(net.minecraft.world.level.biome.BiomeSource biomes) {
+        return biomes instanceof com.fischgesichtert.timemod.worldgen.FutureBiomeSource future ? future.base() : biomes;
+    }
 }

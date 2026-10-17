@@ -1,0 +1,7 @@
+{
+  "type": "timemod:town",
+  "biomes": [],
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none"
+}

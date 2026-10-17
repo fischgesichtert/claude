@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.worldgen;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.future.town.Settlements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
@@ -25,7 +26,8 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 /**
  * Die Biome der Zukunft: dieselbe Landschaft wie heute, aber das Klima ist ein wenig feuchter und wärmer.
  * Wälder wachsen von ihren Rändern in die Ebenen, mitten im offenen Land entstehen neue Haine, der Schnee
- * zieht sich zurück, Wüsten und Mangroven wachsen an ihren Rändern. Gewachsene Wälder bleiben, wie sie sind.
+ * zieht sich zurück, Wüsten und Mangroven wachsen an ihren Rändern. Gewachsene Wälder bleiben, wie sie sind,
+ * und rund um Dörfer, die noch leben, halten die Bewohner das Land offen.
  *
  * <p>Gerechnet wird mit Minecrafts eigener Klimatabelle: An jeder Stelle werden Feuchte und Temperatur
  * etwas angehoben und das Biom neu nachgeschlagen. Wie stark, hängt von den Jahren ab und schwankt von
@@ -120,7 +122,11 @@ public class FutureBiomeSource extends BiomeSource {
         if (today.is(STEADFAST)) {
             return today;
         }
-        Shift shift = shift(sampler, QuartPos.toBlock(x), QuartPos.toBlock(z));
+        int blockX = QuartPos.toBlock(x);
+        int blockZ = QuartPos.toBlock(z);
+        // Rund um lebende Siedlungen bleibt das Land offen: Felder, Weiden, Gärten statt Wald
+        double cleared = Settlements.clearing(blockX, blockZ, years, table, sampler);
+        Shift shift = shift(sampler, blockX, blockZ, 1.0 - cleared);
         if (shift.isNone()) {
             return today;
         }
@@ -140,13 +146,13 @@ public class FutureBiomeSource extends BiomeSource {
             point.depth(), point.weirdness());
     }
 
-    /** Wie viel feuchter und wärmer es an einer Stelle ist; beides nie negativ. */
-    public Shift shift(Climate.Sampler sampler, int blockX, int blockZ) {
+    /** Wie viel feuchter und wärmer es an einer Stelle ist; beides nie negativ. {@code wild}: 1 in freier Natur, 0 im Siedlungsland. */
+    public Shift shift(Climate.Sampler sampler, int blockX, int blockZ, double wild) {
         Noises noise = noises(sampler);
         double wet = 1.0 + variation * noise.region(noise.wet, blockX, blockZ);
         double warm = 1.0 + variation * noise.region(noise.warm, blockX, blockZ);
         double grove = groves * noise.grove(blockX, blockZ);
-        return new Shift((float) (humidity * wet + grove), (float) (temperature * warm));
+        return new Shift((float) ((humidity * wet + grove) * wild), (float) (temperature * warm));
     }
 
     /**
@@ -165,7 +171,7 @@ public class FutureBiomeSource extends BiomeSource {
     @Override
     public void addDebugInfo(List<String> info, BlockPos pos, Climate.Sampler sampler) {
         base.addDebugInfo(info, pos, sampler);
-        Shift shift = shift(sampler, pos.getX(), pos.getZ());
+        Shift shift = shift(sampler, pos.getX(), pos.getZ(), 1.0);
         info.add(String.format(Locale.ROOT, "Future climate: humidity +%.3f temperature +%.3f", shift.humidity(), shift.temperature()));
     }
 

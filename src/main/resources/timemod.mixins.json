@@ -6,6 +6,7 @@
   "mixins": [
     "AbstractContainerMenuMixin",
     "BlockEntityMixin",
+    "ChunkGeneratorMixin",
     "ChunkGeneratorStructureStateMixin",
     "ChunkSerializerMixin",
     "EntityMixin",
@@ -25,6 +26,7 @@
     "ServerLevelMixin",
     "ServerPlayerGameModeMixin",
     "ServerPlayerMixin",
+    "StructureMixin",
     "WorldDimensionsMixin"
   ],
   "injectors": {

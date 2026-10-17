@@ -250,8 +250,12 @@ CHAPTERS = {
         "• Auch die Welt um dich herum verändert sich: Wälder wachsen von ihren Rändern in die Ebenen, mitten im offenen Land "
         "entstehen neue Haine, und alte Bäume werden zu Riesen. Flüsse lagern Sandbänke ab. Das Klima wird ein wenig wärmer – "
         "der Schnee zieht sich zurück, Wüsten wachsen an ihren Rändern.\n\n"
+        "• Dörfer haben ein Schicksal: Die meisten wachsen – nach zehn Jahren um ein paar Häuser und Felder, nach hundert Jahren mit "
+        "Steinstraßen, Mauer, Markt und Kirche, nach fünfhundert Jahren zur Kleinstadt mit Türmen, Schenke und Windmühlen, nach "
+        "tausend Jahren zur Stadt aus hellem Stein, Glas und Kupfer, mit Laternen-Alleen, Bibliothek, Rathaus und Uhrturm. Manche "
+        "bleiben klein, manche gehen unter – und in manchen Ruinen lagern Plünderer.\n\n"
         "Die Zukunft ist nicht festgeschrieben: Baust du heute weiter, sieht sie beim nächsten Besuch anders aus – außer dort, wo du in "
-        "der Zukunft selbst gebaut hast. Bald wachsen dort auch die Dörfer zu Städten.",
+        "der Zukunft selbst gebaut hast.",
         "The Future",
         "The future grows out of the present. Travel to a year ahead and you find what you built today – the way the years left it.\n\n"
         "• Torches and lanterns have gone out after a year. Wood rots full of holes, glass shatters, wool crumbles. Stone grows moss "
@@ -265,8 +269,12 @@ CHAPTERS = {
         "• The world around you changes, too: forests creep from their edges into the plains, new groves rise in open country, and "
         "old trees grow into giants. Rivers lay down sandbanks. The climate warms a little – the snow retreats, deserts grow at "
         "their edges.\n\n"
+        "• Villages have a fate: most of them grow – after ten years by a few houses and fields, after a hundred years with stone "
+        "roads, a wall, a market and a church, after five hundred years into a small town with towers, a tavern and windmills, after "
+        "a thousand years into a city of pale stone, glass and copper, with lantern avenues, a library, a town hall and a clock tower. "
+        "Some stay small, some perish – and in some ruins, pillagers make camp.\n\n"
         "The future is not written: keep building today and it looks different on your next visit – except where you built in the "
-        "future yourself. Soon the villages there will grow into cities, too.",
+        "future yourself.",
     ),
 }
 
@@ -344,6 +352,9 @@ ADVANCEMENTS = [
     ("remains", "first_journey", "timemod:burnt_torch", "goal", ("impossible", None),
      "Was von uns bleibt", "Stehe in der Zukunft dort, wo du in der Gegenwart gebaut hast", "What Remains of Us",
      "Stand in the future where you built in the present"),
+    ("future_city", "first_journey", "minecraft:bell", "challenge", ("impossible", None),
+     "Die Stadt der Zukunft", "Betritt eine Stadt, die in tausend Jahren aus einem Dorf gewachsen ist", "The City of the Future",
+     "Enter a city that grew out of a village in a thousand years"),
     ("mesozoic", "dna", "minecraft:sniffer_egg", "challenge", ("impossible", None),
      "Willkommen im Erdmittelalter", "Reise in das Zeitalter der Dinosaurier", "Welcome to the Mesozoic", "Travel to the age of the dinosaurs"),
 ]

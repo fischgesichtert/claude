@@ -336,6 +336,9 @@ def worldgen():
     for name in ("ancient_grove", "river_banks"):
         write(base / f"configured_feature/{name}.json", {"type": t(name), "config": {}})
         write(base / f"placed_feature/{name}.json", {"feature": t(name), "placement": []})
+    # Straßen, Mauer, Felder und Markt gewachsener Dörfer: entsteht nie von selbst, passt das Gelände nicht an
+    write(base / "structure/town.json", {"type": t("town"), "biomes": [], "step": "surface_structures", "spawn_overrides": {},
+                                        "terrain_adaptation": "none"})
 
 
 def tags():

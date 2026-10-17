@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.future;
 
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
+import com.fischgesichtert.timemod.future.town.Settlements;
 import com.fischgesichtert.timemod.registry.ModAdvancements;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
@@ -113,6 +114,9 @@ public final class FutureDerivation {
                 Era era = Eras.byLevel(player.level().dimension());
                 if (era != null && era.isFuture() && FutureChunks.get(player.serverLevel()).isDerived(player.chunkPosition().toLong())) {
                     ModAdvancements.award(player, "remains");
+                }
+                if (era != null && era.years() >= 1000 && Settlements.inCity(player.serverLevel(), player.blockPosition())) {
+                    ModAdvancements.award(player, "future_city");
                 }
             }
         }

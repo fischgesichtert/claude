@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.future;
 
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
@@ -7,17 +8,27 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
-/** Verwitterung während der Welterzeugung: schreibt in den Chunk, der gerade dekoriert wird, liest seine Nachbarn. */
+/**
+ * Verwitterung während der Welterzeugung: schreibt in den Chunk, der gerade dekoriert wird, liest seine Nachbarn.
+ * Was in {@code kept} liegt (etwa ein Lager, in dem heute noch jemand wohnt), bleibt unberührt.
+ */
 final class RegionCanvas implements Canvas {
     private final WorldGenLevel level;
     private final ChunkPos chunk;
+    private final List<BoundingBox> kept;
     private final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
 
     RegionCanvas(WorldGenLevel level, ChunkPos chunk) {
+        this(level, chunk, List.of());
+    }
+
+    RegionCanvas(WorldGenLevel level, ChunkPos chunk, List<BoundingBox> kept) {
         this.level = level;
         this.chunk = chunk;
+        this.kept = kept;
     }
 
     @Override
@@ -53,7 +64,13 @@ final class RegionCanvas implements Canvas {
     @Override
     public void set(int x, int y, int z, BlockState state) {
         if (inside(x, z) && y >= minY() && y < maxY()) {
-            level.setBlock(cursor.set(x, y, z), state, Block.UPDATE_CLIENTS);
+            cursor.set(x, y, z);
+            for (BoundingBox box : kept) {
+                if (box.isInside(cursor)) {
+                    return;
+                }
+            }
+            level.setBlock(cursor, state, Block.UPDATE_CLIENTS);
         }
     }
 

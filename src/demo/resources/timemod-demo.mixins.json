@@ -4,7 +4,9 @@
   "package": "com.fischgesichtert.timemod.demo.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "CreativeScreenInvoker",
     "MinecraftPaceMixin",
+    "MouseHandlerInvoker",
     "MinecraftServerPaceMixin"
   ],
   "injectors": {

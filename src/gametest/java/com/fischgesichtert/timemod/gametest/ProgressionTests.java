@@ -316,4 +316,44 @@ public class ProgressionTests implements FabricGameTest {
             helper.succeed();
         });
     }
+
+    /** Die Rückblick-Uhr fährt den Weg der letzten Sekunden rückwärts ab und stellt das Leben wieder her. */
+    @GameTest(template = ARENA, timeoutTicks = 100, setupTicks = 5)
+    public void recallWatchJumpsBackInTime(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        Vec3 p0 = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(6, 2, 8)));
+        Vec3 p1 = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(12, 2, 8)));
+        Vec3 p2 = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(18, 2, 10)));
+        player.teleportTo(p0.x, p0.y, p0.z);
+        float fullHealth = player.getHealth();
+        helper.runAtTickTime(20, () -> player.teleportTo(p1.x, p1.y, p1.z));
+        helper.runAtTickTime(40, () -> {
+            player.teleportTo(p2.x, p2.y, p2.z);
+            player.setHealth(fullHealth - 7.0F);
+        });
+        helper.runAtTickTime(60, () -> {
+            ItemStack watch = new ItemStack(ModItems.RECALL_WATCH);
+            WindUpItem.setTension(watch, WindUpItem.MAX_TENSION);
+            player.setItemInHand(InteractionHand.MAIN_HAND, watch);
+            watch.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+            if (!player.getCooldowns().isOnCooldown(ModItems.RECALL_WATCH)) {
+                helper.fail("Die Rückblick-Uhr muss danach abkühlen");
+            }
+        });
+        helper.runAtTickTime(66, () -> {
+            if (player.position().distanceTo(p2) < 0.01 || player.position().distanceTo(p0) < 0.01) {
+                helper.fail("Der Rücksprung muss den Weg sichtbar zurücklaufen, nicht teleportieren");
+            }
+        });
+        helper.runAtTickTime(75, () -> {
+            if (player.position().distanceTo(p0) > 0.01) {
+                helper.fail("Nach dem Rücksprung muss der Spieler wieder am Startpunkt stehen: " + player.position() + " statt " + p0);
+            }
+            if (player.getHealth() != fullHealth) {
+                helper.fail("Das Leben muss wie vor 5 Sekunden sein: " + player.getHealth() + " statt " + fullHealth);
+            }
+            player.discard();
+            helper.succeed();
+        });
+    }
 }

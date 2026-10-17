@@ -8,12 +8,14 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
@@ -45,7 +47,11 @@ public class DemoDirector implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        DemoScript.write(this);
+        if ("items".equals(System.getProperty("timemod.demo.script"))) {
+            ItemShowcase.write(this);
+        } else {
+            DemoScript.write(this);
+        }
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
     }
 
@@ -65,6 +71,21 @@ public class DemoDirector implements ClientModInitializer {
 
     public DemoDirector command(String command) {
         return at(() -> runCommand(command));
+    }
+
+    /** Führt Code im Client aus (Bildschirme öffnen, Maus setzen …). */
+    public DemoDirector client(Consumer<Minecraft> action) {
+        return at(() -> action.accept(Minecraft.getInstance()));
+    }
+
+    /** Führt Code im integrierten Server mit dem (einzigen) Spieler aus. */
+    public DemoDirector server(Consumer<ServerPlayer> action) {
+        return at(() -> {
+            IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
+            if (server != null) {
+                server.execute(() -> server.getPlayerList().getPlayers().stream().findFirst().ifPresent(action));
+            }
+        });
     }
 
     public DemoDirector screenshot(String name) {
@@ -94,6 +115,13 @@ public class DemoDirector implements ClientModInitializer {
     // ------------------------------------------------------------------ Ablauf
 
     private void onTick(Minecraft mc) {
+        if (mc.level == null && !"de_de".equals(mc.options.languageCode) && mc.getOverlay() == null) {
+            // Vorführung auf Deutsch (Tooltips, Namen)
+            mc.options.languageCode = "de_de";
+            mc.getLanguageManager().setSelected("de_de");
+            mc.reloadResourcePacks();
+            return;
+        }
         if (mc.level == null && !creatingWorld && mc.screen instanceof TitleScreen && mc.getOverlay() == null) {
             creatingWorld = true;
             createWorld(mc);

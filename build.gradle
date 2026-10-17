@@ -57,6 +57,7 @@ loom {
             name 'Demo-Client'
             vmArg '-Dtimemod.debug=true'
             vmArg '-Dtimemod.demo.tickMs=' + (project.findProperty('demoTickMs') ?: '50')
+            vmArg '-Dtimemod.demo.script=' + (project.findProperty('demoScript') ?: 'time')
             programArgs '--width', '1280', '--height', '720'
             runDir 'run-demo'
             source sourceSets.demo

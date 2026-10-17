@@ -19,3 +19,4 @@ remappedSrc/
 Thumbs.db
 run-demo/
 media/
+__pycache__/

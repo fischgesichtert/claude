@@ -9,6 +9,7 @@ import com.fischgesichtert.timemod.block.ChronosPortalBlock;
 import com.fischgesichtert.timemod.block.HomeAnchorBlock;
 import com.fischgesichtert.timemod.block.TimeCapsuleBlock;
 import com.fischgesichtert.timemod.block.ChroniteOreBlock;
+import com.fischgesichtert.timemod.block.ChronometerBlock;
 import com.fischgesichtert.timemod.block.ChroniteSproutBlock;
 import com.fischgesichtert.timemod.block.ClockmakerBenchBlock;
 import com.fischgesichtert.timemod.block.LifetimeExtractorBlock;
@@ -105,6 +106,9 @@ public final class ModBlocks {
         .requiresCorrectToolForDrops().strength(4.0F, 5.0F).sound(SoundType.METAL).noOcclusion()));
     public static final Block BONE_PILE = register("bone_pile", new CarpetBlock(BlockBehaviour.Properties.of()
         .mapColor(MapColor.SAND).strength(0.3F).sound(SoundType.BONE_BLOCK).noOcclusion().pushReaction(PushReaction.DESTROY)));
+
+    public static final Block CHRONOMETER = register("chronometer", new ChronometerBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(2.0F, 3.0F).sound(SoundType.WOOD).noOcclusion()));
 
     private ModBlocks() {
     }

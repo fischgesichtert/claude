@@ -267,6 +267,31 @@ CHAPTERS = {
         "with amber inside.\n\n"
         "Both avoid your buildings: no capsule and no tree destroys what you built in the present.",
     ),
+    "creatures": (
+        "Wesen der Zukunft",
+        "Die Zukunft ist nicht leer. In den Ruinen untergegangener Dörfer stehen die Ruinenwächter: Was von ihren Eisengolems blieb, "
+        "ist mit Stein, Rost und Moos verwachsen. Meist ruhen sie wie Statuen. Kommst du näher, öffnet sich ihr Linsenauge und folgt "
+        "dir – trittst du ihnen zu nahe, öffnest eine Truhe der Ruine oder baust ihre Mauern ab, greifen sie an. Ihre Schläge sind "
+        "schwer, aber in beschleunigter Zeit holen die Jahrhunderte sie ein: Sie zerfallen. Besiegt hinterlassen sie einen "
+        "Wächterkern.\n\n"
+        "Wo Wälder älter als hundert Jahre sind, lebt der Moosbär, auf dessen Rücken ein kleiner Wald wächst. Er ist friedlich, "
+        "solange man ihn und seine Jungen in Ruhe lässt. Mit Beeren lockst und züchtest du ihn, mit der Schere erntest du sein Moos – "
+        "es wächst nach.\n\n"
+        "In den Städten der Zukunft arbeiten Chrono-Händler, im Uhrturm und in manchen Werkstätten. Ihr Arbeitsplatz ist das "
+        "Chronometer: Nimm eines mit in die Gegenwart, und ein Dorfbewohner, der es findet, wird selbst zum Chrono-Händler. Sie kaufen "
+        "Rost und Messing und verkaufen Zeitstaub, Taschenuhren, Chronit-Keime, Zeitsiegel, geladene Zeitzellen, Zeitkapseln und "
+        "Zeitsaat.",
+        "Creatures of the Future",
+        "The future is not empty. In the ruins of fallen villages stand the Ruin Guardians: what remained of their iron golems has "
+        "grown together with stone, rust and moss. Mostly they rest like statues. Come closer and their lens eye opens and follows "
+        "you – step too close, open a chest of the ruin or break its walls, and they attack. Their blows are heavy, but in "
+        "accelerated time the centuries catch up with them: they crumble. Defeated, they leave a guardian core.\n\n"
+        "Where forests are older than a hundred years lives the Moss Bear, with a little forest growing on its back. It is peaceful "
+        "as long as you leave it and its cubs alone. Berries lure and breed it, shears harvest its moss – which grows back.\n\n"
+        "In the cities of the future, Chrono Traders work in the clock tower and in some workshops. Their workstation is the "
+        "chronometer: take one back to the present, and a villager who finds it becomes a Chrono Trader too. They buy rust and brass "
+        "and sell time dust, pocket watches, chronite seeds, time seals, charged time cells, time capsules and time seeds.",
+    ),
     "future": (
         "Die Zukunft",
         "Die Zukunft entsteht aus der Gegenwart. Reist du in ein Jahr der Zukunft, findest du dort, was du heute gebaut hast – so, wie es "
@@ -393,6 +418,12 @@ ADVANCEMENTS = [
      "Wer bewacht die Wächter?", "Besiege einen Zeitwächter", "Who Watches the Watchmen?", "Defeat a Time Warden"),
     ("clock_hand", "time_police", "timemod:clock_hand_blade", "challenge", ("item", "timemod:clock_hand_blade"),
      "Fünf vor zwölf", "Erbeute die Zeigerklinge eines Zeitwächters", "At the Eleventh Hour", "Take a Time Warden's clock hand blade"),
+    ("ruin_guardian", "first_journey", "timemod:guardian_core", "goal", ("kill", "timemod:ruin_guardian"),
+     "Der letzte Wächter", "Besiege einen Ruinenwächter", "The Last Watchman", "Defeat a Ruin Guardian"),
+    ("moss_bear", "first_journey", "minecraft:moss_block", "task", ("impossible", None),
+     "Ein Bär voller Wald", "Schere einen Moosbären", "A Bear Full of Forest", "Shear a Moss Bear"),
+    ("chrono_trader", "future_city", "timemod:chronometer", "goal", ("trade", "timemod:chrono_trader"),
+     "Zeit ist Geld", "Handle mit einem Chrono-Händler", "Time Is Money", "Trade with a Chrono Trader"),
     ("mesozoic", "dna", "minecraft:sniffer_egg", "challenge", ("impossible", None),
      "Willkommen im Erdmittelalter", "Reise in das Zeitalter der Dinosaurier", "Welcome to the Mesozoic", "Travel to the age of the dinosaurs"),
 ]

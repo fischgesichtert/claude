@@ -208,7 +208,8 @@ public final class Settlements {
      * Wie Siedlungen einen Chunk der Zukunft betreffen: Gehört er zu einem lebenden Dorf (dann wird hier gepflegt,
      * nicht verfallen) – und welche Plünderer-Lager stehen hier (die bleiben, wie sie sind).
      */
-    public record Presence(boolean living, @Nullable TownStyle style, List<BoundingBox> camps, boolean abandoned, long abandonedFor) {
+    public record Presence(boolean living, @Nullable TownStyle style, List<BoundingBox> camps, boolean abandoned, long abandonedFor,
+                           boolean raided) {
         /** Wie viele Jahre hier verwittern: bei Ruinen einer Siedlung nur die Zeit seit ihrem Untergang. */
         public long decay(long years) {
             return abandoned ? Math.min(years, abandonedFor) : years;
@@ -219,6 +220,7 @@ public final class Settlements {
         Registry<Structure> registry = level.registryAccess().registryOrThrow(Registries.STRUCTURE);
         boolean living = false;
         boolean abandoned = false;
+        boolean raided = false;
         long abandonedFor = Long.MAX_VALUE;
         TownStyle style = null;
         List<BoundingBox> camps = new ArrayList<>();
@@ -235,6 +237,7 @@ public final class Settlements {
                     Outlook outlook = outlook(level.getSeed(), pos, years);
                     if (!outlook.alive()) {
                         abandoned = true;
+                        raided |= outlook.fate() == Fate.RAIDED;
                         abandonedFor = Math.min(abandonedFor, outlook.abandonedFor(years));
                     }
                     if (outlook.alive()) {
@@ -258,7 +261,7 @@ public final class Settlements {
                 }
             }
         }
-        return new Presence(living, style, camps, abandoned && !living, abandonedFor);
+        return new Presence(living, style, camps, abandoned && !living, abandonedFor, raided);
     }
 
     /** In einer lebenden Siedlung: ab Stufe 2 sind die alten Trampelpfade gepflastert, in der Stadt brennen Laternen. */

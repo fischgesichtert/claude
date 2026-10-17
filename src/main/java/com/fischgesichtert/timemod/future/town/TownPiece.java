@@ -8,12 +8,14 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceSerializationContext;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import org.jetbrains.annotations.Nullable;
 
 /** Gemeinsame Basis der Bauteile einer gewachsenen Siedlung: Stil (Dorfart und Stufe) und Bewohner. */
 abstract class TownPiece extends TimePiece {
@@ -64,6 +66,11 @@ abstract class TownPiece extends TimePiece {
 
     /** Ein Dorfbewohner der passenden Art; nur in dem Chunk, der gerade entsteht (sonst gäbe es ihn doppelt). */
     protected void villager(WorldGenLevel level, BoundingBox box, int x, int y, int z, boolean child) {
+        villager(level, box, x, y, z, child, null);
+    }
+
+    /** Ein Bewohner; mit {@code profession} schon im Beruf (mit etwas Erfahrung, damit er ihn behält). */
+    protected void villager(WorldGenLevel level, BoundingBox box, int x, int y, int z, boolean child, @Nullable VillagerProfession profession) {
         BlockPos pos = getWorldPos(x, y, z);
         if (abandoned || !box.isInside(pos)) {
             return;
@@ -75,6 +82,10 @@ abstract class TownPiece extends TimePiece {
         villager.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, chance(x, y, z, 77) * 360.0F, 0.0F);
         villager.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.STRUCTURE, null, null);
         villager.setVillagerData(villager.getVillagerData().setType(villagerType()));
+        if (profession != null && !child) {
+            villager.setVillagerData(villager.getVillagerData().setProfession(profession));
+            villager.setVillagerXp(1);
+        }
         if (child) {
             villager.setAge(-24000);
         }

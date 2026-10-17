@@ -13,6 +13,8 @@ import com.fischgesichtert.timemod.future.town.TownPieces;
 import com.fischgesichtert.timemod.future.town.TownPlanner;
 import com.fischgesichtert.timemod.future.town.TownStyle;
 import com.fischgesichtert.timemod.future.town.WallPiece;
+import com.fischgesichtert.timemod.registry.ModBlocks;
+import com.fischgesichtert.timemod.registry.ModVillagers;
 import com.fischgesichtert.timemod.worldgen.FutureBiomeSource;
 import com.mojang.datafixers.util.Pair;
 import java.util.ArrayList;
@@ -279,6 +281,7 @@ public class TownTests implements FabricGameTest {
         int beds = 0;
         int lanterns = 0;
         int copper = 0;
+        int chronometers = 0;
         for (StructurePiece piece : plan.buildings()) {
             for (BlockPos pos : BlockPos.betweenClosed(piece.getBoundingBox().minX(), piece.getBoundingBox().minY(), piece.getBoundingBox().minZ(),
                 piece.getBoundingBox().maxX(), piece.getBoundingBox().maxY(), piece.getBoundingBox().maxZ())) {
@@ -286,6 +289,7 @@ public class TownTests implements FabricGameTest {
                 doors += state.is(BlockTags.DOORS) ? 1 : 0;
                 beds += state.is(BlockTags.BEDS) ? 1 : 0;
                 lanterns += state.is(Blocks.LANTERN) ? 1 : 0;
+                chronometers += state.is(ModBlocks.CHRONOMETER) ? 1 : 0;
                 copper += state.is(Blocks.WAXED_CUT_COPPER_STAIRS) || state.is(Blocks.WAXED_EXPOSED_CUT_COPPER_STAIRS)
                     || state.is(Blocks.WAXED_WEATHERED_CUT_COPPER_STAIRS) || state.is(Blocks.WAXED_OXIDIZED_CUT_COPPER_STAIRS) ? 1 : 0;
             }
@@ -293,6 +297,11 @@ public class TownTests implements FabricGameTest {
         AABB area = new AABB(origin).inflate(130, 40, 130);
         int villagers = level.getEntitiesOfClass(Villager.class, area).size();
         int golems = level.getEntitiesOfClass(IronGolem.class, area).size();
+        long traders = level.getEntitiesOfClass(Villager.class, area).stream()
+            .filter(v -> v.getVillagerData().getProfession() == ModVillagers.CHRONO_TRADER).count();
+        if (chronometers < 1 || traders < 1) {
+            helper.fail("Im Uhrturm der Stadt arbeitet ein Chrono-Händler: " + chronometers + " Chronometer, " + traders + " Händler");
+        }
         TimeMod.LOGGER.info("Stadt: {} Türhälften, {} Betthälften, {} Laternen, {} Kupferdachstufen, {} Bewohner, {} Golems", doors, beds, lanterns,
             copper, villagers, golems);
         if (doors < plan.buildings().size() || beds < 20 || lanterns < 20 || copper < 100 || villagers < 20 || golems < 3) {

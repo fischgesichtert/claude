@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:moss_block"
+    },
+    "title": {
+      "translate": "advancements.timemod.moss_bear.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.moss_bear.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "timemod:first_journey"
+}

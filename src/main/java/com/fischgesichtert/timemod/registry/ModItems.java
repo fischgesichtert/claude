@@ -159,6 +159,14 @@ public final class ModItems {
     public static final Item TIME_WARDEN_SPAWN_EGG = register("time_warden_spawn_egg", new SpawnEggItem(ModEntities.TIME_WARDEN, 0x1C2340, 0x9FF3FF,
         new Item.Properties()));
 
+    // Wesen der Zukunft: Ruinenwächter, Moosbär, Chrono-Händler
+    public static final Item GUARDIAN_CORE = register("guardian_core", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
+    public static final Item CHRONOMETER = register("chronometer", new BlockItem(ModBlocks.CHRONOMETER, new Item.Properties().rarity(Rarity.UNCOMMON)));
+    public static final Item RUIN_GUARDIAN_SPAWN_EGG = register("ruin_guardian_spawn_egg", new SpawnEggItem(ModEntities.RUIN_GUARDIAN, 0x5E6352, 0x7FA34A,
+        new Item.Properties()));
+    public static final Item MOSS_BEAR_SPAWN_EGG = register("moss_bear_spawn_egg", new SpawnEggItem(ModEntities.MOSS_BEAR, 0x5A3F2A, 0x5E9A33,
+        new Item.Properties()));
+
     // Entwicklung
     public static final Item CHRONO_DEBUG_WAND = register("chrono_debug_wand", new ChronoDebugWandItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
 

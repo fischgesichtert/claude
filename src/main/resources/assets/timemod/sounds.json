@@ -321,5 +321,14 @@
         "attenuation_distance": 16
       }
     ]
+  },
+  "guardian_wake": {
+    "subtitle": "subtitles.timemod.guardian_wake",
+    "sounds": [
+      {
+        "name": "timemod:guardian_wake",
+        "attenuation_distance": 32
+      }
+    ]
   }
 }

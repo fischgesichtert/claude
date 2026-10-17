@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "timemod:block/chronometer"
+    },
+    "facing=east": {
+      "model": "timemod:block/chronometer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "timemod:block/chronometer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "timemod:block/chronometer",
+      "y": 270
+    }
+  }
+}

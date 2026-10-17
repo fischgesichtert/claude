@@ -661,6 +661,24 @@ def seal_stamp():
     return normalize(fade(reverb(out, 0.6, 0.2), 0.002, 0.1), -1)
 
 
+
+def guardian_wake():
+    """Ein Ruinenwächter erwacht: Stein mahlt auf Stein, rostiges Eisen knarrt, ein tiefes Brummen steigt."""
+    length = 2.2
+    x = t(length)
+    grind = fft_filter(noise(length), low=900, high=60) * (0.55 + 0.45 * np.sin(2 * np.pi * 7.0 * x) ** 2)
+    grind *= env_ad(len(x), 0.25, 1.6, curve=2.2)
+    creak = saturate(sweep(180, 95, 1.1) * env_ad(int(1.1 * SR), 0.08, 0.9, curve=2.0) * (1 + 0.6 * np.sin(2 * np.pi * 31 * t(1.1))), 3.0)
+    hum = sweep(38, 62, length) * env_ad(len(x), 0.6, 1.4, curve=1.8)
+    out = silence(length)
+    place(out, normalize(grind, -6), 0.0)
+    place(out, normalize(fft_filter(creak, low=1600), -9), 0.35)
+    place(out, normalize(hum, -8), 0.0)
+    for at in (0.15, 0.6, 1.05):
+        place(out, normalize(tick(700, 140, length=0.1, level=1.0), -12), at)
+    return normalize(fade(reverb(out, 1.2, 0.25, brightness=3000), 0.01, 0.2), -1)
+
+
 SOUNDS = {
     "time_stop": time_stop,
     "time_resume": time_resume,
@@ -699,6 +717,7 @@ SOUNDS = {
     "warden_bolt": warden_bolt,
     "warden_bolt_hit": warden_bolt_hit,
     "seal_stamp": seal_stamp,
+    "guardian_wake": guardian_wake,
 }
 
 

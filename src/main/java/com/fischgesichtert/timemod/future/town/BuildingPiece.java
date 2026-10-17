@@ -1,6 +1,8 @@
 package com.fischgesichtert.timemod.future.town;
 
+import com.fischgesichtert.timemod.block.ChronometerBlock;
 import com.fischgesichtert.timemod.registry.ModBlocks;
+import com.fischgesichtert.timemod.registry.ModVillagers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -319,10 +321,19 @@ public class BuildingPiece extends TownPiece {
         }
         // Arbeitsplatz unten vorn rechts, Treppenleiter hinten rechts
         Block job = kind == Kind.WORKSHOP || chance(1, 1, 1, 5) < 0.6F ? JOBS[Math.floorMod(variant() >> 3, JOBS.length)] : Blocks.CRAFTING_TABLE;
+        // Ab der Kleinstadt arbeitet in manchen Werkstätten ein Chrono-Händler
+        boolean chronometer = kind == Kind.WORKSHOP && style.stage() >= 3 && chance(4, 4, 4, 11) < 0.35F;
+        if (chronometer) {
+            job = ModBlocks.CHRONOMETER;
+        }
         set(level, box, width - 2, 1, 1, job.defaultBlockState());
         set(level, box, 1, 1, 1, Blocks.POTTED_POPPY.defaultBlockState());
         ladder(level, box);
-        resident(level, box, width / 2 + 1, 1, 2, false);
+        if (chronometer) {
+            villager(level, box, width / 2 + 2, 1, 2 + FRONT, false, ModVillagers.CHRONO_TRADER);
+        } else {
+            resident(level, box, width / 2 + 1, 1, 2, false);
+        }
         if (floors > 1 || chance(2, 2, 2, 6) < 0.3F) {
             resident(level, box, width / 2 - 1, 1, depth / 2, chance(3, 3, 3, 7) < 0.4F);
         }
@@ -539,6 +550,11 @@ public class BuildingPiece extends TownPiece {
         }
         door(level, box);
         ladder(level, box);
+        // Im Erdgeschoss die Stube des Uhrmeisters: ein Chronometer und sein Chrono-Händler
+        set(level, box, c, 1, depth - 2, ModBlocks.CHRONOMETER.defaultBlockState().setValue(ChronometerBlock.FACING, Direction.NORTH));
+        set(level, box, c - 1, 1, depth - 2, Blocks.BOOKSHELF.defaultBlockState());
+        hangingLantern(level, box, c, 7, c);
+        villager(level, box, c + 2, 1, c + FRONT, false, ModVillagers.CHRONO_TRADER);
         // Offene Glockenstube und Spitze
         for (int i = 0; i < width; i++) {
             for (int k = 0; k < depth; k++) {

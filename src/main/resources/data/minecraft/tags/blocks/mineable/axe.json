@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "timemod:clockmaker_bench"
+    "timemod:clockmaker_bench",
+    "timemod:chronometer"
   ]
 }

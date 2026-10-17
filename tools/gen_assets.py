@@ -1166,7 +1166,7 @@ def tags():
         "chrono_pillar", "lifetime_extractor", "chronos_gate_frame", "chronos_console", "amber_ore", "amber_block", "home_anchor",
         "time_capsule", "dull_lantern", "rusty_iron_block", "rusty_iron_bars")])
     tag("minecraft/tags/blocks/mineable/shovel.json", [t("time_sand")])
-    tag("minecraft/tags/blocks/mineable/axe.json", [t("clockmaker_bench")])
+    tag("minecraft/tags/blocks/mineable/axe.json", [t("clockmaker_bench"), t("chronometer")])
     tag("minecraft/tags/blocks/needs_iron_tool.json", [t("brass_block"), t("time_condenser"), t("time_field_projector"), t("chrono_pillar")])
     tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore"), t("temporal_workbench"), t("lifetime_extractor"),
                                                           t("chronos_gate_frame"), t("chronos_console")])
@@ -1288,6 +1288,10 @@ def advancements():
                 {"condition": "minecraft:entity_properties", "entity": "this", "predicate": {"location": {"structure": value}}}]}}
         elif kind == "impossible":
             trigger = {"trigger": "minecraft:impossible"}
+        elif kind == "trade":
+            trigger = {"trigger": "minecraft:villager_trade", "conditions": {"villager": [
+                {"condition": "minecraft:entity_properties", "entity": "this",
+                 "predicate": {"nbt": "{VillagerData:{profession:\"" + value + "\"}}"}}]}}
         else:
             trigger = {"trigger": "minecraft:player_killed_entity", "conditions": {"entity": [
                 {"condition": "minecraft:entity_properties", "entity": "this", "predicate": {"type": value}}]}}

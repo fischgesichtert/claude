@@ -44,6 +44,7 @@ public final class ModSounds {
     public static final SoundEvent WARDEN_BOLT = register("warden_bolt");
     public static final SoundEvent WARDEN_BOLT_HIT = register("warden_bolt_hit");
     public static final SoundEvent SEAL_STAMP = register("seal_stamp");
+    public static final SoundEvent GUARDIAN_WAKE = register("guardian_wake");
 
     private ModSounds() {
     }

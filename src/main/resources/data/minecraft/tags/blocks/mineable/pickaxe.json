@@ -8,6 +8,10 @@
     "timemod:time_field_projector",
     "timemod:temporal_workbench",
     "timemod:chrono_pillar",
-    "timemod:lifetime_extractor"
+    "timemod:lifetime_extractor",
+    "timemod:chronos_gate_frame",
+    "timemod:chronos_console",
+    "timemod:amber_ore",
+    "timemod:amber_block"
   ]
 }

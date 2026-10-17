@@ -251,7 +251,7 @@ BUILT = re.compile(r"minecraft:(monster_room.*|desert_well)")
 NO_SPAWNERS = {k: [] for k in ("ambient", "axolotls", "creature", "misc", "monster", "underground_water_creature", "water_ambient",
                                "water_creature")}
 
-# Name: (Vorlage, Farben, Temperatur, Gräser entfernen, zusätzliche Pflanzen-Features)
+# Name: (Vorlage, Farben, Temperatur, Gräser entfernen, zusätzliche Features – ohne Schritt: Vegetation)
 BIOMES = {
     "fern_jungle": ("jungle", {"grass_color": 0x4F8A2B, "foliage_color": 0x3B7026, "sky_color": 0x8FB8DE, "fog_color": 0xC9D7B0,
                                "water_color": 0x3A7F6E, "water_fog_color": 0x0E2A22}, 0.95, True, ["minecraft:patch_large_fern"]),
@@ -274,8 +274,9 @@ BIOMES = {
     "primeval_river": ("river", {"grass_color": 0x4F8A2B, "foliage_color": 0x3B7026, "sky_color": 0x8FB8DE, "fog_color": 0xC9D7B0,
                                  "water_color": 0x3A7F6E, "water_fog_color": 0x0E2A22}, 0.8, True, []),
     "primeval_peaks": ("stony_peaks", {"sky_color": 0x9AA8C0, "fog_color": 0xB0B4B8}, 0.6, True, []),
+    # Bernstein mit Insekten liegt im Gestein der Mammutsteppe (Schritt 6: Erze)
     "mammoth_steppe": ("plains", {"grass_color": 0xB0A868, "foliage_color": 0x9A9A55, "sky_color": 0x9EB8D8, "fog_color": 0xD8DCE0,
-                                  "water_color": 0x3D5A8A, "water_fog_color": 0x0A1530}, 0.3, False, []),
+                                  "water_color": 0x3D5A8A, "water_fog_color": 0x0A1530}, 0.3, False, [(6, "timemod:amber_ore")]),
     "miocene_savanna": ("savanna", {"grass_color": 0xB3A95A, "foliage_color": 0x9C9A48, "sky_color": 0x9CBEDC, "fog_color": 0xE6D2A0,
                                     "water_color": 0x3E7A80, "water_fog_color": 0x0F2A2E}, 1.4, False, []),
     "miocene_woodland": ("sparse_jungle", {"grass_color": 0x6E9A3A, "foliage_color": 0x5A8A30, "sky_color": 0x9CBEDC, "fog_color": 0xD8D8B0,
@@ -364,8 +365,10 @@ def biomes():
             features.append([])
         for step, row in enumerate(features):
             row = [f for f in row if not BUILT.fullmatch(f) and not (strip and step == 9 and FLOWERS.fullmatch(f))]
-            if step == 9:
-                row += [f for f in extra if f not in row]
+            for wanted in extra:
+                at, feature = wanted if isinstance(wanted, tuple) else (9, wanted)
+                if at == step and feature not in row:
+                    row.append(feature)
             features[step] = sorted(row, key=lambda f: (ranks[step].get(f, len(ranks[step])), f))
         written.append(features)
         write(DATA / f"worldgen/biome/{name}.json", biome)

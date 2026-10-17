@@ -10,6 +10,7 @@ import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModEntities;
 import com.fischgesichtert.timemod.registry.ModItems;
+import com.fischgesichtert.timemod.registry.ModLoot;
 import com.fischgesichtert.timemod.registry.ModMenus;
 import com.fischgesichtert.timemod.registry.ModRecipes;
 import com.fischgesichtert.timemod.registry.ModSounds;
@@ -43,6 +44,7 @@ public class TimeMod implements ModInitializer {
         ModEntities.init();
         ModMenus.init();
         ModRecipes.init();
+        ModLoot.init();
         ModWorldgen.init();
         ModStructures.init();
         RemappedBiomeSource.init();

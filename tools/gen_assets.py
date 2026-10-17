@@ -125,6 +125,20 @@ ITEMS = [
     ("time_loop", "generated", "Zeitschleife", "Time Loop",
      "Stirbst du, spult die Welt um dich 10 Sekunden zurück – mit dir.", "If you die, the world around you rewinds 10 seconds – with you."),
     ("infinity_time_cell", "generated", "Unendlichkeits-Zeitzelle", "Infinity Time Cell", None, None),
+    # Stufe V: die Zeitmaschine
+    ("fossil_fragment", "generated", "Fossil-Fragment", "Fossil Fragment",
+     "Mit dem Pinsel aus verdächtigem Sand und Kies freigelegt – ein Gruß aus der Tiefe der Zeit.",
+     "Brushed out of suspicious sand and gravel – a greeting from the depths of time."),
+    ("era_focus", "generated", "Epochen-Fokus", "Era Focus",
+     "In der Chronos-Konsole öffnet er Steinzeit, Eiszeit und Erdneuzeit.", "In the Chronos Console it opens the Stone Age, the Ice Age and the Cenozoic."),
+    ("amber", "generated", "Bernstein", "Amber",
+     "Versteinertes Harz. Er brennt im Ofen – nicht umsonst heißt er „Brennstein“.", "Fossilized resin. It burns in a furnace."),
+    ("insect_amber", "generated", "Bernstein mit Insekt", "Amber with Insect",
+     "Seit einer Million Jahren gefangen. Vielleicht steckt noch Blut in ihr …", "Trapped for a million years. Maybe there is still blood inside …"),
+    ("dna_sample", "generated", "DNS-Probe", "DNA Sample",
+     "Urzeitliches Erbgut aus dem Bauch einer Mücke.", "Prehistoric genes from a mosquito's belly."),
+    ("mesozoic_focus", "generated", "Fokus: Mesozoikum", "Focus: Mesozoic",
+     "Richtet die Chronos-Konsole auf das Zeitalter der Dinosaurier aus.", "Aims the Chronos Console at the age of the dinosaurs."),
 ]
 
 # Chronos-Uhr: Modi, Meisterschaft, Radialmenü und HUD
@@ -274,6 +288,91 @@ BLOCKS = {
     "clockmaker_altar": ("Uhrwerk-Altar", "Clockwork Altar"),
     "phage_altar": ("Phagen-Altar", "Phage Altar"),
     "paradox_altar": ("Spiegel-Altar", "Mirror Altar"),
+    "chronos_gate_frame": ("Chronos-Torrahmen", "Chronos Gate Frame"),
+    "chronos_console": ("Chronos-Konsole", "Chronos Console"),
+    "chronos_portal": ("Zeitportal", "Time Portal"),
+    "amber_ore": ("Bernsteinerz", "Amber Ore"),
+    "amber_block": ("Bernsteinblock", "Block of Amber"),
+}
+
+# Chronos-Tor: Konsole, Meldungen, Fokus
+LANG_GATE = {
+    "de_de": {
+        "container.timemod.chronos_console": "Chronos-Konsole",
+        "gui.timemod.console.cost": "Kosten: %s Chronon",
+        "gui.timemod.console.charge": "Aufladen",
+        "gui.timemod.console.charging": "Lädt … %s %%",
+        "gui.timemod.console.open": "Offen %s",
+        "gui.timemod.console.status.charging": "Das Tor lädt sich auf …",
+        "gui.timemod.console.status.open": "Das Tor ist offen – geh hindurch!",
+        "gui.timemod.console.status.no_time": "Hier gibt es keine Zeit, in die man reisen könnte",
+        "gui.timemod.console.status.missing": "Kein Tor in der Nähe (7×7-Ring)",
+        "gui.timemod.console.status.blocked": "Die Öffnung des Tors ist versperrt",
+        "gui.timemod.console.status.focus": "Benötigt: %s",
+        "gui.timemod.console.status.ready": "Tor bereit",
+        "gui.timemod.console.jump_back": "Ein Zeitalter zurück (Umschalt + ←)",
+        "gui.timemod.console.back": "Eine Stufe zurück (←)",
+        "gui.timemod.console.forward": "Eine Stufe vor (→)",
+        "gui.timemod.console.jump_forward": "Ein Zeitalter vor (Umschalt + →)",
+        "gui.timemod.console.buffer": "Chronon-Speicher: %s / %s",
+        "message.timemod.gate.busy": "Das Tor arbeitet bereits",
+        "message.timemod.gate.no_time": "Nether und End haben keine Geschichte, in die man reisen könnte",
+        "message.timemod.gate.missing": "Kein vollständiger Torring in der Nähe",
+        "message.timemod.gate.blocked": "Etwas versperrt die Öffnung des Tors",
+        "message.timemod.gate.focus": "Für dieses Zeitalter braucht die Konsole den passenden Fokus",
+        "message.timemod.gate.chronon": "Es fehlen noch %s Chronon",
+        "tooltip.timemod.focus.unlocks": "Öffnet: %s",
+        "era.timemod.age.mesozoic": "Erdmittelalter (Dinosaurier)",
+        "era.timemod.age.cenozoic": "Erdneuzeit",
+        "era.timemod.age.ice_age": "Eiszeit",
+        "era.timemod.age.stone_age": "Steinzeit",
+        "era.timemod.age.history": "Geschichte",
+        "era.timemod.age.present": "Gegenwart",
+        "era.timemod.age.future": "Zukunft",
+        "subtitles.timemod.gate_charge": "Zeittor lädt sich auf",
+        "subtitles.timemod.gate_open": "Zeittor öffnet sich",
+        "subtitles.timemod.gate_close": "Zeittor schließt sich",
+        "subtitles.timemod.gate_arrive": "Ankunft aus einer anderen Zeit",
+        "subtitles.timemod.console_click": "Konsole klickt",
+    },
+    "en_us": {
+        "container.timemod.chronos_console": "Chronos Console",
+        "gui.timemod.console.cost": "Cost: %s Chronon",
+        "gui.timemod.console.charge": "Charge",
+        "gui.timemod.console.charging": "Charging … %s%%",
+        "gui.timemod.console.open": "Open %s",
+        "gui.timemod.console.status.charging": "The gate is charging …",
+        "gui.timemod.console.status.open": "The gate is open – step through!",
+        "gui.timemod.console.status.no_time": "There is no time to travel to here",
+        "gui.timemod.console.status.missing": "No gate nearby (7×7 ring)",
+        "gui.timemod.console.status.blocked": "The gate's opening is blocked",
+        "gui.timemod.console.status.focus": "Requires: %s",
+        "gui.timemod.console.status.ready": "Gate ready",
+        "gui.timemod.console.jump_back": "One age back (Shift + ←)",
+        "gui.timemod.console.back": "One step back (←)",
+        "gui.timemod.console.forward": "One step forward (→)",
+        "gui.timemod.console.jump_forward": "One age forward (Shift + →)",
+        "gui.timemod.console.buffer": "Chronon storage: %s / %s",
+        "message.timemod.gate.busy": "The gate is already working",
+        "message.timemod.gate.no_time": "The Nether and the End have no history to travel to",
+        "message.timemod.gate.missing": "No complete gate ring nearby",
+        "message.timemod.gate.blocked": "Something blocks the gate's opening",
+        "message.timemod.gate.focus": "This age needs the right focus in the console",
+        "message.timemod.gate.chronon": "%s Chronon still missing",
+        "tooltip.timemod.focus.unlocks": "Opens: %s",
+        "era.timemod.age.mesozoic": "Mesozoic (Dinosaurs)",
+        "era.timemod.age.cenozoic": "Cenozoic",
+        "era.timemod.age.ice_age": "Ice Age",
+        "era.timemod.age.stone_age": "Stone Age",
+        "era.timemod.age.history": "History",
+        "era.timemod.age.present": "Present",
+        "era.timemod.age.future": "Future",
+        "subtitles.timemod.gate_charge": "Time gate charges",
+        "subtitles.timemod.gate_open": "Time gate opens",
+        "subtitles.timemod.gate_close": "Time gate closes",
+        "subtitles.timemod.gate_arrive": "Arrival from another time",
+        "subtitles.timemod.console_click": "Console clicks",
+    },
 }
 
 LANG_EXTRA = {
@@ -464,7 +563,7 @@ def item_models():
         parent = "minecraft:item/handheld" if kind == "handheld" else "minecraft:item/generated"
         write(ASSETS / f"models/item/{item_id}.json", {"parent": parent, "textures": {"layer0": t(f"item/{item_id}")}})
     for block_id in BLOCKS:
-        if block_id == "chronite_sprout":
+        if block_id in ("chronite_sprout", "chronos_portal"):
             continue
         write(ASSETS / f"models/item/{block_id}.json", {"parent": t(f"block/{block_id}")})
 
@@ -478,7 +577,45 @@ def simple_state(name, model=None):
     write(ASSETS / f"blockstates/{name}.json", {"variants": {"": {"model": t(f"block/{model or name}")}}})
 
 
+def gate_models():
+    for name in ("chronos_gate_frame", "amber_ore", "amber_block"):
+        cube_all(name)
+        simple_state(name)
+    # Konsole: Fuß, Säule, Pult – die Anzeige zeigt zum Spieler
+    side = {"texture": "#side"}
+    write(ASSETS / "models/block/chronos_console.json", {
+        "parent": "minecraft:block/block",
+        "textures": {"particle": t("block/chronos_console_side"), "top": t("block/chronos_console_top"),
+                     "side": t("block/chronos_console_side"), "bottom": t("block/chronos_console_bottom")},
+        "elements": [
+            {"from": [1, 0, 1], "to": [15, 2, 15], "faces": {"down": {"texture": "#bottom"}, "up": {"texture": "#bottom"},
+                                                            "north": side, "south": side, "east": side, "west": side}},
+            {"from": [3, 2, 3], "to": [13, 9, 13], "faces": {"north": side, "south": side, "east": side, "west": side}},
+            {"from": [0, 9, 0], "to": [16, 14, 16], "faces": {"down": {"texture": "#bottom"}, "up": {"texture": "#top", "rotation": 180},
+                                                             "north": side, "south": side, "east": side, "west": side}},
+        ],
+    })
+    write(ASSETS / "blockstates/chronos_console.json", {"variants": {
+        f"facing={d}": {"model": t("block/chronos_console"), **({"y": y} if y else {})}
+        for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))
+    }})
+    # Portal: dünne, eingefärbte Scheibe wie das Netherportal
+    for name, box, faces in (("chronos_portal_ns", ([0, 0, 6], [16, 16, 10]), ("north", "south")),
+                             ("chronos_portal_ew", ([6, 0, 0], [10, 16, 16]), ("east", "west"))):
+        write(ASSETS / f"models/block/{name}.json", {
+            "ambientocclusion": False,
+            "textures": {"particle": t("block/chronos_portal"), "portal": t("block/chronos_portal")},
+            "elements": [{"from": box[0], "to": box[1], "shade": False,
+                          "faces": {f: {"uv": [0, 0, 16, 16], "texture": "#portal", "tintindex": 0} for f in faces}}],
+        })
+    write(ASSETS / "blockstates/chronos_portal.json", {"variants": {
+        "axis=x": {"model": t("block/chronos_portal_ns")},
+        "axis=z": {"model": t("block/chronos_portal_ew")},
+    }})
+
+
 def block_models():
+    gate_models()
     cube_all("brass_block")
     simple_state("brass_block")
     cube_all("time_sand")
@@ -749,8 +886,32 @@ def loot_tables():
     citadel_loot()
     boss_loot()
     for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar",
-                 "lifetime_extractor"):
+                 "lifetime_extractor", "chronos_gate_frame", "amber_block"):
         self_drop(name)
+    # Die Konsole behält ihren Chronon-Speicher
+    write(DATA / f"{NS}/loot_tables/blocks/chronos_console.json", {
+        "type": "minecraft:block",
+        "pools": [{"rolls": 1, "conditions": survives_explosion(), "entries": [{"type": "minecraft:item", "name": t("chronos_console"),
+                   "functions": [{"function": "minecraft:copy_nbt", "source": "block_entity",
+                                  "ops": [{"source": "Chronon", "target": "BlockEntityTag.Chronon", "op": "replace"}]}]}]}],
+    })
+    # Bernstein: ein bis zwei Brocken, selten mit Insekt
+    write(DATA / f"{NS}/loot_tables/blocks/amber_ore.json", {
+        "type": "minecraft:block",
+        "pools": [
+            {"rolls": 1, "entries": [{"type": "minecraft:alternatives", "children": [
+                {"type": "minecraft:item", "name": t("amber_ore"), "conditions": [SILK]},
+                {"type": "minecraft:item", "name": t("amber"), "functions": [
+                    {"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": 1, "max": 2}},
+                    {"function": "minecraft:apply_bonus", "enchantment": "minecraft:fortune", "formula": "minecraft:ore_drops"},
+                    {"function": "minecraft:explosion_decay"}]},
+            ]}]},
+            {"rolls": 1, "conditions": [{"condition": "minecraft:inverted", "term": SILK},
+                                        {"condition": "minecraft:table_bonus", "enchantment": "minecraft:fortune",
+                                         "chances": [0.1, 0.14, 0.19, 0.25]}],
+             "entries": [{"type": "minecraft:item", "name": t("insect_amber")}]},
+        ],
+    })
     write(DATA / f"{NS}/loot_tables/blocks/time_glass.json", {
         "type": "minecraft:block",
         "pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": t("time_glass")}], "conditions": [SILK]}],
@@ -884,6 +1045,17 @@ def recipes():
     clockmaker("chronos_watch", ["WNT", "KHF", "PMR"], {"W": t("stasis_watch"), "N": "minecraft:nether_star", "T": t("time_accelerator"),
                                                      "K": t("clockwork_core"), "H": t("heart_of_time"), "F": t("phage_heart"),
                                                      "P": t("slow_pendulum"), "M": t("strength_module"), "R": t("rewind_spool")}, t("chronos_watch"))
+    # Stufe V: die Zeitmaschine
+    clockmaker("chronos_gate_frame", ["IGI", "CTC", "IGI"], {"I": t("brass_ingot"), "G": t("brass_gear"), "C": t("chronite_crystal"),
+                                                          "T": t("time_glass")}, t("chronos_gate_frame"), 4)
+    clockmaker("chronos_console", ["TPT", "KHK", "BBB"], {"T": t("time_glass"), "P": t("chronite_plate"), "K": t("clockwork"),
+                                                       "H": t("heart_of_time"), "B": t("brass_block")}, t("chronos_console"))
+    clockmaker("era_focus", ["FBF", "CTC", "FBF"], {"F": t("fossil_fragment"), "B": t("brass_ingot"), "C": t("chronite_crystal"),
+                                                 "T": t("time_glass")}, t("era_focus"))
+    clockmaker("mesozoic_focus", ["DXD", "XFX", "DXD"], {"D": t("dna_sample"), "X": t("chronite_crystal"), "F": t("era_focus")}, t("mesozoic_focus"))
+    shapeless("dna_sample", [t("insect_amber"), "minecraft:glass_bottle"], t("dna_sample"))
+    shaped("amber_block", ["AAA", "AAA", "AAA"], {"A": t("amber")}, t("amber_block"))
+    shapeless("amber_from_block", [t("amber_block")], t("amber"), 9)
     clockmaker("lifetime_extractor", ["CHC", "SXS", "BBB"], {"C": t("chronite_crystal"), "H": t("phage_heart"), "S": "minecraft:soul_lantern",
                                                              "X": t("time_condenser"), "B": "minecraft:polished_blackstone"}, t("lifetime_extractor"))
     clockmaker("radius_module", ["EDE", "DMD", "EDE"], {"E": "minecraft:ender_pearl", "D": t("time_dust"), "M": t("blank_module")}, t("radius_module"))
@@ -900,11 +1072,17 @@ def tags():
     def tag(path, values):
         write(DATA / path, {"replace": False, "values": values})
     tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("brass_block"), t("deepslate_chronite_ore"), t("chronite_sprout"), t("time_condenser"), t("time_field_projector"),
-                                                        t("temporal_workbench"), t("chrono_pillar"), t("lifetime_extractor")])
+                                                        t("temporal_workbench"), t("chrono_pillar"), t("lifetime_extractor"),
+                                                        t("chronos_gate_frame"), t("chronos_console"), t("amber_ore"), t("amber_block")])
     tag("minecraft/tags/blocks/mineable/shovel.json", [t("time_sand")])
     tag("minecraft/tags/blocks/mineable/axe.json", [t("clockmaker_bench")])
     tag("minecraft/tags/blocks/needs_iron_tool.json", [t("brass_block"), t("time_condenser"), t("time_field_projector"), t("chrono_pillar")])
-    tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore"), t("temporal_workbench"), t("lifetime_extractor")])
+    tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore"), t("temporal_workbench"), t("lifetime_extractor"),
+                                                          t("chronos_gate_frame"), t("chronos_console")])
+    tag("minecraft/tags/blocks/needs_stone_tool.json", [t("amber_ore")])
+    # Hält der Wither, hält das Tor: Rahmen, Konsole und Portal lassen sich nicht wegsprengen
+    tag("minecraft/tags/blocks/wither_immune.json", [t("chronos_portal")])
+    tag("minecraft/tags/blocks/dragon_immune.json", [t("chronos_portal"), t("chronos_gate_frame")])
     tag("minecraft/tags/items/trimmable_armor.json", [t(f"chrono_{p}") for p in ("helmet", "chestplate", "leggings", "boots")])
     tag("c/tags/items/brass_ingots.json", [t("brass_ingot")])
     tag(f"{NS}/tags/items/modules.json", [t(n) for n in (
@@ -951,6 +1129,13 @@ def worldgen():
     placed("chronite_ore", "chronite_ore", 2, {"absolute": -64}, {"absolute": -12})
     placed("chronite_ore_deep_dark", "chronite_ore", 6, {"absolute": -64}, {"absolute": -20})
     placed("time_sand", "time_sand", 3, {"absolute": 40}, {"absolute": 62})
+    write(base / "configured_feature/amber_ore.json", {
+        "type": "minecraft:ore",
+        "config": {"size": 7, "discard_chance_on_air_exposure": 0.0,
+                   "targets": [{"target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:stone_ore_replaceables"},
+                                "state": {"Name": t("amber_ore")}}]},
+    })
+    placed("amber_ore", "amber_ore", 14, {"absolute": 30}, {"absolute": 100})
 
     # Strukturen der Stufe III
     def structure(name, step, adaptation, biomes, spacing, separation, salt):
@@ -1029,6 +1214,7 @@ def lang():
             data[f"block.{NS}.{block_id}"] = names[idx]
         data.update(LANG_EXTRA[code])
         data.update(LANG_CHRONOS[code])
+        data.update(LANG_GATE[code])
         for key, (de_title, de_text, en_title, en_text) in CHAPTERS.items():
             data[f"chronik.{NS}.{key}.title"] = de_title if idx == 0 else en_title
             data[f"chronik.{NS}.{key}.text"] = de_text if idx == 0 else en_text

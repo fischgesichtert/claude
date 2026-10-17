@@ -27,6 +27,11 @@ public final class ModSounds {
     public static final SoundEvent PARADOX_VOICE = register("paradox_voice");
     public static final SoundEvent PARADOX_BLINK = register("paradox_blink");
     public static final SoundEvent ECHO_SHATTER = register("echo_shatter");
+    public static final SoundEvent GATE_CHARGE = register("gate_charge");
+    public static final SoundEvent GATE_OPEN = register("gate_open");
+    public static final SoundEvent GATE_CLOSE = register("gate_close");
+    public static final SoundEvent GATE_ARRIVE = register("gate_arrive");
+    public static final SoundEvent CONSOLE_CLICK = register("console_click");
 
     private ModSounds() {
     }

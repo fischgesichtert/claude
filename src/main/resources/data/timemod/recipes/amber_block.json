@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA",
+    "AAA",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "timemod:amber"
+    }
+  },
+  "result": {
+    "item": "timemod:amber_block",
+    "count": 1
+  },
+  "category": "misc"
+}

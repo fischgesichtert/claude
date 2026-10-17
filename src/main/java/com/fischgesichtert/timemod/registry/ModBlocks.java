@@ -3,6 +3,8 @@ package com.fischgesichtert.timemod.registry;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.block.BossAltarBlock;
 import com.fischgesichtert.timemod.block.ChronoPillarBlock;
+import com.fischgesichtert.timemod.block.ChronosConsoleBlock;
+import com.fischgesichtert.timemod.block.ChronosPortalBlock;
 import com.fischgesichtert.timemod.block.ChroniteOreBlock;
 import com.fischgesichtert.timemod.block.ChroniteSproutBlock;
 import com.fischgesichtert.timemod.block.ClockmakerBenchBlock;
@@ -13,12 +15,15 @@ import com.fischgesichtert.timemod.block.TimeFieldProjectorBlock;
 import com.fischgesichtert.timemod.block.TimeSandBlock;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.GlassBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 
 public final class ModBlocks {
     public static final Block BRASS_BLOCK = register("brass_block", new Block(BlockBehaviour.Properties.of()
@@ -58,6 +63,22 @@ public final class ModBlocks {
     public static final Block PARADOX_ALTAR = register("paradox_altar", new BossAltarBlock("message.timemod.altar.paradox",
         BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.AMETHYST)
             .lightLevel(s -> 12).noOcclusion()));
+
+
+    // Stufe V: die Zeitmaschine
+    public static final Block CHRONOS_GATE_FRAME = register("chronos_gate_frame", new Block(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(8.0F, 1200.0F).sound(SoundType.NETHERITE_BLOCK).lightLevel(s -> 4)));
+    public static final Block CHRONOS_CONSOLE = register("chronos_console", new ChronosConsoleBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.GOLD).requiresCorrectToolForDrops().strength(6.0F, 1200.0F).sound(SoundType.NETHERITE_BLOCK).lightLevel(s -> 9).noOcclusion()));
+    public static final Block CHRONOS_PORTAL = register("chronos_portal", new ChronosPortalBlock(BlockBehaviour.Properties.of()
+        .noCollission().strength(-1.0F, 3600000.0F).sound(SoundType.GLASS).lightLevel(s -> 12).noLootTable().pushReaction(PushReaction.BLOCK)
+        .noOcclusion()));
+    // Bernstein aus dem Pleistozän (Brennstein: er brennt wirklich)
+    public static final Block AMBER_ORE = register("amber_ore", new DropExperienceBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).requiresCorrectToolForDrops().strength(3.0F, 3.0F), UniformInt.of(1, 4)));
+    public static final Block AMBER_BLOCK = register("amber_block", new GlassBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.COLOR_ORANGE).strength(1.5F).sound(SoundType.AMETHYST).noOcclusion().lightLevel(s -> 6)
+        .isValidSpawn((s, l, p, e) -> false).isRedstoneConductor((s, l, p) -> false).isSuffocating((s, l, p) -> false).isViewBlocking((s, l, p) -> false)));
 
     private ModBlocks() {
     }

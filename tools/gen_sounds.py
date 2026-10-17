@@ -419,6 +419,83 @@ def echo_shatter():
     return normalize(fade(reverb(out, 0.8, 0.25, brightness=9000), 0.002, 0.1), -2)
 
 
+
+def gate_charge():
+    """Das Tor lädt sich auf (10,5 s): Zahnräder setzen sich in Gang, ein Ton steigt, das Ticken rast, dann saugt die Luft ein."""
+    length = 10.5
+    total = silence(length)
+    x = t(10.0)
+    ramp = np.linspace(0, 1, len(x))
+    # Tiefes Brummen, das sich hochschraubt
+    drone = sweep(48, 196, 10.0) + 0.5 * sweep(96, 392, 10.0) + 0.25 * sweep(144.5, 588, 10.0)
+    drone = fft_filter(drone, low=900) * (0.25 + 0.75 * ramp ** 1.5)
+    place(total, normalize(drone, -9), 0.0)
+    # Heller Ton, der zum Ende hin ansteigt
+    whine = sweep(180, 2600, 10.0) * ramp ** 2.2 * (0.8 + 0.2 * np.sin(2 * np.pi * 6 * x))
+    place(total, normalize(whine, -16), 0.0)
+    # Mahlende Zahnräder
+    grind = svf_sweep(noise(10.0), 250, 3200, q=3.0) * ramp ** 1.3 * (0.6 + 0.4 * np.abs(np.sin(2 * np.pi * 9 * x * (1 + 2 * ramp))))
+    place(total, normalize(grind, -14), 0.0)
+    # Immer schnelleres Ticken
+    at, gap, i = 0.2, 0.62, 0
+    while at < 9.9:
+        place(total, tick(freq=2200 + 1600 * at / 10, body=600 + 500 * at / 10, level=0.35 + 0.5 * at / 10), at)
+        at += gap
+        gap = max(0.028, gap * 0.9)
+        i += 1
+    # Zum Schluss saugt die Luft ein (rückwärts gespielter Hall)
+    src = mix(bell(523.25, 0.4), 0.6 * bell(784.0, 0.35), tick(level=2.0))
+    suck = reverb(np.concatenate([src, silence(0.05)]), 1.4, 0.95)[::-1][-int(1.4 * SR):]
+    suck *= np.linspace(0.05, 1.0, len(suck)) ** 2
+    place(total, normalize(suck, -4), length - 1.45)
+    return normalize(fade(total, 0.3, 0.02), -1)
+
+
+def gate_open():
+    """Das Portal öffnet sich: Einschlag, ein Akkord aus Glocken, helles Schimmern, Wind nach außen."""
+    total = silence(4.0)
+    place(total, normalize(boom(2.0, 110, 30), -2), 0.0)
+    chord = mix(bell(261.63, 3.2), 0.8 * bell(329.63, 3.0), 0.7 * bell(392.0, 2.8), 0.4 * bell(523.25, 2.6))
+    place(total, normalize(reverb(chord, 2.6, 0.45), -5), 0.02)
+    x = t(3.0)
+    shimmer = sum(np.sin(2 * np.pi * f * x + RNG.uniform(0, 6.28)) for f in (1568, 2093, 2637, 3136, 4186)) * np.exp(-x / 1.1)
+    shimmer *= 0.6 + 0.4 * np.sin(2 * np.pi * 11 * x)
+    place(total, normalize(shimmer, -18), 0.05)
+    wind = svf_sweep(noise(2.0), 5000, 400, q=2.5) * env_ad(int(2.0 * SR), 0.05, 1.6, curve=2.0)
+    place(total, normalize(wind, -9), 0.0)
+    return normalize(trim(fade(total, 0.002, 0.4)), -1)
+
+
+def gate_close():
+    """Das Portal fällt in sich zusammen: Wusch nach innen, dumpfer Schlag, eine rückwärts verklingende Glocke."""
+    total = silence(1.8)
+    w = svf_sweep(noise(0.9), 4500, 300, q=3.0) * np.linspace(0.2, 1.0, int(0.9 * SR)) ** 2
+    place(total, normalize(w, -5), 0.0)
+    place(total, normalize(boom(0.9, 70, 32), -4), 0.85)
+    place(total, normalize(bell(392.0, 0.6)[::-1], -14), 0.3)
+    return normalize(trim(fade(total, 0.01, 0.2)), -1)
+
+
+def gate_arrive():
+    """Ankunft: ein weicher Wusch, eine helle Glocke, Schimmern, das verweht."""
+    total = silence(2.0)
+    w = svf_sweep(noise(0.7), 600, 4500, q=3.0) * env_ad(int(0.7 * SR), 0.15, 0.5, curve=2.5)
+    place(total, normalize(w, -8), 0.0)
+    place(total, normalize(reverb(bell(659.25, 1.4), 1.6, 0.4), -7), 0.18)
+    x = t(1.5)
+    shimmer = sum(np.sin(2 * np.pi * f * x) for f in (2637, 3520, 4186)) * np.exp(-x / 0.5)
+    place(total, normalize(shimmer, -20), 0.2)
+    return normalize(trim(fade(total, 0.01, 0.3)), -2)
+
+
+def console_click():
+    """Eine Taste der Konsole: zwei mechanische Klicks und ein winziger Glockenton."""
+    out = silence(0.25)
+    place(out, tick(freq=2900, body=1300, length=0.05, level=1.0), 0.0)
+    place(out, tick(freq=2000, body=900, length=0.05, level=0.6), 0.035)
+    place(out, bell(1760.0, 0.18) * 0.25, 0.04)
+    return normalize(fade(out, 0.001, 0.04), -4)
+
 SOUNDS = {
     "time_stop": time_stop,
     "time_resume": time_resume,
@@ -440,6 +517,11 @@ SOUNDS = {
     "paradox_voice": paradox_voice,
     "paradox_blink": paradox_blink,
     "echo_shatter": echo_shatter,
+    "gate_charge": gate_charge,
+    "gate_open": gate_open,
+    "gate_close": gate_close,
+    "gate_arrive": gate_arrive,
+    "console_click": console_click,
 }
 
 

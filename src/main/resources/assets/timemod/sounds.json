@@ -168,5 +168,50 @@
         "attenuation_distance": 24
       }
     ]
+  },
+  "gate_charge": {
+    "subtitle": "subtitles.timemod.gate_charge",
+    "sounds": [
+      {
+        "name": "timemod:gate_charge",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "gate_open": {
+    "subtitle": "subtitles.timemod.gate_open",
+    "sounds": [
+      {
+        "name": "timemod:gate_open",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "gate_close": {
+    "subtitle": "subtitles.timemod.gate_close",
+    "sounds": [
+      {
+        "name": "timemod:gate_close",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "gate_arrive": {
+    "subtitle": "subtitles.timemod.gate_arrive",
+    "sounds": [
+      {
+        "name": "timemod:gate_arrive",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "console_click": {
+    "subtitle": "subtitles.timemod.console_click",
+    "sounds": [
+      {
+        "name": "timemod:console_click",
+        "attenuation_distance": 12
+      }
+    ]
   }
 }

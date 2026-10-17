@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "timemod:amber_block"
+    }
+  ],
+  "result": {
+    "item": "timemod:amber",
+    "count": 9
+  }
+}

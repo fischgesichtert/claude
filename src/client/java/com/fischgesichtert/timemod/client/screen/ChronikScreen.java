@@ -51,6 +51,7 @@ public class ChronikScreen extends Screen {
         new Chapter("paradox", List.of(ModItems.PARADOX_ALTAR, ModItems.PARADOX_TIME_CELL, ModItems.CHRONO_CHESTPLATE, ModItems.HEART_OF_TIME)),
         new Chapter("tier4", List.of(ModItems.HEART_OF_TIME, Items.NETHER_STAR, ModItems.STRENGTH_MODULE, ModItems.CHRONOS_WATCH)),
         new Chapter("endgame", List.of(ModItems.TIME_LOOP, Items.TOTEM_OF_UNDYING, ModItems.INFINITY_TIME_CELL)),
+        new Chapter("machine", List.of(ModItems.CHRONOS_GATE_FRAME, ModItems.ERA_FOCUS, ModItems.CHRONOS_CONSOLE)),
         new Chapter("future", List.of(Items.CLOCK, ModItems.CHRONITE_CRYSTAL, Items.ENDER_EYE)));
 
     /** Eine Buchseite: Zeilen, ggf. Kapitelkopf mit Bildern. */

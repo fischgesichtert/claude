@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.registry;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.menu.ChronosConsoleMenu;
 import com.fischgesichtert.timemod.menu.ClockmakerMenu;
 import com.fischgesichtert.timemod.menu.TemporalWorkbenchMenu;
 import net.minecraft.core.Registry;
@@ -13,6 +14,8 @@ public final class ModMenus {
         new MenuType<>(ClockmakerMenu::new, FeatureFlags.VANILLA_SET));
     public static final MenuType<TemporalWorkbenchMenu> TEMPORAL_WORKBENCH = Registry.register(BuiltInRegistries.MENU, TimeMod.id("temporal_workbench"),
         new MenuType<>(TemporalWorkbenchMenu::new, FeatureFlags.VANILLA_SET));
+    public static final MenuType<ChronosConsoleMenu> CHRONOS_CONSOLE = Registry.register(BuiltInRegistries.MENU, TimeMod.id("chronos_console"),
+        new MenuType<>(ChronosConsoleMenu::new, FeatureFlags.VANILLA_SET));
 
     private ModMenus() {
     }

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "timemod:block/chronos_portal_ns"
+    },
+    "axis=z": {
+      "model": "timemod:block/chronos_portal_ew"
+    }
+  }
+}

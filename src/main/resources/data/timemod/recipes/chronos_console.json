@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "TPT",
+    "KHK",
+    "BBB"
+  ],
+  "key": {
+    "T": {
+      "item": "timemod:time_glass"
+    },
+    "P": {
+      "item": "timemod:chronite_plate"
+    },
+    "K": {
+      "item": "timemod:clockwork"
+    },
+    "H": {
+      "item": "timemod:heart_of_time"
+    },
+    "B": {
+      "item": "timemod:brass_block"
+    }
+  },
+  "result": {
+    "item": "timemod:chronos_console",
+    "count": 1
+  }
+}

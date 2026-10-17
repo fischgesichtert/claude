@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:fossil_fragment"
+    },
+    "title": {
+      "translate": "advancements.timemod.fossil.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.fossil.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:fossil_fragment"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:time_gate"
+}

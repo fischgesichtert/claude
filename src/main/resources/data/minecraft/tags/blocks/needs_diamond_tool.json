@@ -3,6 +3,8 @@
   "values": [
     "timemod:deepslate_chronite_ore",
     "timemod:temporal_workbench",
-    "timemod:lifetime_extractor"
+    "timemod:lifetime_extractor",
+    "timemod:chronos_gate_frame",
+    "timemod:chronos_console"
   ]
 }

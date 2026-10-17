@@ -1638,6 +1638,456 @@ def temporal_workbench_gui():
 
 
 # ------------------------------------------------------------------------------------------
+# Stufe V: Chronos-Tor, Konsole, Portal, Fossilien und Bernstein
+# ------------------------------------------------------------------------------------------
+
+AMBER = [(110, 50, 8, 255), (170, 88, 14, 255), (220, 134, 30, 255), (248, 184, 70, 255), (255, 226, 150, 255)]
+BONE = [(120, 104, 80, 255), (170, 152, 118, 255), (210, 196, 160, 255), (236, 228, 204, 255)]
+STONE = [(100, 100, 100, 255), (116, 116, 116, 255), (128, 128, 128, 255), (142, 142, 142, 255)]
+
+
+def gate_frame():
+    """Tor-Rahmen: dunkles Chronit-Metall, Messingkante, ein Zahnrad mit leuchtender Nabe."""
+    s = Sprite()
+    noise_fill(s, ARM[1:], 91, weights=[3, 3, 1])
+    s.rect(0, 0, 15, 0, BRASS[3])
+    s.rect(0, 0, 0, 15, BRASS[3])
+    s.rect(0, 15, 15, 15, BRASS[1])
+    s.rect(15, 0, 15, 15, BRASS[1])
+    for y in range(16):
+        for x in range(16):
+            d = math.hypot(x - 7.5, y - 7.5)
+            ang = math.atan2(y - 7.5, x - 7.5)
+            tooth = (int((ang + math.pi) / (2 * math.pi) * 10) % 2) == 0
+            if 4.6 <= d <= 5.6 or (5.6 < d <= 6.5 and tooth):
+                light = ((7.5 - x) + (7.5 - y)) / 15
+                s.set(x, y, BRASS[3] if light > 0.15 else (BRASS[2] if light > -0.25 else BRASS[1]))
+            elif 2.0 <= d < 4.6 and (int((ang + math.pi) / (2 * math.pi) * 6) % 2 == 0) and d > 3.2:
+                s.set(x, y, BRASS[1])
+    s.disc(7.5, 7.5, 2.1, CHRON[1])
+    s.disc(7.5, 7.5, 1.2, GLOW[1])
+    s.set(7, 7, GLOW[2])
+    for x, y in ((2, 2), (13, 2), (2, 13), (13, 13)):
+        s.set(x, y, BRASS[4])
+    return s
+
+
+def console_top():
+    """Pult von oben: dunkle Anzeige mit leuchtender Jahreszahl, darunter Pfeiltasten."""
+    s = Sprite()
+    noise_fill(s, [BRASS[2], BRASS[3]], 93, weights=[3, 1])
+    s.rect(0, 0, 15, 0, BRASS[4])
+    s.rect(0, 15, 15, 15, BRASS[1])
+    s.rect(2, 2, 13, 8, (18, 14, 30, 255))
+    s.rect(2, 2, 13, 2, (40, 30, 64, 255))
+    for i, x in enumerate((3, 5, 7, 9, 11)):
+        s.rect(x, 4, x + 1, 7, GLOW[1] if i != 0 else GOLD[3])
+        s.set(x, 5, (18, 14, 30, 255))
+    for x0, c in ((2, GOLD[2]), (5, GOLD[2]), (9, GOLD[2]), (12, GOLD[2])):
+        s.rect(x0, 11, x0 + 1, 12, c)
+        s.set(x0, 13, BRASS[1])
+    s.rect(7, 10, 8, 13, (200, 60, 50, 255))
+    s.set(7, 10, (255, 140, 120, 255))
+    return s
+
+
+def console_side():
+    s = Sprite()
+    noise_fill(s, [BRASS[1], BRASS[2]], 95, weights=[1, 3])
+    s.rect(0, 0, 15, 1, BRASS[3])
+    s.rect(0, 14, 15, 15, BRASS[0])
+    s.rect(2, 4, 13, 11, ARM[1])
+    for y in range(16):
+        for x in range(16):
+            d = math.hypot(x - 7.5, y - 7.5)
+            ang = math.atan2(y - 7.5, x - 7.5)
+            if 2.4 <= d <= 3.4 or (3.4 < d <= 4.0 and int((ang + math.pi) / (2 * math.pi) * 8) % 2 == 0):
+                s.set(x, y, BRASS[3])
+    s.disc(7.5, 7.5, 1.3, CHRON[2])
+    s.set(7, 7, GLOW[2])
+    return s
+
+
+def console_bottom():
+    s = Sprite()
+    noise_fill(s, ARM, 97, weights=[2, 3, 2, 1])
+    s.rect(0, 0, 15, 0, BRASS[1])
+    s.rect(0, 15, 15, 15, BRASS[1])
+    return s
+
+
+def portal_frames():
+    """Toröffnung: 32 Bilder fließender Zeitwellen (nahtlos kachelbar), hell und durchscheinend – gefärbt wird im Spiel."""
+    frames = 32
+    s = Sprite(16, 16 * frames)
+    rnd = random.Random(7)
+    stars = [(rnd.randrange(16), rnd.randrange(16), rnd.random()) for _ in range(10)]
+    for f in range(frames):
+        t = f / frames
+        for y in range(16):
+            for x in range(16):
+                a = math.sin(2 * math.pi * ((x + y) / 16 + t))
+                b = math.sin(2 * math.pi * ((2 * x - y) / 16 - 2 * t))
+                c = math.sin(2 * math.pi * ((x - 2 * y) / 16 + t))
+                v = (a + 0.7 * b + 0.5 * c) / 2.2
+                level = 0.55 + 0.45 * v
+                g = int(150 + 105 * level)
+                alpha = int(130 + 90 * level)
+                s.set(x, 16 * f + y, (g, g, g, alpha))
+        for sx, sy, phase in stars:
+            glow = math.sin(2 * math.pi * (t * 2 + phase))
+            if glow > 0.55:
+                s.set(sx, 16 * f + sy, (255, 255, 255, 255))
+                if glow > 0.85:
+                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        s.set((sx + dx) % 16, 16 * f + (sy + dy) % 16, (255, 255, 255, 230))
+    return s
+
+
+def amber_ore():
+    s = Sprite()
+    noise_fill(s, STONE, 101, weights=[1, 3, 3, 1])
+    for cx, cy, r in ((4.0, 4.5, 2.1), (11.0, 7.0, 2.4), (5.5, 11.5, 1.8)):
+        for y in range(16):
+            for x in range(16):
+                d = math.hypot(x - cx, y - cy)
+                if d <= r:
+                    light = ((cx - x) + (cy - y)) / (2 * r)
+                    s.set(x, y, AMBER[2 + (1 if light > 0.2 else 0) + (1 if light > 0.6 else 0)] if d < r - 0.6 else AMBER[1])
+    s.set(10, 6, AMBER[4])
+    s.set(4, 4, AMBER[4])
+    return s
+
+
+def amber_block():
+    s = Sprite()
+    rnd = random.Random(103)
+    for y in range(16):
+        for x in range(16):
+            v = 0.5 + 0.25 * math.sin((x + 2 * y) / 3.0) + 0.2 * rnd.random()
+            c = AMBER[2] if v < 0.55 else AMBER[3]
+            s.set(x, y, (c[0], c[1], c[2], 205))
+    s.rect(0, 0, 15, 0, AMBER[4])
+    s.rect(0, 0, 0, 15, AMBER[4])
+    s.rect(0, 15, 15, 15, AMBER[1])
+    s.rect(15, 0, 15, 15, AMBER[1])
+    for x, y in ((4, 5), (11, 3), (9, 11), (3, 12)):
+        s.set(x, y, (255, 240, 200, 230))
+    # Ein winziges Insekt, für immer gefangen
+    s.set(8, 7, (60, 30, 10, 255))
+    s.set(9, 7, (60, 30, 10, 255))
+    s.set(7, 6, (90, 50, 20, 200))
+    s.set(10, 6, (90, 50, 20, 200))
+    return s
+
+
+def fossil_fragment():
+    """Fossil-Fragment: ein Ammonit, halb aus dem Gestein gebrochen."""
+    s = Sprite()
+    chip = [(1, 9), (3, 3), (9, 1), (14, 4), (15, 11), (10, 15), (3, 14)]
+    for y in range(16):
+        for x in range(16):
+            if inside(chip, x + 0.5, y + 0.5):
+                s.set(x, y, STONE[1] if (x + y) % 4 else STONE[2])
+    for i in range(140):
+        t = i / 140 * 3.1 * 2 * math.pi
+        r = 0.9 * math.exp(0.155 * t)
+        x = 8.2 + r * math.cos(t)
+        y = 8.0 + r * math.sin(t)
+        s.set(int(round(x)), int(round(y)), BONE[2] if i % 9 else BONE[1])
+    for y in range(16):
+        for x in range(16):
+            if math.hypot(x - 8.2, y - 8.0) < 6.0 and s.get(x, y) in (STONE[1], STONE[2]) and (x + 2 * y) % 5 == 0:
+                s.set(x, y, BONE[0])
+    s.set(8, 8, BONE[3])
+    s.outline()
+    return s
+
+
+def focus_lens(core, symbol, symbol_color, rim=GOLD):
+    s = Sprite()
+    s.shade_disc(7.5, 7.5, 7.0, rim[1:])
+    s.disc(7.5, 7.5, 5.4, core[0])
+    for y in range(16):
+        for x in range(16):
+            d = math.hypot(x - 7.5, y - 7.5)
+            if d < 5.4:
+                light = ((6 - x) + (6 - y)) / 14
+                s.set(x, y, core[1] if light < 0.1 else core[2])
+    for row, line in enumerate(symbol):
+        for col, ch in enumerate(line):
+            if ch == "#":
+                s.set(4 + col, 4 + row, symbol_color)
+    s.set(5, 4, (255, 255, 255, 230))
+    for x, y in ((7, 0), (0, 7), (15, 7), (7, 15)):
+        s.set(x, y, rim[4])
+    s.outline()
+    return s
+
+
+def era_focus():
+    """Epochen-Fokus: Bernsteinlinse mit Ammonit-Spirale im Messingring."""
+    spiral = ["..###...",
+              ".#...#..",
+              "#..#..#.",
+              "#.#.#.#.",
+              "#..##.#.",
+              ".#...#..",
+              "..###..."]
+    return focus_lens([AMBER[1], AMBER[2], AMBER[3]], spiral, BONE[3])
+
+
+def mesozoic_focus():
+    """Fokus: Mesozoikum – grün-rote Linse mit dreizehigem Dinosaurier-Fußabdruck."""
+    foot = ["#..#..#.",
+            "#..#..#.",
+            ".#.#.#..",
+            "..###...",
+            "..###...",
+            "...#....",
+            "........"]
+    return focus_lens([(40, 70, 30, 255), (70, 120, 50, 255), (120, 170, 70, 255)], foot, (255, 120, 70, 255), rim=GOLD)
+
+
+def amber_item(insect):
+    s = Sprite()
+    blob = [(3, 6), (6, 2), (11, 3), (13, 8), (11, 13), (5, 13), (2, 10)]
+    for y in range(16):
+        for x in range(16):
+            if inside(blob, x + 0.5, y + 0.5):
+                light = ((7 - x) + (6 - y)) / 14
+                i = 1 + (1 if light > -0.2 else 0) + (1 if light > 0.2 else 0)
+                s.set(x, y, AMBER[i])
+    s.set(5, 5, AMBER[4])
+    s.set(6, 4, AMBER[4])
+    if insect:
+        # Mücke: Körper, Flügel, Beine
+        for x, y in ((7, 8), (8, 8), (9, 9), (6, 7)):
+            s.set(x, y, (40, 20, 8, 255))
+        for x, y in ((7, 6), (8, 6), (9, 7)):
+            s.set(x, y, (200, 170, 120, 255))
+        for x, y in ((6, 10), (8, 10), (10, 10), (5, 9)):
+            s.set(x, y, (70, 36, 12, 255))
+    s.outline()
+    return s
+
+
+def dna_sample():
+    """DNS-Probe: Glasfläschchen mit leuchtender Doppelhelix."""
+    s = Sprite()
+    s.rect(6, 1, 9, 2, (140, 100, 70, 255))
+    s.rect(6, 3, 9, 4, (190, 220, 235, 200))
+    bottle = [(4, 5), (11, 5), (12, 13), (10, 15), (5, 15), (3, 13)]
+    for y in range(16):
+        for x in range(16):
+            if inside(bottle, x + 0.5, y + 0.5):
+                s.set(x, y, (120, 200, 160, 140))
+    for y in range(6, 15):
+        t = (y - 6) / 8 * 2 * math.pi
+        x1 = int(round(7.5 + 2.2 * math.sin(t)))
+        x2 = int(round(7.5 - 2.2 * math.sin(t)))
+        s.set(x1, y, (120, 255, 200, 255))
+        s.set(x2, y, (255, 120, 200, 255))
+        if y % 2 == 0:
+            for x in range(min(x1, x2) + 1, max(x1, x2)):
+                s.set(x, y, (210, 240, 255, 200))
+    s.set(5, 7, (255, 255, 255, 220))
+    s.outline()
+    return s
+
+
+def gate_ring_outer():
+    """Großer Messing-Zahnring um das Tor (144 Pixel ≈ 9,2 Blöcke), mit gravierten Stundenmarken."""
+    size = 144
+    img = Image.new("RGBA", (size, size), T)
+    px = img.load()
+    c = (size - 1) / 2
+    for y in range(size):
+        for x in range(size):
+            d = math.hypot(x - c, y - c) / c
+            ang = math.atan2(y - c, x - c)
+            teeth = 48
+            tooth = (math.cos(ang * teeth) > 0.1)
+            light = ((c - x) + (c - y)) / (2 * c)
+            if 0.80 <= d <= 0.93 or (0.93 < d <= 1.0 and tooth):
+                base = 2 if light > -0.1 else 1
+                if light > 0.45:
+                    base = 3
+                col = BRASS[base]
+                if 0.80 <= d <= 0.815 or 0.915 <= d <= 0.93:
+                    col = BRASS[max(0, base - 1)]
+                hour = (ang + math.pi) / (2 * math.pi) * 12
+                if 0.84 <= d <= 0.89 and abs(hour - round(hour)) < 0.035:
+                    col = CHRON[2]
+                px[x, y] = col
+            elif 0.74 <= d < 0.80 and int((ang + math.pi) / (2 * math.pi) * 24) % 2 == 0:
+                px[x, y] = BRASS[1] if light < 0.2 else BRASS[2]
+    return img
+
+
+def gate_ring_inner():
+    """Leuchtender Chronit-Ring mit Runen (112 Pixel ≈ 7 Blöcke)."""
+    size = 112
+    img = Image.new("RGBA", (size, size), T)
+    px = img.load()
+    c = (size - 1) / 2
+    for y in range(size):
+        for x in range(size):
+            d = math.hypot(x - c, y - c) / c
+            ang = math.atan2(y - c, x - c)
+            seg = (ang + math.pi) / (2 * math.pi) * 36
+            if 0.86 <= d <= 0.98:
+                edge = d < 0.88 or d > 0.96
+                rune = 0.90 <= d <= 0.94 and (int(seg * 3) % 5 in (0, 2)) and (seg % 1) < 0.7
+                if edge:
+                    px[x, y] = (170, 245, 255, 235)
+                elif rune:
+                    px[x, y] = (236, 222, 255, 255)
+                else:
+                    px[x, y] = (110, 60, 200, 170)
+            elif 0.80 <= d < 0.86 and math.cos(ang * 36) > 0.3:
+                px[x, y] = (140, 90, 230, 200)
+    return img
+
+
+def gate_glow():
+    size = 64
+    img = Image.new("RGBA", (size, size), T)
+    px = img.load()
+    c = (size - 1) / 2
+    for y in range(size):
+        for x in range(size):
+            d = math.hypot(x - c, y - c) / c
+            if d < 1:
+                a = (1 - d) ** 1.8
+                px[x, y] = (int(200 + 55 * a), int(235 + 20 * a), 255, int(255 * a))
+    return img
+
+
+def chronos_console_gui():
+    """Konsolen-Oberfläche 176×208 mit Anzeige, Knopf-Sprites und Speicherbalken."""
+    img = Image.new("RGBA", (256, 256), T)
+    px = img.load()
+    bg, light, dark, slot = (198, 186, 160, 255), (255, 248, 230, 255), (110, 90, 60, 255), (139, 139, 139, 255)
+    w, h = 176, 208
+    for y in range(h):
+        for x in range(w):
+            px[x, y] = bg
+    for x in range(w):
+        px[x, 0] = (0, 0, 0, 255)
+        px[x, h - 1] = (0, 0, 0, 255)
+        px[x, 1] = light
+        px[x, h - 2] = dark
+    for y in range(h):
+        px[0, y] = (0, 0, 0, 255)
+        px[w - 1, y] = (0, 0, 0, 255)
+        px[1, y] = light
+        px[w - 2, y] = dark
+    for x in range(4, w - 4):
+        for y in (3, 4):
+            px[x, y] = BRASS[2] if (x // 6) % 2 else BRASS[3]
+
+    def frame_rect(x0, y0, x1, y1, fill, top, bottom):
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                px[x, y] = fill
+        for x in range(x0, x1 + 1):
+            px[x, y0] = top
+            px[x, y1] = bottom
+        for y in range(y0, y1 + 1):
+            px[x0, y] = top
+            px[x1, y] = bottom
+
+    def draw_slot(x0, y0, size=18):
+        for y in range(y0, y0 + size):
+            for x in range(x0, x0 + size):
+                px[x, y] = slot
+        for i in range(size):
+            px[x0 + i, y0] = (85, 85, 85, 255)
+            px[x0, y0 + i] = (85, 85, 85, 255)
+            px[x0 + i, y0 + size - 1] = (255, 255, 255, 255)
+            px[x0 + size - 1, y0 + i] = (255, 255, 255, 255)
+
+    # Anzeige: dunkles Glas in Messing, feine Zahnrad-Ornamente in den Ecken
+    frame_rect(6, 16, 169, 72, (22, 16, 36, 255), BRASS[1], BRASS[3])
+    for y in range(17, 72):
+        for x in range(7, 169):
+            if (y - 17) % 3 == 0:
+                px[x, y] = (26, 20, 42, 255)
+    for cx, cy in ((12, 22), (163, 22), (12, 66), (163, 66)):
+        for y in range(cy - 4, cy + 5):
+            for x in range(cx - 4, cx + 5):
+                d = math.hypot(x - cx, y - cy)
+                if 2.5 <= d <= 3.6:
+                    px[x, y] = BRASS[1]
+    # Mulde für die Knöpfe
+    frame_rect(5, 74, 170, 95, (176, 162, 132, 255), dark, light)
+    # Plätze und Speicherbalken
+    draw_slot(7, 96)
+    draw_slot(151, 96)
+    frame_rect(28, 97, 147, 112, (30, 24, 44, 255), dark, light)
+    # Symbole neben den Plätzen: Zelle (links) und Linse (rechts) als Wasserzeichen
+    for y in range(99, 111):
+        for x in range(10, 22):
+            if (x - 10) in (3, 8) and 100 <= y <= 110 or (y in (100, 110) and 13 <= x <= 18):
+                px[x, y] = (150, 150, 150, 255)
+    for y in range(98, 112):
+        for x in range(152, 167):
+            if 4.0 <= math.hypot(x - 159.5, y - 104.5) <= 5.0:
+                px[x, y] = (150, 150, 150, 255)
+    for row in range(3):
+        for col in range(9):
+            draw_slot(7 + col * 18, 125 + row * 18)
+    for col in range(9):
+        draw_slot(7 + col * 18, 183)
+
+    def button(x0, y0, wd, ht, face, hi, lo):
+        for y in range(y0, y0 + ht):
+            for x in range(x0, x0 + wd):
+                px[x, y] = face
+        for x in range(x0, x0 + wd):
+            px[x, y0] = hi
+            px[x, y0 + ht - 1] = lo
+        for y in range(y0, y0 + ht):
+            px[x0, y] = hi
+            px[x0 + wd - 1, y] = lo
+
+    # Pfeilknöpfe 20×18: normal, Maus darüber, gesperrt (bei 176,0 / 176,18 / 176,36)
+    button(176, 0, 20, 18, BRASS[2], BRASS[4], BRASS[0])
+    button(176, 18, 20, 18, BRASS[3], (255, 250, 220, 255), BRASS[1])
+    button(176, 36, 20, 18, (120, 110, 96, 255), (150, 140, 124, 255), (80, 72, 60, 255))
+    # Pfeilsymbole 12×8 (◀◀ ◀ ▶ ▶▶) bei 196,0, gesperrt darunter bei 196,8
+    def tri(x0, y0, pointing_left, color):
+        for i in range(4):
+            for y in range(y0 + 4 - i - 1, y0 + 4 + i + 1):
+                x = (x0 + i) if pointing_left else (x0 + 3 - i)
+                px[x, y] = color
+    for state, color in ((0, (60, 30, 8, 255)), (8, (90, 84, 74, 255))):
+        tri(196 + 1, state, True, color)
+        tri(196 + 6, state, True, color)
+        tri(208 + 4, state, True, color)
+        tri(220 + 4, state, False, color)
+        tri(232 + 2, state, False, color)
+        tri(232 + 7, state, False, color)
+    # Aufladen-Knopf 70×18 bei 0,208 / 70,208 / 140,208
+    button(0, 208, 70, 18, (120, 60, 160, 255), (190, 140, 240, 255), (60, 26, 90, 255))
+    button(70, 208, 70, 18, (150, 84, 200, 255), (225, 190, 255, 255), (80, 40, 120, 255))
+    button(140, 208, 70, 18, (96, 88, 104, 255), (130, 124, 138, 255), (60, 56, 66, 255))
+    # Fortschritt (Laden: türkis, offen: gold) 68×16 bei 0,226 / 68,226
+    for y in range(226, 242):
+        for x in range(0, 68):
+            px[x, y] = (60, 200, 230, 200) if (x + y) % 4 else (150, 245, 255, 220)
+        for x in range(68, 136):
+            px[x, y] = (230, 170, 50, 200) if (x + y) % 4 else (255, 230, 140, 220)
+    # Speicherfüllung 116×12 bei 0,242
+    for y in range(242, 254):
+        for x in range(0, 116):
+            t = (y - 242) / 11
+            px[x, y] = (int(110 + 60 * (1 - t)), int(60 + 40 * (1 - t)), int(200 + 50 * (1 - t)), 255) if (x // 4) % 2 or y % 3 else (180, 140, 255, 255)
+    return img
+
+
+# ------------------------------------------------------------------------------------------
 
 ITEMS = {
     "brass_ingot": brass_ingot, "brass_nugget": brass_nugget, "brass_gear": brass_gear, "mainspring": mainspring,
@@ -1650,6 +2100,8 @@ ITEMS = {
     "chrono_helmet": chrono_helmet, "chrono_chestplate": chrono_chestplate, "chrono_leggings": chrono_leggings, "chrono_boots": chrono_boots,
     "chronite_plate": chronite_plate, "time_core_fragment": time_core_fragment, "chronik": chronik_item, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
     "chronos_watch": chronos_watch, "heart_of_time": heart_of_time, "time_loop": time_loop, "infinity_time_cell": infinity_time_cell,
+    "fossil_fragment": fossil_fragment, "era_focus": era_focus, "mesozoic_focus": mesozoic_focus, "amber": lambda: amber_item(False),
+    "insect_amber": lambda: amber_item(True), "dna_sample": dna_sample,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
@@ -1673,6 +2125,8 @@ BLOCKS = {
     "lifetime_extractor_top_active": lambda: extractor_top(True), "lifetime_extractor_bottom": extractor_bottom,
     **{f"{k}_altar_{part}": (lambda k=k, f=f: f(k)) for k in ("clockmaker", "phage", "paradox")
        for part, f in (("side", altar_side), ("top", altar_top), ("bottom", altar_bottom))},
+    "chronos_gate_frame": gate_frame, "chronos_console_top": console_top, "chronos_console_side": console_side,
+    "chronos_console_bottom": console_bottom, "amber_ore": amber_ore, "amber_block": amber_block,
 }
 
 
@@ -1696,6 +2150,13 @@ def main(preview=None):
     temporal_workbench_gui().save(GUI / "temporal_workbench.png")
     chronik_gui().save(GUI.parent / "chronik.png")
     chronos_ring().save(TEX / "misc" / "chronos_ring.png")
+    gate_ring_outer().save(TEX / "misc" / "gate_ring_outer.png")
+    gate_ring_inner().save(TEX / "misc" / "gate_ring_inner.png")
+    gate_glow().save(TEX / "misc" / "gate_glow.png")
+    chronos_console_gui().save(GUI / "chronos_console.png")
+    portal = portal_frames()
+    portal.save(TEX / "block" / "chronos_portal.png")
+    (TEX / "block" / "chronos_portal.png.mcmeta").write_text('{"animation": {"frametime": 2, "interpolate": true}}\n')
     paradox_glow().save(TEX / "entity" / "paradox_glow.png")
     entity_dir = TEX / "entity"
     for name, fn in (("clockmaker", clockmaker_textures), ("chronophage", chronophage_textures)):

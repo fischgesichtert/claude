@@ -1,0 +1,26 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "FBF",
+    "CTC",
+    "FBF"
+  ],
+  "key": {
+    "F": {
+      "item": "timemod:fossil_fragment"
+    },
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "T": {
+      "item": "timemod:time_glass"
+    }
+  },
+  "result": {
+    "item": "timemod:era_focus",
+    "count": 1
+  }
+}

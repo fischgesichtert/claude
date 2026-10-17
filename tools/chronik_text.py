@@ -177,14 +177,48 @@ CHAPTERS = {
         "• The Infinity Time Cell holds a million chronon. Huge, but not infinite.\n\n"
         "Good to know: at the Clockmaker's Bench the chronon of the ingredients passes into the result, and installed modules are returned to you.",
     ),
+    "machine": (
+        "Die Zeitmaschine",
+        "Das Chronos-Tor führt in andere Jahre: bis zu tausend Jahre in die Zukunft und bis zu 245 Millionen Jahre zurück.\n\n"
+        "So baust du es:\n"
+        "• Stelle 24 Chronos-Torrahmen als stehenden Ring auf: 7 × 7 Blöcke mit abgerundeten Ecken. Unten und oben je fünf, an den Seiten je fünf, "
+        "dazu in jeder Ecke ein Block nach innen versetzt. Innen bleiben 21 Felder frei.\n"
+        "• Stelle die Chronos-Konsole höchstens acht Blöcke daneben. Sie findet den Ring selbst, dann drehen sich seine Zahnräder.\n"
+        "• Lege eine Zeitzelle in die Konsole oder stelle Kondensatoren daneben. Die Konsole sammelt bis zu 500k Chronon.\n\n"
+        "Mit ◀ ▶ wählst du das Jahr, mit ◀◀ ▶▶ springst du ein ganzes Zeitalter weiter (auch mit den Pfeiltasten, mit Umschalt). "
+        "Je weiter die Reise, desto teurer: 10k Chronon und mehr, für die Trias rund 136k.\n\n"
+        "Aufladen dauert zehn Sekunden. Dann öffnet sich das Portal für eine halbe Minute, und alle können hindurchgehen. "
+        "Du landest im Zieljahr an derselben Stelle der Welt. Wer dasselbe Jahr wählt, trifft sich dort.\n\n"
+        "Ferne Zeitalter brauchen einen Fokus in der Konsole:\n"
+        "• Epochen-Fokus (Steinzeit, Eiszeit, Erdneuzeit): aus Fossil-Fragmenten. Die findest du mit dem Pinsel in verdächtigem Sand und Kies.\n"
+        "• Fokus: Mesozoikum (Dinosaurier): Im Pleistozän, eine Million Jahre zurück, liegt Bernstein im Gestein. "
+        "Manchmal steckt eine Mücke darin. Mit einer Glasflasche wird daraus eine DNS-Probe.",
+        "The Time Machine",
+        "The Chronos Gate leads to other years: up to a thousand years into the future and up to 245 million years back.\n\n"
+        "How to build it:\n"
+        "• Stand 24 Chronos Gate Frames up as a ring: 7 × 7 blocks with rounded corners. Five at the bottom and top, five on each side, "
+        "plus one block moved inward in every corner. 21 cells stay free inside.\n"
+        "• Place the Chronos Console no more than eight blocks away. It finds the ring by itself, then its gears turn.\n"
+        "• Put a time cell into the console or place condensers next to it. The console stores up to 500k chronon.\n\n"
+        "Use ◀ ▶ to choose the year and ◀◀ ▶▶ to jump a whole age (also with the arrow keys, with Shift). "
+        "The longer the journey, the more it costs: 10k chronon and up, about 136k for the Triassic.\n\n"
+        "Charging takes ten seconds. Then the portal opens for half a minute and everyone can step through. "
+        "You arrive in the target year at the same place in the world. Whoever picks the same year meets you there.\n\n"
+        "Distant ages need a focus in the console:\n"
+        "• Era Focus (Stone Age, Ice Age, Cenozoic): made from fossil fragments. You find them with a brush in suspicious sand and gravel.\n"
+        "• Focus: Mesozoic (dinosaurs): in the Pleistocene, a million years back, amber lies in the rock. "
+        "Sometimes a mosquito is trapped inside. With a glass bottle it becomes a DNA sample.",
+    ),
     "future": (
         "Was noch kommt",
-        "Die Chronos-Uhr gehört dir, doch die Zeit hat noch Türen.\n\n"
-        "Gerüchte erzählen von Toren aus Chronit, die in andere Jahre führen: tausend Jahre nach vorn, wo Ranken über deine Mauern wachsen – oder Millionen Jahre zurück, wo Echsen so groß wie Türme durch Farnwälder ziehen.\n\n"
+        "Das Tor steht, doch die Epochen sind noch jung.\n\n"
+        "Bald altern deine Bauten in der Zukunft: Ranken wachsen über deine Mauern, Dörfer werden zu Städten. "
+        "In der Eiszeit ziehen Mammuts über die Steppe, und in den Farnwäldern der Kreidezeit warten Echsen so groß wie Türme.\n\n"
         "Diese Seiten werden sich füllen.",
         "What Lies Ahead",
-        "The Chronos Watch is yours, but time still has doors.\n\n"
-        "Rumors tell of gates of chronite that lead to other years: a thousand years ahead, where vines grow over your walls – or millions of years back, where lizards as tall as towers roam fern forests.\n\n"
+        "The gate stands, but the eras are still young.\n\n"
+        "Soon your buildings will age in the future: vines grow over your walls, villages become cities. "
+        "In the Ice Age mammoths roam the steppe, and in the fern forests of the Cretaceous lizards as tall as towers are waiting.\n\n"
         "These pages will fill.",
     ),
 }
@@ -244,4 +278,10 @@ ADVANCEMENTS = [
      "Nicht heute", "Lass dich von der Zeitschleife vor dem Tod bewahren", "Not Today", "Let the Time Loop save you from death"),
     ("infinity", "chronos", "timemod:infinity_time_cell", "goal", ("item", "timemod:infinity_time_cell"),
      "Fast unendlich", "Stelle die Unendlichkeits-Zeitzelle her", "Almost Infinite", "Make the Infinity Time Cell"),
+    ("time_gate", "paradox", "timemod:chronos_console", "challenge", ("impossible", None),
+     "Das Tor zur Zeit", "Öffne das Chronos-Tor", "The Gate to Time", "Open the Chronos Gate"),
+    ("fossil", "time_gate", "timemod:fossil_fragment", "task", ("item", "timemod:fossil_fragment"),
+     "Grüße aus der Tiefe", "Lege mit dem Pinsel ein Fossil frei", "Greetings from the Deep", "Brush out a fossil"),
+    ("dna", "fossil", "timemod:dna_sample", "goal", ("item", "timemod:dna_sample"),
+     "Das Leben findet einen Weg", "Gewinne DNS aus Bernstein", "Life Finds a Way", "Extract DNA from amber"),
 ]

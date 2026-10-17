@@ -1,0 +1,26 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "IGI",
+    "CTC",
+    "IGI"
+  ],
+  "key": {
+    "I": {
+      "item": "timemod:brass_ingot"
+    },
+    "G": {
+      "item": "timemod:brass_gear"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "T": {
+      "item": "timemod:time_glass"
+    }
+  },
+  "result": {
+    "item": "timemod:chronos_gate_frame",
+    "count": 4
+  }
+}

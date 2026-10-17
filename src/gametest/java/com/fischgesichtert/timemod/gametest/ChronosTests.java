@@ -7,6 +7,7 @@ import com.fischgesichtert.timemod.item.TimeLoopItem;
 import com.fischgesichtert.timemod.registry.ModItems;
 import com.fischgesichtert.timemod.registry.ModRecipes;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
+import com.fischgesichtert.timemod.rewind.RewindSession;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeZone;
@@ -62,6 +63,11 @@ public class ChronosTests implements FabricGameTest {
         journal.addAnchor(Vec3.atCenterOf(helper.absolutePos(new BlockPos(12, 3, 12))), 40);
         journal.setRecording(true);
         return journal;
+    }
+
+    /** Nur die eigene Arena zurückspulen: Reste früherer Tests in der Nähe sollen die Chronon-Bilanz nicht stören. */
+    private static RewindSession.Region arena(GameTestHelper helper) {
+        return new RewindSession.Region(Vec3.atCenterOf(helper.absolutePos(new BlockPos(8, 3, 8))), 14);
     }
 
     private static void stopRecording(ChronoJournal journal) {
@@ -287,7 +293,7 @@ public class ChronosTests implements FabricGameTest {
             chest.setChanged();
         });
         helper.runAtTickTime(20, () -> {
-            journal.rewind(20, 0, null, null);
+            journal.rewind(20, 0, arena(helper), null);
             stopRecording(journal);
             ItemStack back = ((ChestBlockEntity) helper.getBlockEntity(chestPos)).getItem(0);
             if (!back.is(ModItems.POCKET_TIME_CELL) || Chronon.stored(back) != 5000) {
@@ -324,7 +330,7 @@ public class ChronosTests implements FabricGameTest {
             }
         });
         helper.runAtTickTime(20, () -> {
-            journal.rewind(20, 0, null, null);
+            journal.rewind(20, 0, arena(helper), null);
             stopRecording(journal);
             ItemStack back = ((ChestBlockEntity) helper.getBlockEntity(chestPos)).getItem(0);
             if (!back.is(ModItems.POCKET_TIME_CELL)) {

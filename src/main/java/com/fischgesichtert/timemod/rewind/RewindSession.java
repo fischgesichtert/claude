@@ -92,8 +92,11 @@ public final class RewindSession {
     private long chrononCredit;
     /** Chronon, das im laufenden Schritt hinzugekommen ist … */
     private long stepGain;
-    /** … und woraus es sich wieder entnehmen lässt. */
-    private final List<IntUnaryOperator> stepDrains = new ArrayList<>();
+    /** … und woraus es sich wieder entnehmen lässt (mit dem eigenen Zugewinn jedes Behälters). */
+    private final List<StepGain> stepDrains = new ArrayList<>();
+
+    private record StepGain(IntUnaryOperator drain, long gained) {
+    }
 
     /** Bereich, auf den das Zurückspulen wirkt. */
     public record Region(Vec3 center, double radius) {
@@ -526,7 +529,7 @@ public final class RewindSession {
     private void noteChronon(long before, long after, IntUnaryOperator drain) {
         stepGain += after - before;
         if (after > before) {
-            stepDrains.add(drain);
+            stepDrains.add(new StepGain(drain, after - before));
         }
     }
 
@@ -542,11 +545,19 @@ public final class RewindSession {
             long covered = Math.min(chrononCredit, stepGain);
             chrononCredit -= covered;
             long excess = stepGain - covered;
-            for (IntUnaryOperator drain : stepDrains) {
+            // Jeder Behälter gibt zuerst zurück, was er selbst dazugewonnen hat …
+            for (StepGain gain : stepDrains) {
                 if (excess <= 0) {
                     break;
                 }
-                excess -= drain.applyAsInt((int) Math.min(excess, Integer.MAX_VALUE));
+                excess -= gain.drain().applyAsInt((int) Math.min(Math.min(excess, gain.gained()), Integer.MAX_VALUE));
+            }
+            // … und was dann noch fehlt (ein Behälter war schon leerer), kommt aus den übrigen
+            for (StepGain gain : stepDrains) {
+                if (excess <= 0) {
+                    break;
+                }
+                excess -= gain.drain().applyAsInt((int) Math.min(excess, Integer.MAX_VALUE));
             }
         }
         stepGain = 0;

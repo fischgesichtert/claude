@@ -1,7 +1,12 @@
 package com.fischgesichtert.timemod.client;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.block.ChronosPortalBlock;
 import com.fischgesichtert.timemod.client.chronos.ChronosClient;
+import com.fischgesichtert.timemod.client.render.ChronosConsoleRenderer;
+import com.fischgesichtert.timemod.client.render.PortalColors;
+import com.fischgesichtert.timemod.client.screen.ChronosConsoleScreen;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import com.fischgesichtert.timemod.client.era.EraEffects;
 import com.fischgesichtert.timemod.client.effect.RewindEffect;
 import com.fischgesichtert.timemod.client.effect.TimeStopEffect;
@@ -56,6 +61,12 @@ public class TimeModClient implements ClientModInitializer {
         MenuScreens.register(ModMenus.CLOCKMAKER, ClockmakerScreen::new);
         ChronikItem.opener = () -> Minecraft.getInstance().setScreen(new ChronikScreen());
         MenuScreens.register(ModMenus.TEMPORAL_WORKBENCH, TemporalWorkbenchScreen::new);
+        MenuScreens.register(ModMenus.CHRONOS_CONSOLE, ChronosConsoleScreen::new);
+        BlockEntityRenderers.register(ModBlockEntities.CHRONOS_CONSOLE, ChronosConsoleRenderer::new);
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHRONOS_PORTAL, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHRONOS_CONSOLE, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.AMBER_BLOCK, RenderType.translucent());
+        ColorProviderRegistry.BLOCK.register((state, level, pos, tint) -> PortalColors.of(ChronosPortalBlock.era(state)), ModBlocks.CHRONOS_PORTAL);
         BlockEntityRenderers.register(ModBlockEntities.TEMPORAL_WORKBENCH, TemporalWorkbenchRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.TEMPORAL_WORKBENCH, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHRONO_PILLAR, RenderType.cutout());

@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "DXD",
+    "XFX",
+    "DXD"
+  ],
+  "key": {
+    "D": {
+      "item": "timemod:dna_sample"
+    },
+    "X": {
+      "item": "timemod:chronite_crystal"
+    },
+    "F": {
+      "item": "timemod:era_focus"
+    }
+  },
+  "result": {
+    "item": "timemod:mesozoic_focus",
+    "count": 1
+  }
+}

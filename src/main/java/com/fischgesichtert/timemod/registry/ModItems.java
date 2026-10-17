@@ -9,6 +9,8 @@ import com.fischgesichtert.timemod.item.BrakeSpringItem;
 import com.fischgesichtert.timemod.item.ChronikItem;
 import com.fischgesichtert.timemod.item.ChronoDebugWandItem;
 import com.fischgesichtert.timemod.item.ChronoKnifeItem;
+import com.fischgesichtert.timemod.era.Era;
+import com.fischgesichtert.timemod.item.EraFocusItem;
 import com.fischgesichtert.timemod.item.GrowthHourglassItem;
 import com.fischgesichtert.timemod.item.MomentLensItem;
 import com.fischgesichtert.timemod.item.PocketWatchItem;
@@ -21,6 +23,7 @@ import com.fischgesichtert.timemod.item.TimeLoopItem;
 import com.fischgesichtert.timemod.module.ModuleItem;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -119,6 +122,20 @@ public final class ModItems {
     public static final Item TIME_LOOP = register("time_loop", new TimeLoopItem(new Item.Properties().rarity(Rarity.EPIC)));
     public static final Item INFINITY_TIME_CELL = register("infinity_time_cell", new ChrononCellItem(1_000_000,
         new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant()));
+
+    // Stufe V: die Zeitmaschine
+    public static final Item CHRONOS_GATE_FRAME = block(ModBlocks.CHRONOS_GATE_FRAME);
+    public static final Item CHRONOS_CONSOLE = register("chronos_console", new BlockItem(ModBlocks.CHRONOS_CONSOLE, new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item FOSSIL_FRAGMENT = register("fossil_fragment", new Item(new Item.Properties()));
+    public static final Item ERA_FOCUS = register("era_focus", new EraFocusItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
+        EnumSet.of(Era.Age.STONE_AGE, Era.Age.ICE_AGE, Era.Age.CENOZOIC)));
+    public static final Item AMBER_ORE = block(ModBlocks.AMBER_ORE);
+    public static final Item AMBER = register("amber", new Item(new Item.Properties()));
+    public static final Item AMBER_BLOCK = block(ModBlocks.AMBER_BLOCK);
+    public static final Item INSECT_AMBER = register("insect_amber", new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+    public static final Item DNA_SAMPLE = register("dna_sample", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
+    public static final Item MESOZOIC_FOCUS = register("mesozoic_focus", new EraFocusItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
+        EnumSet.of(Era.Age.STONE_AGE, Era.Age.ICE_AGE, Era.Age.CENOZOIC, Era.Age.MESOZOIC)));
 
     // Entwicklung
     public static final Item CHRONO_DEBUG_WAND = register("chrono_debug_wand", new ChronoDebugWandItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));

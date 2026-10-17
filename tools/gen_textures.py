@@ -816,6 +816,27 @@ def heart_of_time():
     return s
 
 
+def chronos_ring():
+    """Band der schwebenden Ringe: Goldkanten, dunkles Glas, leuchtende Ziffernstriche (wiederholt sich)."""
+    s = Sprite(64, 8)
+    for x in range(64):
+        s.set(x, 1, GOLD[2])
+        s.set(x, 6, GOLD[1])
+        for y in range(2, 6):
+            s.set(x, y, (60, 30, 110, 150))
+    for k in range(8):
+        x0 = k * 8 + 3
+        tall = k % 2 == 0
+        for y in range(2 if tall else 3, 6 if tall else 5):
+            s.set(x0, y, GLOW[2])
+            if tall:
+                s.set(x0 + 1, y, GLOW[1])
+    for x in (0, 16, 32, 48):
+        s.set(x, 0, GOLD[4])
+        s.set(x, 7, GOLD[3])
+    return s
+
+
 def workbench_side(formed):
     s = Sprite()
     noise_fill(s, [(34, 26, 52, 255), (44, 34, 66, 255), (56, 44, 82, 255)], 71, weights=[2, 3, 1])
@@ -1587,6 +1608,7 @@ def main(preview=None):
     clockmaker_gui().save(GUI / "clockmaker_bench.png")
     temporal_workbench_gui().save(GUI / "temporal_workbench.png")
     chronik_gui().save(GUI.parent / "chronik.png")
+    chronos_ring().save(TEX / "misc" / "chronos_ring.png")
     entity_dir = TEX / "entity"
     for name, fn in (("clockmaker", clockmaker_textures), ("chronophage", chronophage_textures)):
         tex, glow = fn()

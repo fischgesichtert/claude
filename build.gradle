@@ -1,0 +1,92 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+sourceSets {
+    gametest {
+        compileClasspath += main.compileClasspath + main.output
+        runtimeClasspath += main.runtimeClasspath + main.output
+    }
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        timemod {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+        'timemod-gametest' {
+            sourceSet sourceSets.gametest
+        }
+    }
+
+    runs {
+        // Automatische In-Welt-Tests: startet einen Server, führt alle Gametests aus und beendet sich.
+        gametest {
+            server()
+            name 'Gametest'
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${project.buildDir}/gametest/report.xml"
+            runDir 'build/gametest'
+            source sourceSets.gametest
+        }
+    }
+}
+
+repositories {
+}
+
+// Maven Central über den Google-Spiegel laden (repo.maven.apache.org drosselt geteilte IPs mit HTTP 429).
+repositories.withType(MavenArtifactRepository).configureEach {
+    if (it.url.toString().startsWith('https://repo.maven.apache.org/maven2')) {
+        it.url = 'https://maven-central.storage-download.googleapis.com/maven2/'
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 17
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    from('LICENSE') {
+        rename { "${it}_${project.base.archivesName.get()}" }
+    }
+}

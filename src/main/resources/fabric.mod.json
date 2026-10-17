@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "timemod",
+  "version": "${version}",
+  "name": "TIME",
+  "description": "Volle Kontrolle über die Zeit: vorspulen, verlangsamen, stoppen, zurückspulen und durch die Zeit reisen.",
+  "authors": ["fischgesichtert"],
+  "contact": {
+    "sources": "https://github.com/fischgesichtert/claude"
+  },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/timemod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.fischgesichtert.timemod.TimeMod"],
+    "client": ["com.fischgesichtert.timemod.client.TimeModClient"]
+  },
+  "mixins": [
+    "timemod.mixins.json",
+    {
+      "config": "timemod.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "timemod-gametest",
+  "version": "1.0.0",
+  "name": "TIME Gametests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": ["com.fischgesichtert.timemod.gametest.SmokeTests"]
+  },
+  "depends": {
+    "timemod": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

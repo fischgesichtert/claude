@@ -291,6 +291,7 @@ BLOCKS = {
     "chronos_gate_frame": ("Chronos-Torrahmen", "Chronos Gate Frame"),
     "chronos_console": ("Chronos-Konsole", "Chronos Console"),
     "chronos_portal": ("Zeitportal", "Time Portal"),
+    "home_anchor": ("Heimkehr-Anker", "Homeward Anchor"),
     "amber_ore": ("Bernsteinerz", "Amber Ore"),
     "amber_block": ("Bernsteinblock", "Block of Amber"),
 }
@@ -334,6 +335,14 @@ LANG_GATE = {
         "subtitles.timemod.gate_close": "Zeittor schließt sich",
         "subtitles.timemod.gate_arrive": "Ankunft aus einer anderen Zeit",
         "subtitles.timemod.console_click": "Konsole klickt",
+        "subtitles.timemod.time_stream": "Zeitstrom rauscht",
+        "stream.timemod.title": "Zeitstrom",
+        "stream.timemod.year": "Jahr",
+        "message.timemod.anchor.here": "Dieser Anker führt hierher – du bist schon da",
+        "message.timemod.anchor.wait": "Der Zeitstrom ist noch unruhig – warte einen Moment",
+        "block.timemod.home_anchor.desc": "Führt zurück vor das Tor, durch das du kamst. Selbst gebaut: in die Gegenwart.",
+        "commands.timemod.travel.done": "Reise ins Jahr %s",
+        "commands.timemod.travel.unknown": "Kein Jahr der Zeitmaschine: %s",
     },
     "en_us": {
         "container.timemod.chronos_console": "Chronos Console",
@@ -372,6 +381,14 @@ LANG_GATE = {
         "subtitles.timemod.gate_close": "Time gate closes",
         "subtitles.timemod.gate_arrive": "Arrival from another time",
         "subtitles.timemod.console_click": "Console clicks",
+        "subtitles.timemod.time_stream": "Time stream rushes",
+        "stream.timemod.title": "Time Stream",
+        "stream.timemod.year": "Year",
+        "message.timemod.anchor.here": "This anchor leads here – you are already there",
+        "message.timemod.anchor.wait": "The time stream is still restless – wait a moment",
+        "block.timemod.home_anchor.desc": "Leads back to the gate you came through. Self-built: to the present.",
+        "commands.timemod.travel.done": "Journey to the year %s",
+        "commands.timemod.travel.unknown": "Not a year of the time machine: %s",
     },
 }
 
@@ -608,6 +625,22 @@ def gate_models():
             "elements": [{"from": box[0], "to": box[1], "shade": False,
                           "faces": {f: {"uv": [0, 0, 16, 16], "texture": "#portal", "tintindex": 0} for f in faces}}],
         })
+    # Heimkehr-Anker: Sockel, leuchtender Schaft, Deckplatte
+    side = {"texture": "#side"}
+    stem = {"texture": "#stem"}
+    write(ASSETS / "models/block/home_anchor.json", {
+        "parent": "minecraft:block/block",
+        "textures": {"particle": t("block/home_anchor_side"), "side": t("block/home_anchor_side"), "top": t("block/home_anchor_top"),
+                     "stem": t("block/home_anchor_stem")},
+        "elements": [
+            {"from": [2, 0, 2], "to": [14, 3, 14], "faces": {"down": {"texture": "#side"}, "up": {"texture": "#top"},
+                                                            "north": side, "south": side, "east": side, "west": side}},
+            {"from": [5, 3, 5], "to": [11, 11, 11], "faces": {"north": stem, "south": stem, "east": stem, "west": stem}},
+            {"from": [3, 11, 3], "to": [13, 14, 13], "faces": {"down": {"texture": "#side"}, "up": {"texture": "#top"},
+                                                              "north": side, "south": side, "east": side, "west": side}},
+        ],
+    })
+    simple_state("home_anchor")
     write(ASSETS / "blockstates/chronos_portal.json", {"variants": {
         "axis=x": {"model": t("block/chronos_portal_ns")},
         "axis=z": {"model": t("block/chronos_portal_ew")},
@@ -1050,6 +1083,8 @@ def recipes():
                                                           "T": t("time_glass")}, t("chronos_gate_frame"), 4)
     clockmaker("chronos_console", ["TPT", "KHK", "BBB"], {"T": t("time_glass"), "P": t("chronite_plate"), "K": t("clockwork"),
                                                        "H": t("heart_of_time"), "B": t("brass_block")}, t("chronos_console"))
+    clockmaker("home_anchor", ["CEC", "GKG", "BBB"], {"C": t("chronite_crystal"), "E": "minecraft:ender_pearl", "G": t("time_glass"),
+                                                   "K": t("clockwork"), "B": t("brass_ingot")}, t("home_anchor"))
     clockmaker("era_focus", ["FBF", "CTC", "FBF"], {"F": t("fossil_fragment"), "B": t("brass_ingot"), "C": t("chronite_crystal"),
                                                  "T": t("time_glass")}, t("era_focus"))
     clockmaker("mesozoic_focus", ["DXD", "XFX", "DXD"], {"D": t("dna_sample"), "X": t("chronite_crystal"), "F": t("era_focus")}, t("mesozoic_focus"))
@@ -1082,6 +1117,7 @@ def tags():
     tag("minecraft/tags/blocks/needs_stone_tool.json", [t("amber_ore")])
     # Hält der Wither, hält das Tor: Rahmen, Konsole und Portal lassen sich nicht wegsprengen
     tag("minecraft/tags/blocks/wither_immune.json", [t("chronos_portal")])
+    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("home_anchor")])
     tag("minecraft/tags/blocks/dragon_immune.json", [t("chronos_portal"), t("chronos_gate_frame")])
     tag("minecraft/tags/items/trimmable_armor.json", [t(f"chrono_{p}") for p in ("helmet", "chestplate", "leggings", "boots")])
     tag("c/tags/items/brass_ingots.json", [t("brass_ingot")])

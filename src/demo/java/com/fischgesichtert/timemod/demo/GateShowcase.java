@@ -100,10 +100,29 @@ final class GateShowcase {
             })
             .wait(10)
             .client(mc -> mc.options.keyUp.setDown(true))
+            .record("seq_stream", 2)
             .wait(25)
             .client(mc -> mc.options.keyUp.setDown(false))
-            .wait(15).screenshot("g4_ankunft_titel")
-            .wait(200).screenshot("g5_kreidezeit");
+            .wait(40).screenshot("g4_zeitstrom")
+            .wait(60).screenshot("g5_zeitstrom_ende")
+            .wait(110)
+            .stopRecording()
+            .screenshot("g6_ankunft_titel")
+            .wait(120)
+            // Umdrehen zum Heimkehr-Anker
+            .server(player -> {
+                net.minecraft.core.BlockPos feet = player.blockPosition();
+                for (net.minecraft.core.BlockPos pos : net.minecraft.core.BlockPos.betweenClosed(feet.offset(-4, -3, -4), feet.offset(4, 3, 4))) {
+                    if (player.serverLevel().getBlockState(pos).is(ModBlocks.HOME_ANCHOR)) {
+                        double dx = pos.getX() + 0.5 - player.getX();
+                        double dz = pos.getZ() + 0.5 - player.getZ();
+                        float yaw = (float) (Math.toDegrees(Math.atan2(-dx, dz)));
+                        player.teleportTo(player.serverLevel(), player.getX() - dx * 0.6, player.getY() + 1, player.getZ() - dz * 0.6, yaw, 35.0F);
+                        break;
+                    }
+                }
+            })
+            .wait(40).screenshot("g7_heimkehr_anker");
         d.wait(5).quit();
     }
 

@@ -32,6 +32,7 @@ public final class ModSounds {
     public static final SoundEvent GATE_CLOSE = register("gate_close");
     public static final SoundEvent GATE_ARRIVE = register("gate_arrive");
     public static final SoundEvent CONSOLE_CLICK = register("console_click");
+    public static final SoundEvent TIME_STREAM = register("time_stream");
 
     private ModSounds() {
     }

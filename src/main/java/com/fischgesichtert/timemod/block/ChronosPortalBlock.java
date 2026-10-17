@@ -3,7 +3,7 @@ package com.fischgesichtert.timemod.block;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
 import com.fischgesichtert.timemod.gate.ChronosGate;
-import com.fischgesichtert.timemod.gate.TimeTravel;
+import com.fischgesichtert.timemod.gate.TimeStream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -65,7 +65,8 @@ public class ChronosPortalBlock extends Block {
     @Override
     public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (!level.isClientSide && entity instanceof ServerPlayer player && player.isAlive()) {
-            TimeTravel.travel(player, era(state));
+            // Zurück führt der Anker vor das Tor – an die Stelle, an der man hineinging
+            TimeStream.depart(player, era(state), null, pos, true);
         }
     }
 

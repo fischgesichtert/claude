@@ -1,5 +1,8 @@
 package com.fischgesichtert.timemod.command;
 
+import com.fischgesichtert.timemod.era.Era;
+import com.fischgesichtert.timemod.era.Eras;
+import com.fischgesichtert.timemod.gate.TimeStream;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
@@ -18,6 +21,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 
@@ -29,10 +33,27 @@ import net.minecraft.world.phys.AABB;
  * /chrono global &lt;faktor&gt; [sekunden]
  * /chrono daytime|weather &lt;faktor&gt; [sekunden]
  * /chrono clear | list
+ * /chrono travel &lt;jahre&gt;   (durch den Zeitstrom, ohne Tor; 0 = Gegenwart)
  * </pre>
  */
 public final class ChronoCommand {
     private ChronoCommand() {
+    }
+
+    /** Reist durch den Zeitstrom in eine der Stufen der Zeitmaschine – für Admins und Kartenbauer. */
+    private static int travel(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+        int years = IntegerArgumentType.getInteger(ctx, "years");
+        Era era = Eras.byYears(years);
+        if (era == null) {
+            ctx.getSource().sendFailure(Component.translatable("commands.timemod.travel.unknown", years));
+            return 0;
+        }
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
+        if (!TimeStream.depart(player, era, null, player.blockPosition(), !era.isPresent())) {
+            return 0;
+        }
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.timemod.travel.done", era.yearText()), false);
+        return 1;
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -79,7 +100,9 @@ public final class ChronoCommand {
                 ctx.getSource().sendSuccess(() -> Component.translatable("commands.timemod.chrono.clear"), true);
                 return 1;
             }))
-            .then(Commands.literal("list").executes(ChronoCommand::list)));
+            .then(Commands.literal("list").executes(ChronoCommand::list))
+            .then(Commands.literal("travel")
+                .then(Commands.argument("years", IntegerArgumentType.integer()).executes(ChronoCommand::travel))));
     }
 
     @FunctionalInterface

@@ -2,11 +2,13 @@ package com.fischgesichtert.timemod.mixin.client;
 
 import com.fischgesichtert.timemod.client.ClientTimeEngine;
 import com.fischgesichtert.timemod.client.TimeClientState;
+import com.fischgesichtert.timemod.client.era.TimeStreamClient;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeLevel;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -48,6 +50,13 @@ public abstract class MinecraftMixin {
         for (int i = 0; i < steps; i++) {
             original.call(textures);
         }
+    }
+
+    /** Weltwechsel im Zeitstrom: kein „Welt wird betreten“-Bild, der Strom läuft weiter. */
+    @WrapOperation(method = "setLevel", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/client/Minecraft;updateScreenAndTick(Lnet/minecraft/client/gui/screens/Screen;)V"))
+    private void timemod$streamInsteadOfProgress(Minecraft minecraft, Screen screen, Operation<Void> original) {
+        original.call(minecraft, TimeStreamClient.isActive() ? TimeStreamClient.screen() : screen);
     }
 
     // ---------------- Eingefroren: keine Angriffe, kein Benutzen, kein Abbauen ----------------

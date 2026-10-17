@@ -1964,6 +1964,43 @@ def gate_glow():
     return img
 
 
+def anchor_side():
+    """Heimkehr-Anker, Seite: dunkles Chronit mit Messingbändern und einer leuchtenden Rune."""
+    s = Sprite()
+    noise_fill(s, ARM[1:], 111, weights=[2, 3, 1])
+    s.rect(0, 0, 15, 1, BRASS[3])
+    s.rect(0, 14, 15, 15, BRASS[1])
+    s.rect(0, 7, 15, 7, BRASS[2])
+    for x, y in ((7, 3), (8, 3), (6, 4), (9, 4), (7, 5), (8, 5), (7, 10), (8, 10), (6, 11), (9, 11), (7, 12), (8, 12)):
+        s.set(x, y, GLOW[1])
+    s.set(7, 4, GLOW[2])
+    s.set(8, 11, GLOW[2])
+    return s
+
+
+def anchor_top():
+    """Oben: Messingring mit einer kleinen Sanduhr aus Licht."""
+    s = Sprite()
+    noise_fill(s, ARM[1:], 113, weights=[2, 3, 1])
+    s.ring(7.5, 7.5, 5.6, 7.0, BRASS[3])
+    s.ring(7.5, 7.5, 4.6, 5.6, BRASS[1])
+    hourglass = ["#####", ".###.", "..#..", ".#.#.", "#####"]
+    for row, line in enumerate(hourglass):
+        for col, ch in enumerate(line):
+            if ch == "#":
+                s.set(5 + col, 5 + row, GLOW[2] if row in (0, 4) else GLOW[1])
+    return s
+
+
+def anchor_stem():
+    s = Sprite()
+    noise_fill(s, [CHRON[1], CHRON[2], CHRON[3]], 115, weights=[2, 3, 1])
+    for y in range(16):
+        s.set(7, y, GLOW[1] if y % 4 else GLOW[2])
+        s.set(8, y, GLOW[0] if y % 3 else GLOW[1])
+    return s
+
+
 def chronos_console_gui():
     """Konsolen-Oberfläche 176×208 mit Anzeige, Knopf-Sprites und Speicherbalken."""
     img = Image.new("RGBA", (256, 256), T)
@@ -2127,6 +2164,7 @@ BLOCKS = {
        for part, f in (("side", altar_side), ("top", altar_top), ("bottom", altar_bottom))},
     "chronos_gate_frame": gate_frame, "chronos_console_top": console_top, "chronos_console_side": console_side,
     "chronos_console_bottom": console_bottom, "amber_ore": amber_ore, "amber_block": amber_block,
+    "home_anchor_side": anchor_side, "home_anchor_top": anchor_top, "home_anchor_stem": anchor_stem,
 }
 
 

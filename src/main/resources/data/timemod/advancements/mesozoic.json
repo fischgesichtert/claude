@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "minecraft:sniffer_egg"
+    },
+    "title": {
+      "translate": "advancements.timemod.mesozoic.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.mesozoic.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "timemod:dna"
+}

@@ -5,7 +5,8 @@ import com.fischgesichtert.timemod.block.entity.ChronosConsoleBlockEntity;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
 import com.fischgesichtert.timemod.gate.ChronosGate;
-import com.fischgesichtert.timemod.gate.TimeTravel;
+import com.fischgesichtert.timemod.gate.TimeStream;
+import com.fischgesichtert.timemod.block.entity.HomeAnchorBlockEntity;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModItems;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
@@ -16,6 +17,7 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -215,39 +217,81 @@ public class GateTests implements FabricGameTest {
         });
     }
 
-    /** Durch das Portal: im Zieljahr an derselben Stelle, auf festem Boden. */
-    @GameTest(template = ARENA, timeoutTicks = 200, setupTicks = 5, batch = "timemod_gate_travel")
+    /**
+     * Durch das Portal in den Zeitstrom: sofort in der Zielwelt, schwebend und unverwundbar; nach dem Flug
+     * auf festem Boden an derselben Stelle, mit Heimkehr-Anker – und über den Anker zurück vor das Tor.
+     */
+    @GameTest(template = ARENA, timeoutTicks = 1400, setupTicks = 5, batch = "timemod_gate_travel")
     public void portalSendsPlayersThroughTime(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ChronosGate.Shape ring = buildRing(helper, RING, Direction.Axis.X);
         BlockPos cell = ring.at(3, 1);
+        Era past = Eras.byYears(-1);
         BlockState portal = ModBlocks.CHRONOS_PORTAL.defaultBlockState().setValue(ChronosPortalBlock.AXIS, Direction.Axis.X)
-            .setValue(ChronosPortalBlock.ERA, Eras.indexOf(Eras.byYears(-1)));
+            .setValue(ChronosPortalBlock.ERA, Eras.indexOf(past));
         for (BlockPos pos : ring.opening()) {
             level.setBlock(pos, portal, Block.UPDATE_CLIENTS);
         }
         ServerPlayer player = player(helper, new BlockPos(13, 2, 8));
         BlockPos before = player.blockPosition();
         level.getBlockState(cell).entityInside(level, cell, player);
-        ServerLevel arrived = player.serverLevel();
-        if (arrived.dimension() != Eras.byYears(-1).level()) {
-            helper.fail("Spieler ist nicht im Jahr −1 angekommen, sondern in " + arrived.dimension().location());
+        if (!TimeStream.inStream(player.getUUID()) || player.serverLevel().dimension() != past.level() || !player.isNoGravity()) {
+            helper.fail("Wer durch das Portal geht, schwebt sofort im Zeitstrom über dem Ziel");
         }
-        BlockPos feet = player.blockPosition();
-        if (Math.abs(feet.getX() - before.getX()) > 48 || Math.abs(feet.getZ() - before.getZ()) > 48) {
-            helper.fail("Landung zu weit vom Ausgangsort: " + before + " → " + feet);
+        float health = player.getHealth();
+        player.hurt(player.damageSources().generic(), 6.0F);
+        if (player.getHealth() < health) {
+            helper.fail("Im Zeitstrom darf niemand Schaden nehmen");
         }
-        BlockState ground = arrived.getBlockState(feet.below());
-        if (!ground.isFaceSturdy(arrived, feet.below(), Direction.UP) || !ground.getFluidState().isEmpty()
-            || !arrived.getBlockState(feet).getCollisionShape(arrived, feet).isEmpty()) {
-            helper.fail("Unsichere Landung auf " + ground + " bei " + feet);
-        }
-        // Gleich wieder hinein: Die Abklingzeit verhindert ein Hin- und Herspringen
-        if (TimeTravel.travel(player, Eras.PRESENT)) {
-            helper.fail("Direkt nach der Ankunft darf keine zweite Reise starten");
-        }
-        player.discard();
-        helper.succeed();
+        HomeAnchorBlockEntity[] anchor = new HomeAnchorBlockEntity[1];
+        helper.startSequence()
+            .thenWaitUntil(() -> {
+                if (TimeStream.inStream(player.getUUID())) {
+                    throw new GameTestAssertException("noch im Zeitstrom");
+                }
+            })
+            .thenExecute(() -> {
+                ServerLevel arrived = player.serverLevel();
+                BlockPos feet = player.blockPosition();
+                if (arrived.dimension() != past.level() || player.isNoGravity() || player.getTags().contains(TimeStream.TAG)) {
+                    helper.fail("Nach dem Flug muss der Reisende normal im Jahr −1 stehen");
+                }
+                if (Math.abs(feet.getX() - before.getX()) > 48 || Math.abs(feet.getZ() - before.getZ()) > 48) {
+                    helper.fail("Landung zu weit vom Ausgangsort: " + before + " → " + feet);
+                }
+                BlockState ground = arrived.getBlockState(feet.below());
+                if (!ground.isFaceSturdy(arrived, feet.below(), Direction.UP) || !ground.getFluidState().isEmpty()
+                    || !arrived.getBlockState(feet).getCollisionShape(arrived, feet).isEmpty()) {
+                    helper.fail("Unsichere Landung auf " + ground + " bei " + feet);
+                }
+                for (BlockPos pos : BlockPos.betweenClosed(feet.offset(-4, -3, -4), feet.offset(4, 3, 4))) {
+                    if (arrived.getBlockEntity(pos) instanceof HomeAnchorBlockEntity found) {
+                        anchor[0] = found;
+                    }
+                }
+                if (anchor[0] == null || anchor[0].destination() != Eras.PRESENT) {
+                    helper.fail("Neben der Landestelle fehlt der Heimkehr-Anker in die Gegenwart");
+                }
+                // Heimkehr: Der Anker trägt den Reisenden zurück vor das Tor
+                player.setPortalCooldown(0);
+                anchor[0].use(player);
+                if (!TimeStream.inStream(player.getUUID())) {
+                    helper.fail("Der Anker muss die Heimreise starten");
+                }
+            })
+            .thenWaitUntil(() -> {
+                if (TimeStream.inStream(player.getUUID())) {
+                    throw new GameTestAssertException("noch auf dem Heimweg");
+                }
+            })
+            .thenExecute(() -> {
+                BlockPos home = player.blockPosition();
+                if (player.serverLevel() != level || home.distManhattan(cell) > 60) {
+                    helper.fail("Zurück in der Gegenwart muss der Reisende vor dem Tor stehen, nicht bei " + home);
+                }
+                player.discard();
+            })
+            .thenSucceed();
     }
 
     /** Fossilien unter dem Pinsel, Bernstein mit Insekten im Gestein, und die Konsole behält ihr Chronon. */

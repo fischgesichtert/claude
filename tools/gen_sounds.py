@@ -496,6 +496,34 @@ def console_click():
     place(out, bell(1760.0, 0.18) * 0.25, 0.04)
     return normalize(fade(out, 0.001, 0.04), -4)
 
+
+def time_stream():
+    """Flug durch den Zeitstrom (8 s): rauschender Tunnel, tiefes Pulsieren, rückwärts laufende Uhren, ferne Glocken."""
+    length = 8.0
+    total = silence(length)
+    x = t(length)
+    swell = np.minimum(1.0, x / 1.2) * np.minimum(1.0, (length - x) / 1.8)
+    # Rauschen, dessen Klangfarbe auf und ab schwingt
+    rush = svf_sweep(noise(length), 350, 2600, q=2.2) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.35 * x)) * swell
+    place(total, normalize(rush, -9), 0.0)
+    wind = svf_sweep(noise(length), 3200, 700, q=3.0) * swell * 0.6
+    place(total, normalize(wind, -14), 0.0)
+    # Tiefes, pulsierendes Brummen
+    drone = (np.sin(2 * np.pi * 55 * x + 0.8 * np.sin(2 * np.pi * 0.5 * x)) + 0.6 * np.sin(2 * np.pi * 82.4 * x)
+             + 0.3 * np.sin(2 * np.pi * 110.7 * x)) * (0.7 + 0.3 * np.sin(2 * np.pi * 2.2 * x)) * swell
+    place(total, normalize(fft_filter(drone, low=600), -10), 0.0)
+    # Rückwärts tickende Uhren, mal schneller, mal langsamer
+    at = 0.4
+    while at < length - 1.2:
+        click = tick(freq=1800 + 900 * np.sin(at), body=700, level=0.45)[::-1]
+        place(total, click * float(swell[min(len(swell) - 1, int(at * SR))]), at)
+        at += 0.09 + 0.07 * (1 + np.sin(at * 1.7))
+    # Ferne Glocken, rückwärts angehaucht
+    for i, (when, freq) in enumerate(((1.6, 783.99), (3.4, 659.25), (5.0, 523.25), (6.2, 1046.5))):
+        ring = reverb(bell(freq, 0.9), 1.4, 0.6)[::-1]
+        place(total, normalize(ring, -20 - 2 * i), when - 0.9)
+    return normalize(fade(total, 0.3, 1.2), -2)
+
 SOUNDS = {
     "time_stop": time_stop,
     "time_resume": time_resume,
@@ -522,6 +550,7 @@ SOUNDS = {
     "gate_close": gate_close,
     "gate_arrive": gate_arrive,
     "console_click": console_click,
+    "time_stream": time_stream,
 }
 
 

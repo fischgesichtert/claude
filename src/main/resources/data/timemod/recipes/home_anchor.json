@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "CEC",
+    "GKG",
+    "BBB"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "G": {
+      "item": "timemod:time_glass"
+    },
+    "K": {
+      "item": "timemod:clockwork"
+    },
+    "B": {
+      "item": "timemod:brass_ingot"
+    }
+  },
+  "result": {
+    "item": "timemod:home_anchor",
+    "count": 1
+  }
+}

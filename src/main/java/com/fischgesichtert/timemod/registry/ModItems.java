@@ -126,6 +126,7 @@ public final class ModItems {
     // Stufe V: die Zeitmaschine
     public static final Item CHRONOS_GATE_FRAME = block(ModBlocks.CHRONOS_GATE_FRAME);
     public static final Item CHRONOS_CONSOLE = register("chronos_console", new BlockItem(ModBlocks.CHRONOS_CONSOLE, new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item HOME_ANCHOR = register("home_anchor", new BlockItem(ModBlocks.HOME_ANCHOR, new Item.Properties().rarity(Rarity.RARE)));
     public static final Item FOSSIL_FRAGMENT = register("fossil_fragment", new Item(new Item.Properties()));
     public static final Item ERA_FOCUS = register("era_focus", new EraFocusItem(new Item.Properties().stacksTo(1).rarity(Rarity.RARE),
         EnumSet.of(Era.Age.STONE_AGE, Era.Age.ICE_AGE, Era.Age.CENOZOIC)));

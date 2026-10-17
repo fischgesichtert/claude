@@ -213,5 +213,14 @@
         "attenuation_distance": 12
       }
     ]
+  },
+  "time_stream": {
+    "subtitle": "subtitles.timemod.time_stream",
+    "sounds": [
+      {
+        "name": "timemod:time_stream",
+        "attenuation_distance": 16
+      }
+    ]
   }
 }

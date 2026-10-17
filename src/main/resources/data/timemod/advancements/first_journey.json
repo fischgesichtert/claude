@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:home_anchor"
+    },
+    "title": {
+      "translate": "advancements.timemod.first_journey.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.first_journey.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "timemod:time_gate"
+}

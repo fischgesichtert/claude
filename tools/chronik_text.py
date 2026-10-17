@@ -188,7 +188,9 @@ CHAPTERS = {
         "Mit ◀ ▶ wählst du das Jahr, mit ◀◀ ▶▶ springst du ein ganzes Zeitalter weiter (auch mit den Pfeiltasten, mit Umschalt). "
         "Je weiter die Reise, desto teurer: 10k Chronon und mehr, für die Trias rund 136k.\n\n"
         "Aufladen dauert zehn Sekunden. Dann öffnet sich das Portal für eine halbe Minute, und alle können hindurchgehen. "
-        "Du landest im Zieljahr an derselben Stelle der Welt. Wer dasselbe Jahr wählt, trifft sich dort.\n\n"
+        "Der Zeitstrom trägt dich in wenigen Sekunden ins Zieljahr, an dieselbe Stelle der Welt. Wer dasselbe Jahr wählt, trifft sich dort.\n\n"
+        "Wo du ankommst, entsteht ein Heimkehr-Anker. Benutzt du ihn, trägt dich der Strom zurück vor das Tor. "
+        "Wird der Anker zerstört, zerfällt er zu Staub: Dann brauchst du ein neues Tor oder einen selbst gebauten Anker, der in die Gegenwart führt.\n\n"
         "Ferne Zeitalter brauchen einen Fokus in der Konsole:\n"
         "• Epochen-Fokus (Steinzeit, Eiszeit, Erdneuzeit): aus Fossil-Fragmenten. Die findest du mit dem Pinsel in verdächtigem Sand und Kies.\n"
         "• Fokus: Mesozoikum (Dinosaurier): Im Pleistozän, eine Million Jahre zurück, liegt Bernstein im Gestein. "
@@ -203,7 +205,9 @@ CHAPTERS = {
         "Use ◀ ▶ to choose the year and ◀◀ ▶▶ to jump a whole age (also with the arrow keys, with Shift). "
         "The longer the journey, the more it costs: 10k chronon and up, about 136k for the Triassic.\n\n"
         "Charging takes ten seconds. Then the portal opens for half a minute and everyone can step through. "
-        "You arrive in the target year at the same place in the world. Whoever picks the same year meets you there.\n\n"
+        "The time stream carries you to the target year in a few seconds, to the same place in the world. Whoever picks the same year meets you there.\n\n"
+        "Where you arrive, a Homeward Anchor appears. Use it and the stream carries you back in front of the gate. "
+        "If the anchor is destroyed, it crumbles to dust: then you need a new gate or a self-built anchor, which leads to the present.\n\n"
         "Distant ages need a focus in the console:\n"
         "• Era Focus (Stone Age, Ice Age, Cenozoic): made from fossil fragments. You find them with a brush in suspicious sand and gravel.\n"
         "• Focus: Mesozoic (dinosaurs): in the Pleistocene, a million years back, amber lies in the rock. "
@@ -284,4 +288,10 @@ ADVANCEMENTS = [
      "Grüße aus der Tiefe", "Lege mit dem Pinsel ein Fossil frei", "Greetings from the Deep", "Brush out a fossil"),
     ("dna", "fossil", "timemod:dna_sample", "goal", ("item", "timemod:dna_sample"),
      "Das Leben findet einen Weg", "Gewinne DNS aus Bernstein", "Life Finds a Way", "Extract DNA from amber"),
+    ("first_journey", "time_gate", "timemod:home_anchor", "goal", ("impossible", None),
+     "Durch den Zeitstrom", "Reise mit dem Chronos-Tor in ein anderes Jahr", "Through the Time Stream", "Travel to another year with the Chronos Gate"),
+    ("far_future", "first_journey", "minecraft:spyglass", "challenge", ("impossible", None),
+     "Ein Jahrtausend später", "Reise 1000 Jahre in die Zukunft", "A Millennium Later", "Travel 1000 years into the future"),
+    ("mesozoic", "dna", "minecraft:sniffer_egg", "challenge", ("impossible", None),
+     "Willkommen im Erdmittelalter", "Reise in das Zeitalter der Dinosaurier", "Welcome to the Mesozoic", "Travel to the age of the dinosaurs"),
 ]

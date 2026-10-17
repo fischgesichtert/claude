@@ -4,8 +4,16 @@
     "type": "minecraft:noise",
     "settings": "minecraft:overworld",
     "biome_source": {
-      "type": "minecraft:multi_noise",
-      "preset": "minecraft:overworld"
+      "type": "timemod:future",
+      "base": {
+        "type": "minecraft:multi_noise",
+        "preset": "minecraft:overworld"
+      },
+      "years": 1000,
+      "humidity": 0.11,
+      "temperature": 0.05,
+      "groves": 0.22,
+      "variation": 0.75
     }
   }
 }

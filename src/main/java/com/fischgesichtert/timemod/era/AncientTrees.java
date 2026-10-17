@@ -8,12 +8,17 @@ import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
@@ -21,12 +26,13 @@ import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Zeitsaat in der Gegenwart: Aus einem Setzling von vor ein paar Jahren ist ein Baum geworden, aus einem
  * von vor tausend Jahren ein Riese mit Wurzeln wie Mauern. Was älter als 20.000 Jahre ist, steht nur noch
- * als versteinerter Stumpf da – mit Bernstein im Stein.
+ * als versteinerter Stumpf da – mit Bernstein im Stein. Dieselben Riesen stehen in den Wäldern der Zukunft.
  */
 public final class AncientTrees {
     private static final int PETRIFIED_FROM = 20_000;
@@ -56,6 +62,34 @@ public final class AncientTrees {
             return new Wood(Blocks.OAK_LOG.defaultBlockState(), leaves(Blocks.OAK_LEAVES));
         }
 
+        /** Das Holz eines Waldes; Sümpfe und Mangroven tragen keine Riesen. */
+        @Nullable
+        static Wood forBiome(Holder<Biome> biome) {
+            if (biome.is(Biomes.SWAMP) || biome.is(Biomes.MANGROVE_SWAMP)) {
+                return null;
+            }
+            if (biome.is(BiomeTags.IS_TAIGA) || biome.is(Biomes.GROVE) || biome.is(Biomes.WINDSWEPT_FOREST)) {
+                return of("minecraft:spruce_sapling");
+            }
+            if (biome.is(Biomes.BIRCH_FOREST) || biome.is(Biomes.OLD_GROWTH_BIRCH_FOREST)) {
+                return of("minecraft:birch_sapling");
+            }
+            if (biome.is(Biomes.DARK_FOREST)) {
+                return of("minecraft:dark_oak_sapling");
+            }
+            if (biome.is(BiomeTags.IS_JUNGLE)) {
+                return of("minecraft:jungle_sapling");
+            }
+            if (biome.is(Biomes.CHERRY_GROVE)) {
+                return of("minecraft:cherry_sapling");
+            }
+            return oak();
+        }
+
+        boolean conifer() {
+            return log.is(Blocks.SPRUCE_LOG);
+        }
+
         private static BlockState leaves(Block block) {
             BlockState state = block.defaultBlockState();
             return state.hasProperty(LeavesBlock.PERSISTENT) ? state.setValue(LeavesBlock.PERSISTENT, true) : state;
@@ -73,8 +107,9 @@ public final class AncientTrees {
         }
         RandomSource random = RandomSource.create(entry.pos().asLong() ^ entry.years());
         long years = entry.years();
+        Sink sink = new Sink(level, null);
         if (years >= PETRIFIED_FROM) {
-            petrified(level, ground, random);
+            petrified(sink, ground, random);
             return;
         }
         Wood wood = Wood.of(entry.data().getString("Sapling"));
@@ -83,7 +118,27 @@ public final class AncientTrees {
         }
         int height = (int) Mth.clamp(13 + 9 * Math.log10(Math.max(1, years) / (double) GIANT_FROM), 12, 34);
         int trunk = years < 500 ? 2 : years < 2_000 ? 3 : 4;
-        giant(level, ground, wood, height, trunk, random);
+        giant(sink, ground, wood, height, trunk, random);
+    }
+
+    /**
+     * Ein uralter Riese im Wald der Zukunft: Holz und Gestalt nach dem Biom (Nadelwälder als Kegel), die Größe
+     * nach den Jahren. Geschrieben wird nur innerhalb von {@code area}; {@code false}, wenn hier keiner wächst.
+     */
+    public static boolean ancient(LevelAccessor level, BlockPos ground, Holder<Biome> biome, long years, RandomSource random, BoundingBox area) {
+        Wood wood = Wood.forBiome(biome);
+        if (wood == null) {
+            return false;
+        }
+        Sink sink = new Sink(level, area);
+        double age = Math.log10(Math.max(GIANT_FROM, years) / (double) GIANT_FROM);
+        int trunk = years < 250 ? 2 : 3;
+        if (wood.conifer()) {
+            conifer(sink, ground, wood, (int) (24 + 9 * age) + random.nextInt(5), trunk, random);
+        } else {
+            giant(sink, ground, wood, (int) (17 + 6 * age) + random.nextInt(4), trunk, random);
+        }
+        return true;
     }
 
     /** Junge Bäume wachsen ganz normal aus ihrem Setzling. */
@@ -105,7 +160,7 @@ public final class AncientTrees {
     }
 
     /** Ein Riese: dicker Stamm, Brettwurzeln, weit ausladende Äste und eine Krone fast so breit, wie der Baum hoch ist. */
-    private static void giant(ServerLevel level, BlockPos ground, Wood wood, int height, int trunk, RandomSource random) {
+    private static void giant(Sink level, BlockPos ground, Wood wood, int height, int trunk, RandomSource random) {
         BlockPos base = ground.offset(-(trunk - 1) / 2, 0, -(trunk - 1) / 2);
         double cx = base.getX() + trunk / 2.0;
         double cz = base.getZ() + trunk / 2.0;
@@ -161,7 +216,7 @@ public final class AncientTrees {
         };
     }
 
-    private static void leafBlob(ServerLevel level, BlockPos center, double radius, Wood wood, RandomSource random) {
+    private static void leafBlob(Sink level, BlockPos center, double radius, Wood wood, RandomSource random) {
         int r = Mth.ceil(radius);
         double flat = radius * 0.65;
         for (int dx = -r; dx <= r; dx++) {
@@ -180,7 +235,7 @@ public final class AncientTrees {
      * Versteinert: ein niedriger Stumpf mit Borke aus Tropfstein und Jahresringen aus Kalzit und Tuff,
      * Wurzelansätze aus Stein und ein umgestürzter Stamm daneben – mit zwei bis vier Bernsteinen darin.
      */
-    private static void petrified(ServerLevel level, BlockPos ground, RandomSource random) {
+    private static void petrified(Sink level, BlockPos ground, RandomSource random) {
         BlockState bark = Blocks.DRIPSTONE_BLOCK.defaultBlockState();
         BlockState wood = Blocks.TUFF.defaultBlockState();
         BlockState core = Blocks.CALCITE.defaultBlockState();
@@ -217,7 +272,8 @@ public final class AncientTrees {
         int length = 5 + random.nextInt(4);
         for (int i = 3; i < 3 + length; i++) {
             BlockPos column = start.relative(fall, i);
-            BlockPos log = new BlockPos(column.getX(), level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ()), column.getZ());
+            BlockPos log = new BlockPos(column.getX(), level.level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(),
+                column.getZ()), column.getZ());
             rock.put(log, i == 2 + length ? core : random.nextInt(4) == 0 ? wood : bark);
             outside.add(log);
         }
@@ -228,10 +284,64 @@ public final class AncientTrees {
         rock.forEach((pos, state) -> place(level, pos, state, true));
     }
 
+    /** Ein Nadel-Riese: gerader Stamm, Brettwurzeln und ein Kegel aus Laubkränzen, unten weit, oben spitz. */
+    private static void conifer(Sink level, BlockPos ground, Wood wood, int height, int trunk, RandomSource random) {
+        BlockPos base = ground.offset(-(trunk - 1) / 2, 0, -(trunk - 1) / 2);
+        for (int y = -1; y < height; y++) {
+            int width = y > height * 0.85 && trunk > 1 ? trunk - 1 : trunk;
+            for (int dx = 0; dx < width; dx++) {
+                for (int dz = 0; dz < width; dz++) {
+                    place(level, base.offset(dx, y, dz), wood.log(Direction.Axis.Y), true);
+                }
+            }
+        }
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            for (int side = 0; side < trunk; side += Math.max(1, trunk - 1)) {
+                BlockPos start = edge(base, trunk, direction, side);
+                for (int i = 1; i <= 1 + trunk / 2 + random.nextInt(2); i++) {
+                    BlockPos root = start.relative(direction, i).below(i / 2);
+                    place(level, root, wood.log(direction.getAxis()), true);
+                    place(level, root.below(), wood.log(Direction.Axis.Y), true);
+                }
+            }
+        }
+        double cx = base.getX() + (trunk - 1) / 2.0;
+        double cz = base.getZ() + (trunk - 1) / 2.0;
+        int start = (int) (height * 0.3);
+        int top = height + 1;
+        double widest = 3.5 + trunk * 1.3 + random.nextDouble();
+        for (int y = start; y <= top; y++) {
+            double t = (y - start) / (double) (top - start);
+            // Kränze: jede dritte Lage ragt weiter hinaus, die darüber ist schmaler
+            double skirt = (y - start) % 3 == 0 ? 1.0 : (y - start) % 3 == 1 ? 0.0 : -0.8;
+            double radius = Math.max(0.6, widest * Math.pow(1.0 - t, 0.85) + skirt * (1.0 - t));
+            int r = Mth.ceil(radius);
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    double x = Math.round(cx) + dx;
+                    double z = Math.round(cz) + dz;
+                    double d = Math.sqrt((x - cx) * (x - cx) + (z - cz) * (z - cz));
+                    if (d <= radius - random.nextDouble() * 0.35) {
+                        place(level, BlockPos.containing(x, ground.getY() + y, z), wood.leaves(), false);
+                    }
+                }
+            }
+        }
+        place(level, BlockPos.containing(cx, ground.getY() + top + 1, cz), wood.leaves(), false);
+    }
+
+    /** Wohin ein Baum wächst: in die Welt oder in einen Chunk in der Entstehung (dann nur innerhalb von {@code area}). */
+    private record Sink(LevelAccessor level, @Nullable BoundingBox area) {
+    }
+
     /** Bäume ersetzen nur Natur – Häuser, Truhen und Wege der Spieler bleiben unberührt. */
-    private static void place(ServerLevel level, BlockPos pos, BlockState state, boolean ground) {
+    private static void place(Sink sink, BlockPos pos, BlockState state, boolean ground) {
+        LevelAccessor level = sink.level();
+        if ((sink.area() != null && !sink.area().isInside(pos)) || level.isOutsideBuildHeight(pos)) {
+            return;
+        }
         BlockState current = level.getBlockState(pos);
-        if (current.hasBlockEntity() || level.isOutsideBuildHeight(pos)) {
+        if (current.hasBlockEntity()) {
             return;
         }
         boolean free = current.isAir() || current.canBeReplaced() || current.is(BlockTags.LEAVES) || current.is(BlockTags.REPLACEABLE_BY_TREES);

@@ -45,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Die Zukunft entsteht aus der Gegenwart: Wird in einer Zukunfts-Epoche ein Chunk geladen, den Spieler
  * in der Gegenwart verändert haben, wird er am Ende des Ticks aus der Gegenwart kopiert und gealtert –
- * Blöcke, Truhen, Schilder, Tiere. Ändert sich die Gegenwart, rechnet die Zukunft beim nächsten Besuch
+ * Blöcke, Truhen, Schilder, Tiere, und auf dem freien Boden wächst der Wald der Zukunft nach. Ändert sich die Gegenwart, rechnet die Zukunft beim nächsten Besuch
  * neu, außer dort, wo jemand in der Zukunft selbst gebaut hat.
  */
 public final class FutureDerivation {
@@ -136,6 +136,8 @@ public final class FutureDerivation {
         if (years >= ANIMAL_LIFETIME) {
             bones(canvas, animals, years, rules.reclaim());
         }
+        // Wo die Zukunft Wald ist, wächst er auch auf dem freien Boden nach
+        Succession.apply(canvas, years, rules);
         write(future, target, canvas);
         blockEntities(future, target, source, canvas, years, rules.reclaim());
         FutureChunks memory = FutureChunks.get(future);

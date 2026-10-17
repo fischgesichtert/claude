@@ -24,6 +24,7 @@ import com.fischgesichtert.timemod.rewind.PlayerHistory;
 import com.fischgesichtert.timemod.rewind.RecordingDemand;
 import com.fischgesichtert.timemod.time.TimeImmunity;
 import com.fischgesichtert.timemod.worldgen.ModStructures;
+import com.fischgesichtert.timemod.worldgen.FutureBiomeSource;
 import com.fischgesichtert.timemod.worldgen.RemappedBiomeSource;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -53,6 +54,7 @@ public class TimeMod implements ModInitializer {
         ModWorldgen.init();
         ModStructures.init();
         RemappedBiomeSource.init();
+        FutureBiomeSource.init();
         PlayerHistory.init();
         RecordingDemand.init();
         TimeNetworking.init();

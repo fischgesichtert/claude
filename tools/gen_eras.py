@@ -490,11 +490,71 @@ def dimension_types():
         write(DATA / f"dimension_type/{name}.json", dim)
 
 
+# ------------------------------------------------------------------------------------------
+# Klima der Zukunft: Wald-Sukzession, neue Haine, leichte Erwärmung
+# ------------------------------------------------------------------------------------------
+
+# Stützpunkte (Jahre → Wert), dazwischen logarithmisch – wie Curve.java
+FUTURE_HUMIDITY = {25: 0.01, 50: 0.02, 100: 0.04, 250: 0.065, 500: 0.085, 1000: 0.11}
+FUTURE_WARMING = {25: 0.005, 50: 0.01, 100: 0.017, 250: 0.027, 500: 0.038, 1000: 0.05}
+FUTURE_GROVES = {50: 0.03, 100: 0.07, 250: 0.12, 500: 0.17, 1000: 0.22}
+FUTURE_VARIATION = 0.75
+# Ab hier verändert sich die Landschaft (davor: die Welt von heute)
+FUTURE_CLIMATE_FROM = 25
+
+
+def curve(points, years):
+    import math
+    keys = sorted(points)
+    if years < keys[0]:
+        return 0.0
+    for a, b in zip(keys, keys[1:]):
+        if years <= b:
+            t = (math.log10(years) - math.log10(a)) / (math.log10(b) - math.log10(a))
+            return round(points[a] + (points[b] - points[a]) * t, 4)
+    return points[keys[-1]]
+
+
+def future_source(years, base):
+    source = {"type": f"{NS}:future", "base": base, "years": years}
+    if years >= FUTURE_CLIMATE_FROM:
+        source.update({"humidity": curve(FUTURE_HUMIDITY, years), "temperature": curve(FUTURE_WARMING, years),
+                       "groves": curve(FUTURE_GROVES, years), "variation": FUTURE_VARIATION})
+    return source
+
+
+def mc(*names):
+    return [n if n.startswith("#") or ":" in n else f"minecraft:{n}" for n in names]
+
+
+# Wie die Biome auf das Klima der Zukunft reagieren (FutureBiomeSource)
+FUTURE_TAGS = {
+    # Gewachsene Wälder und was das Klima nicht anrührt
+    "steadfast": mc("forest", "flower_forest", "birch_forest", "old_growth_birch_forest", "dark_forest", "taiga", "old_growth_pine_taiga",
+                    "old_growth_spruce_taiga", "jungle", "sparse_jungle", "bamboo_jungle", "windswept_forest", "cherry_grove",
+                    "wooded_badlands", "mangrove_swamp", "mushroom_fields", "deep_dark", "lush_caves", "dripstone_caves"),
+    "wooded": mc("#minecraft:is_forest", "#minecraft:is_taiga", "#minecraft:is_jungle", "windswept_forest", "cherry_grove",
+                 "wooded_badlands", "swamp", "mangrove_swamp"),
+    # Schnee taut, Eis schmilzt, Sümpfe werden zu Mangroven
+    "follows_warming": mc("snowy_plains", "ice_spikes", "snowy_taiga", "snowy_beach", "snowy_slopes", "grove", "frozen_peaks",
+                          "jagged_peaks", "frozen_river", "frozen_ocean", "deep_frozen_ocean", "swamp"),
+    "spreading": mc("desert", "badlands", "eroded_badlands", "mangrove_swamp"),
+}
+
+
+def future_tags():
+    for name, values in FUTURE_TAGS.items():
+        write(DATA / f"tags/worldgen/biome/future/{name}.json", {"replace": False, "values": values})
+
+
 def dimensions():
     for years, dim_type, settings, remap in ERAS:
         source = {"type": "minecraft:multi_noise", "preset": "minecraft:overworld"}
         if remap:
             source = {"type": f"{NS}:remapped", "base": source, "remap": REMAPS[remap]}
+        if years > 0:
+            # Alle Zukünfte kennen ihre Jahre (Dörfer wachsen); das Klima ändert sich erst ab FUTURE_CLIMATE_FROM
+            source = future_source(years, source)
         write(DATA / f"dimension/year_{era_id(years)}.json", {
             "type": f"{NS}:{dim_type}",
             "generator": {"type": "minecraft:noise", "settings": settings, "biome_source": source},
@@ -576,6 +636,7 @@ def main():
     biomes()
     dimension_types()
     dimensions()
+    future_tags()
     if sorted(TITLES) != sorted([0] + [years for years, *_ in ERAS]):
         raise SystemExit("Namen und Epochen passen nicht zusammen")
     lang()

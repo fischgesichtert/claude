@@ -247,6 +247,9 @@ CHAPTERS = {
         "• Von deinen Tieren bleiben Knochen. Ihre Nachkommen leben verwildert in der Nähe. Schilder verblassen.\n\n"
         "• In deinen Truhen liegt, was die Zeit übrig ließ – als Zeit-Echo: sichtbar, aber es zerfällt bei Berührung. "
         "Nur die Zeitkapsel trägt Dinge wirklich durch die Zeit.\n\n"
+        "• Auch die Welt um dich herum verändert sich: Wälder wachsen von ihren Rändern in die Ebenen, mitten im offenen Land "
+        "entstehen neue Haine, und alte Bäume werden zu Riesen. Flüsse lagern Sandbänke ab. Das Klima wird ein wenig wärmer – "
+        "der Schnee zieht sich zurück, Wüsten wachsen an ihren Rändern.\n\n"
         "Die Zukunft ist nicht festgeschrieben: Baust du heute weiter, sieht sie beim nächsten Besuch anders aus – außer dort, wo du in "
         "der Zukunft selbst gebaut hast. Bald wachsen dort auch die Dörfer zu Städten.",
         "The Future",
@@ -259,6 +262,9 @@ CHAPTERS = {
         "• Of your animals only bones remain. Their descendants roam wild nearby. Signs fade.\n\n"
         "• Your chests hold what time left behind – as time echoes: visible, but they crumble at a touch. Only the time capsule truly "
         "carries things through time.\n\n"
+        "• The world around you changes, too: forests creep from their edges into the plains, new groves rise in open country, and "
+        "old trees grow into giants. Rivers lay down sandbanks. The climate warms a little – the snow retreats, deserts grow at "
+        "their edges.\n\n"
         "The future is not written: keep building today and it looks different on your next visit – except where you built in the "
         "future yourself. Soon the villages there will grow into cities, too.",
     ),

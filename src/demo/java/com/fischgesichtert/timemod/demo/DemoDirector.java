@@ -63,6 +63,7 @@ public class DemoDirector implements ClientModInitializer {
             case "gate" -> GateShowcase.write(this);
             case "letters" -> LetterShowcase.write(this);
             case "future" -> FutureShowcase.write(this);
+            case "forest" -> ForestShowcase.write(this);
             default -> DemoScript.write(this);
         }
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);

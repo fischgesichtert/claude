@@ -197,6 +197,10 @@ def weathering_rules():
         "sign_fade": {"1": 0.02, "5": 0.08, "50": 0.45, "100": 0.75, "250": 1.0},
         "bones": {"10": 0.0, "25": 0.8, "1000": 0.6},
         "descendants": {"10": 0.0, "25": 0.6, "1000": 0.8},
+        # Wald-Sukzession: Bäume zwischen den Ruinen (je Bodenspalte), Riesen je Waldchunk, Sandbänke in Flüssen
+        "forest_trees": {"10": 0.0, "25": 0.006, "100": 0.02, "500": 0.035, "1000": 0.045},
+        "giant_trees": {"50": 0.0, "100": 0.03, "250": 0.06, "500": 0.09, "1000": 0.12},
+        "sandbanks": {"25": 0.0, "100": 0.25, "500": 0.5, "1000": 0.6},
     })
 
 
@@ -329,6 +333,9 @@ def worldgen():
     base = DATA / f"{NS}/worldgen"
     write(base / "configured_feature/weathering.json", {"type": t("weathering"), "config": {}})
     write(base / "placed_feature/weathering.json", {"feature": t("weathering"), "placement": []})
+    for name in ("ancient_grove", "river_banks"):
+        write(base / f"configured_feature/{name}.json", {"type": t(name), "config": {}})
+        write(base / f"placed_feature/{name}.json", {"feature": t(name), "placement": []})
 
 
 def tags():

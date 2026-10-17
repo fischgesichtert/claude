@@ -32,7 +32,7 @@ public final class Reclaim {
 
     /** Wie stark die Natur nach wie vielen Jahren zugreift (aus {@code data/timemod/weathering/reclaim.json}). */
     public record Settings(Curve vines, Curve moss, Curve cobwebs, Curve sand, Curve snow, Curve ruinTrees, Curve fieldTrees,
-                           Curve signFade, Curve bones, Curve descendants) {
+                           Curve signFade, Curve bones, Curve descendants, Curve forestTrees, Curve giantTrees, Curve sandbanks) {
         public static final Settings DEFAULT = new Settings(
             curve("10", 0.01, "50", 0.05, "250", 0.15, "1000", 0.3),
             curve("25", 0.02, "100", 0.08, "500", 0.2, "1000", 0.3),
@@ -43,13 +43,17 @@ public final class Reclaim {
             curve("250", 0.0, "500", 0.01, "1000", 0.03),
             curve("1", 0.02, "5", 0.08, "50", 0.45, "100", 0.75, "250", 1.0),
             curve("10", 0.0, "25", 0.8, "1000", 0.6),
-            curve("10", 0.0, "25", 0.6, "1000", 0.8));
+            curve("10", 0.0, "25", 0.6, "1000", 0.8),
+            curve("10", 0.0, "25", 0.006, "100", 0.02, "500", 0.035, "1000", 0.045),
+            curve("50", 0.0, "100", 0.03, "250", 0.06, "500", 0.09, "1000", 0.12),
+            curve("25", 0.0, "100", 0.25, "500", 0.5, "1000", 0.6));
 
         public static Settings parse(JsonObject json) {
             return new Settings(get(json, "vines", DEFAULT.vines), get(json, "moss", DEFAULT.moss), get(json, "cobwebs", DEFAULT.cobwebs),
                 get(json, "sand", DEFAULT.sand), get(json, "snow", DEFAULT.snow), get(json, "ruin_trees", DEFAULT.ruinTrees),
                 get(json, "field_trees", DEFAULT.fieldTrees), get(json, "sign_fade", DEFAULT.signFade), get(json, "bones", DEFAULT.bones),
-                get(json, "descendants", DEFAULT.descendants));
+                get(json, "descendants", DEFAULT.descendants), get(json, "forest_trees", DEFAULT.forestTrees),
+                get(json, "giant_trees", DEFAULT.giantTrees), get(json, "sandbanks", DEFAULT.sandbanks));
         }
 
         private static Curve get(JsonObject json, String key, Curve fallback) {

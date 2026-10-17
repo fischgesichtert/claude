@@ -20,7 +20,7 @@ Dieses Dokument ist der vollständige Bauplan: was die Mod kann, wie es technisc
 10. [Vergangenheit: −1 bis −245 Mio. Jahre](#10-vergangenheit)
 11. [Mehrspieler](#11-mehrspieler)
 12. [Optik und Sound](#12-optik-und-sound)
-13. [Kompatibilität mit anderen Mods und ProjectE](#13-kompatibilität)
+13. [Kompatibilität mit anderen Mods](#13-kompatibilität)
 14. [Konfiguration, Befehle, Barrierefreiheit](#14-konfiguration-befehle-barrierefreiheit)
 15. [Technische Architektur](#15-technische-architektur)
 16. [Tests: wie „akkurat“ bewiesen wird](#16-tests)
@@ -132,7 +132,6 @@ Ein Ringpuffer pro Dimension speichert die **letzten 60 Sekunden** (1200 Ticks, 
 ### 3.4 Anti-Dupe-Regeln
 Rückspulen ist die gefährlichste Mechanik für Item-Duplikation. Deshalb gilt:
 - Alles, was in der Zeitspanne die Zeitblase verlassen hat, gilt als **zeitlich verankert**: Items in Endertruhen, in anderen Dimensionen, in entladenen Chunks oder bei Spielern außerhalb der Blase. Diese Items werden beim Rückspulen **nicht** zurückgegeben.
-- ProjectE-EMC wird **nie** zurückgespult (siehe [Kapitel 13](#13-kompatibilität)).
 - Gametests prüfen alle bekannten Dupe-Wege automatisch.
 
 ### 3.5 Bonus: „Schleife“ (Endgame-Talisman)
@@ -167,7 +166,6 @@ Zeitmanipulation ist **teuer**. Die Währung dafür heißt **Chronon (Ch)**.
 | **Chronit-Kristalle** in einem Zeitkondensator „ausbrennen“ | II |
 | **Lebenszeit-Extraktor**: entzieht Mobs Lebenszeit. Sie altern sichtbar, werden grau und sterben an Altersschwäche. Das ergibt eine Mob-Farm für Zeit | III |
 | **Zeitrisse** schließen (siehe 7.3) | II–IV |
-| **ProjectE**: EMC → Chronon-Wandler (teuer, z. B. 1 Ch = 2048 EMC) | III |
 | **XP opfern**: Notfallquelle, schlechter Kurs | I |
 
 ### Speicher
@@ -217,7 +215,7 @@ Wer die Zeit übermäßig nutzt, lässt den **Paradox-Druck** in der Region stei
 - **Temporal-Werkbank**: Multiblock mit drehenden Ringen. Hier werden Module eingebaut.
 - **Filtermodule** (Kapitel 4) und **Verstärkungsmodule** für Radius, Dauer, Stärke und Effizienz.
 - **Chrono-Rüstung**: Mit dem vollen Set kannst du dich **in der gestoppten Zeit anderer bewegen**, ganz nach JoJo-Regel. Außerdem bekommst du Teilimmunität gegen Zeitlupe.
-- **Lebenszeit-Extraktor**, **EMC-Wandler** und **Zeitzellen** der Stufe III.
+- **Lebenszeit-Extraktor** und **Zeitzellen** der Stufe III.
 - Zum Fortschritt geht es nur über **Boss 1 und Boss 2**.
 
 ### Stufe IV – Herr der Zeit
@@ -448,16 +446,7 @@ Ab hier gilt ein eigener **Paläo-Generator**. Er wird aus dem Seed abgeleitet, 
 - Rückspulen speichert **NBT**. Auch Energie, Fortschritt und Inventare von Mod-Maschinen kommen zurück.
 - **Öffentliche API**: Andere Mods können eigene Zustände registrieren, etwa globale Netzwerke, oder Zeitmanipulation erkennen und abfangen.
 
-### 13.2 ProjectE
-- **EMC-Werte** für alle Items von TIME.
-- **EMC → Chronon-Wandler**.
-- **Uhr der fließenden Zeit** (ProjectE) als alternative Zutat für Stufe III.
-- Kleinsterne als Ersatz-Energiespeicher.
-- EMC-Wissen und EMC-Guthaben sind **vom Rückspulen ausgenommen**, gegen Duplikation.
-
-> ⚠️ **Wichtig:** Das offizielle ProjectE gibt es meines Wissens **nur für Forge/NeoForge**, nicht für Fabric 1.20.1. Bitte sag mir, welche Version du nutzt. Möglich sind ein Fabric-Port oder ProjectE über **Sinytra Connector**. Danach richtet sich die Anbindung.
-
-### 13.3 Weitere (optional, nur aktiv wenn installiert)
+### 13.2 Weitere (optional, nur aktiv wenn installiert)
 - **Jade / WTHIT**: zeigt beim Anschauen den Zeitzustand eines Blocks oder Mobs („2,0× · noch 12 s“).
 - **EMI / REI**: Rezepte, auch für die Uhrmacher- und die Temporal-Werkbank.
 - **Mod Menu und Cloth Config**: Einstellungen im Spiel.
@@ -565,7 +554,7 @@ Jeder Meilenstein wird kompiliert, getestet und als `.jar` lauffähig gepusht.
 | **M8** | Zukunft | Verwitterungs-Pipeline, Statik, Natur-Rückeroberung, Wald-Sukzession, Dorf-Wachstum, Zukunfts-Wesen, Epochen-Boss | +1 bis +1000 Jahre |
 | **M9** | Nahe Vergangenheit + Eiszeit | ursprüngliche Welt, Gletscher, Meeresspiegel, Megafauna, Höhlenmenschen | bis −100.000 Jahre |
 | **M10** | Tiefe Vergangenheit | Paläo-Generator, Pangäa, Binnenmeere, Urpflanzen, alle Dinos, Asteroiden-Event, Fossilien, Bernstein/DNS, Epochen-Bosse | bis −245 Mio. Jahre 🦖 |
-| **M11** | Kompatibilität + Feinschliff | ProjectE, Jade, EMI/REI, Mod Menu, API, Balancing, Leistung, Barrierefreiheit, Übersetzungen (de/en) | Release 1.0 |
+| **M11** | Kompatibilität + Feinschliff | Jade, EMI/REI, Mod Menu, API, Balancing, Leistung, Barrierefreiheit, Übersetzungen (de/en) | Release 1.0 |
 
 ---
 
@@ -582,9 +571,8 @@ Jeder Meilenstein wird kompiliert, getestet und als `.jar` lauffähig gepusht.
 
 ## 19. Offene Fragen
 
-1. **ProjectE**: Welche Version nutzt du (Link)? Ein Fabric-Port oder Sinytra Connector?
-2. **GeckoLib** als Abhängigkeit für animierte Dinos und Bosse: okay?
-3. Spielst du hauptsächlich **allein oder auf einem Server**? Das bestimmt die Standard-Grenzwerte.
+1. **GeckoLib** als Abhängigkeit für animierte Dinos und Bosse: okay?
+2. Spielst du hauptsächlich **allein oder auf einem Server**? Das bestimmt die Standard-Grenzwerte.
 
 ### Benötigte Domains (Netzwerk-Freigabe)
 ```

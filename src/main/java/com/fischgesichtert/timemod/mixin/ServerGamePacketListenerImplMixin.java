@@ -1,7 +1,12 @@
 package com.fischgesichtert.timemod.mixin;
 
+import com.fischgesichtert.timemod.safety.CrashGuard;
+import com.fischgesichtert.timemod.safety.Safety;
+import com.fischgesichtert.timemod.time.TimeContext;
 import com.fischgesichtert.timemod.time.TimeEngine;
 import com.fischgesichtert.timemod.time.TimeLevel;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
@@ -38,8 +43,29 @@ public abstract class ServerGamePacketListenerImplMixin {
 
     @Unique
     private boolean timemod$frozen() {
-        TimeEngine engine = ((TimeLevel) player.level()).timemod$getEngine();
-        return engine != null && !engine.isIdle() && engine.isFrozenPlayer(player);
+        try {
+            TimeEngine engine = ((TimeLevel) player.level()).timemod$getEngine();
+            return engine != null && !engine.isIdle() && engine.isFrozenPlayer(player);
+        } catch (Throwable error) {
+            Safety.report("Zeitstopp: Spieler-Eingabe", error);
+            return false;
+        }
+    }
+
+    /**
+     * Absturzschutz: Im Einzelspieler bringt ein Fehler im Spieler-Tick (etwa in einem Gegenstand der Mod
+     * im Inventar) sonst das ganze Spiel zum Absturz.
+     */
+    @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;doTick()V"))
+    private void timemod$guardPlayerTick(ServerPlayer self, Operation<Void> original) {
+        try {
+            original.call(self);
+        } catch (Throwable error) {
+            TimeContext.exit();
+            if (!CrashGuard.absorb("Spieler-Tick", error)) {
+                throw error;
+            }
+        }
     }
 
     @Inject(method = "handleMovePlayer", at = @At(value = "INVOKE", target = ENSURE, shift = At.Shift.AFTER), cancellable = true)

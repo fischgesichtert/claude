@@ -83,6 +83,15 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Kompatibilitätstest mit einem echten Modpack (Lithium, ModernFix, Sodium, Iris …), geladen mit
+    // tools/fetch-compat-mods.py: -Pcompat für runGametest, -Pcompat=client zusätzlich mit den Client-Mods.
+    if (project.hasProperty('compat')) {
+        modLocalRuntime fileTree(dir: 'compat/mods/server', include: '*.jar')
+        if (project.property('compat') == 'client') {
+            modLocalRuntime fileTree(dir: 'compat/mods/client', include: '*.jar')
+        }
+    }
 }
 
 // Jeder Gametest-Lauf startet mit einer frischen Welt, sonst bleiben Entities alter Läufe liegen.

@@ -5,6 +5,7 @@ import com.fischgesichtert.timemod.era.Eras;
 import com.fischgesichtert.timemod.future.town.Settlements;
 import com.fischgesichtert.timemod.registry.ModAdvancements;
 import com.fischgesichtert.timemod.registry.ModBlocks;
+import com.fischgesichtert.timemod.safety.Safety;
 import it.unimi.dsi.fastutil.longs.LongLinkedOpenHashSet;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,13 +67,13 @@ public final class FutureDerivation {
     }
 
     public static void init() {
-        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> {
+        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> Safety.run("Zukunft: Chunk geladen", () -> {
             Era era = Eras.byLevel(level.dimension());
             if (era != null && era.isFuture() && needsDerivation(level, chunk.getPos().toLong())) {
                 DUE.computeIfAbsent(level.dimension(), key -> new LongLinkedOpenHashSet()).add(chunk.getPos().toLong());
             }
-        });
-        ServerTickEvents.END_SERVER_TICK.register(FutureDerivation::tick);
+        }));
+        ServerTickEvents.END_SERVER_TICK.register(server -> Safety.run("Zukunft: Ableitung", () -> tick(server)));
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> DUE.clear());
     }
 

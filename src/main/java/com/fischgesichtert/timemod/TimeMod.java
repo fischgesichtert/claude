@@ -2,12 +2,14 @@ package com.fischgesichtert.timemod;
 
 import com.fischgesichtert.timemod.armor.ChronoArmorItem;
 import com.fischgesichtert.timemod.command.ChronoCommand;
-import com.fischgesichtert.timemod.item.ChronikGift;
 import com.fischgesichtert.timemod.era.Timeline;
 import com.fischgesichtert.timemod.future.ChangeTracking;
 import com.fischgesichtert.timemod.future.FutureDerivation;
 import com.fischgesichtert.timemod.future.WeatheringRules;
+import com.fischgesichtert.timemod.future.town.RuinWatch;
+import com.fischgesichtert.timemod.future.town.TownPieces;
 import com.fischgesichtert.timemod.gate.TimeStream;
+import com.fischgesichtert.timemod.item.ChronikGift;
 import com.fischgesichtert.timemod.item.TimeLoopItem;
 import com.fischgesichtert.timemod.network.ChronosNetworking;
 import com.fischgesichtert.timemod.network.TimeNetworking;
@@ -25,11 +27,10 @@ import com.fischgesichtert.timemod.registry.ModVillagers;
 import com.fischgesichtert.timemod.registry.ModWorldgen;
 import com.fischgesichtert.timemod.rewind.PlayerHistory;
 import com.fischgesichtert.timemod.rewind.RecordingDemand;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.TimeImmunity;
-import com.fischgesichtert.timemod.worldgen.ModStructures;
-import com.fischgesichtert.timemod.future.town.RuinWatch;
-import com.fischgesichtert.timemod.future.town.TownPieces;
 import com.fischgesichtert.timemod.worldgen.FutureBiomeSource;
+import com.fischgesichtert.timemod.worldgen.ModStructures;
 import com.fischgesichtert.timemod.worldgen.RemappedBiomeSource;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -77,7 +78,8 @@ public class TimeMod implements ModInitializer {
         FutureDerivation.init();
         ParadoxPressure.init();
         RuinWatch.init();
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ChronoCommand.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+            Safety.run("Befehl /chrono", () -> ChronoCommand.register(dispatcher)));
         LOGGER.info("TIME geladen – die Zeit gehört dir.");
     }
 }

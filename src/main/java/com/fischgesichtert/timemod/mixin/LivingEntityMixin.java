@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.mixin;
 
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.TimeEngine;
 import com.fischgesichtert.timemod.time.TimeHitQueue;
 import com.fischgesichtert.timemod.time.TimeLevel;
@@ -67,7 +68,7 @@ public abstract class LivingEntityMixin implements TimeHitQueue {
             return;
         }
         TimeEngine engine = ((TimeLevel) level).timemod$getEngine();
-        if (engine == null || engine.isIdle() || !engine.isFrozen(self)) {
+        if (engine == null || engine.isIdle() || !Safety.test("Zeitstopp: Treffer", () -> engine.isFrozen(self), false)) {
             return;
         }
         if (self.isDeadOrDying() || self.isInvulnerableTo(source) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {

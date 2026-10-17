@@ -20,3 +20,5 @@ Thumbs.db
 run-demo/
 media/
 __pycache__/
+# Fremde Mods für Kompatibilitätstests (tools/fetch-compat-mods.py)
+compat/

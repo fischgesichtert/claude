@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.network;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.TimeLevel;
 import com.fischgesichtert.timemod.time.TimeZone;
 import io.netty.buffer.Unpooled;
@@ -22,11 +23,12 @@ public final class TimeNetworking {
     }
 
     public static void init() {
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> sendZonesTo(handler.getPlayer()));
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> sendZonesTo(player));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Safety.run("Zonen senden", () -> sendZonesTo(handler.getPlayer())));
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->
+            Safety.run("Zonen senden", () -> sendZonesTo(player)));
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if (entity instanceof ServerPlayer player) {
-                sendZonesTo(player);
+                Safety.run("Zonen senden", () -> sendZonesTo(player));
             }
         });
     }

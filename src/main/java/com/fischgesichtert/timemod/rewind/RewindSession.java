@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.rewind;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.item.RewindPersistent;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeZone;
@@ -575,8 +576,7 @@ public final class RewindSession {
             if (zone != null) {
                 ServerTimeEngine.of(level).removeZone(zone.id());
             }
-            onFinish.forEach(Runnable::run);
-            onFinish.clear();
+            runFinishActions();
             return;
         }
         journal.beginReplay();
@@ -615,16 +615,26 @@ public final class RewindSession {
                     level.neighborChanged(pos, state.getBlock(), pos);
                 }
             }
+        } catch (Throwable error) {
+            // Absturzschutz: Was sich nicht wiederherstellen ließ, bleibt wie es ist – das Ende kommt trotzdem
+            Safety.report("Zurückspulen: Abschluss", error);
         } finally {
             journal.endReplay();
         }
-        settleChronon();
+        Safety.run("Zurückspulen: Chronon", this::settleChronon);
         if (zone != null) {
             ServerTimeEngine.of(level).removeZone(zone.id());
         }
-        journal.restartAfterRewind();
+        Safety.run("Zurückspulen: Neubeginn der Aufzeichnung", journal::restartAfterRewind);
         TimeMod.LOGGER.info("Zurückgespult: {} Ticks", done);
-        onFinish.forEach(Runnable::run);
+        runFinishActions();
+    }
+
+    private void runFinishActions() {
+        List<Runnable> actions = new ArrayList<>(onFinish);
         onFinish.clear();
+        for (Runnable action : actions) {
+            Safety.run("Zurückspulen: Abschluss-Aktion", action);
+        }
     }
 }

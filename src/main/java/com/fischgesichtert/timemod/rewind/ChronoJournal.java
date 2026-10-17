@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.rewind;
 
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.TimeMod;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -229,6 +230,14 @@ public final class ChronoJournal {
 
     /** Vor jeder Blockänderung: alter Zustand samt Block-Entity-Daten. */
     public void onBlockChange(LevelChunk chunk, BlockPos pos, BlockState newState) {
+        try {
+            recordBlockChange(chunk, pos, newState);
+        } catch (Throwable error) {
+            recover("Zeitjournal: Blockänderung", error);
+        }
+    }
+
+    private void recordBlockChange(LevelChunk chunk, BlockPos pos, BlockState newState) {
         if (!active()) {
             return;
         }
@@ -247,12 +256,28 @@ public final class ChronoJournal {
     }
 
     public void onBlockEntityChanged(BlockPos pos) {
-        if (active() && isRecorded(pos)) {
+        try {
+            recordBlockEntity(pos);
+        } catch (Throwable error) {
+            recover("Zeitjournal: Block-Entity", error);
+        }
+    }
+
+    private void recordBlockEntity(@Nullable BlockPos pos) {
+        if (pos != null && active() && isRecorded(pos)) {
             dirtyBlockEntities.add(pos.immutable());
         }
     }
 
     public void onEntitySpawned(Entity entity) {
+        try {
+            recordSpawn(entity);
+        } catch (Throwable error) {
+            recover("Zeitjournal: neue Entity", error);
+        }
+    }
+
+    private void recordSpawn(Entity entity) {
         if (!active() || entity instanceof Player || !isRecorded(entity.getX(), entity.getY(), entity.getZ())) {
             return;
         }
@@ -260,6 +285,14 @@ public final class ChronoJournal {
     }
 
     public void onEntityRemoved(Entity entity, Entity.RemovalReason reason) {
+        try {
+            recordRemoval(entity, reason);
+        } catch (Throwable error) {
+            recover("Zeitjournal: entfernte Entity", error);
+        }
+    }
+
+    private void recordRemoval(Entity entity, Entity.RemovalReason reason) {
         if (!active() || entity instanceof Player || !isRecorded(entity.getX(), entity.getY(), entity.getZ())) {
             return;
         }
@@ -289,12 +322,30 @@ public final class ChronoJournal {
 
     /** Am Anfang eines echten Ticks: laufende Rückspul-Wiedergabe fortsetzen. */
     public void beginRealTick() {
-        if (pending != null && !pending.isFinished() && open != null && runningSession() == null) {
-            begin(pending);
+        try {
+            if (pending != null && !pending.isFinished() && open != null && runningSession() == null) {
+                begin(pending);
+            }
+        } catch (Throwable error) {
+            // Lässt sich die Wiedergabe nicht starten, wird sie abgebrochen
+            RewindSession failed = pending != null ? pending : session;
+            pending = null;
+            session = null;
+            if (failed != null) {
+                Safety.run("Zeitjournal: Zurückspulen abbrechen", failed::stop);
+            }
+            recover("Zeitjournal: Zurückspulen starten", error);
         }
         if (session != null) {
-            session.tick();
-            if (session.isFinished()) {
+            try {
+                session.tick();
+            } catch (Throwable error) {
+                RewindSession failed = session;
+                session = null;
+                Safety.run("Zeitjournal: Zurückspulen abbrechen", failed::stop);
+                recover("Zeitjournal: Zurückspulen", error);
+            }
+            if (session != null && session.isFinished()) {
                 session = null;
             }
         }
@@ -305,14 +356,29 @@ public final class ChronoJournal {
         if (!recording || runningSession() != null || open == null) {
             return;
         }
-        Frame frame = open;
-        captureState(frame);
-        frames.addLast(frame);
-        while (frames.size() > capacity) {
-            evict();
+        try {
+            Frame frame = open;
+            captureState(frame);
+            frames.addLast(frame);
+            while (frames.size() > capacity) {
+                evict();
+            }
+            open = new Frame(nextIndex++);
+            baselineChunks();
+        } catch (Throwable error) {
+            recover("Zeitjournal: Aufzeichnung", error);
         }
-        open = new Frame(nextIndex++);
-        baselineChunks();
+    }
+
+    /**
+     * Absturzschutz: Ist beim Aufzeichnen oder Zurückspulen etwas schiefgegangen, beginnt die
+     * Geschichte an dieser Stelle neu. Weiter zurück lässt sich dann nicht spulen, aber nichts bleibt
+     * halb aufgezeichnet liegen.
+     */
+    private void recover(String where, Throwable error) {
+        Safety.report(where, error);
+        replaying = 0;
+        Safety.run("Zeitjournal: Neubeginn", this::restartAfterRewind);
     }
 
     private void captureState(Frame frame) {

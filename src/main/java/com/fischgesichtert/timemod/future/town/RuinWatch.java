@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.future.town;
 
 import com.fischgesichtert.timemod.entity.RuinGuardian;
+import com.fischgesichtert.timemod.safety.Safety;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.core.BlockPos;
@@ -22,13 +23,15 @@ public final class RuinWatch {
     }
 
     public static void init() {
-        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> alarm(level, player, pos));
+        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> Safety.run("Ruinenwächter: Alarm", () -> alarm(level, player, pos)));
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
             if (!level.isClientSide && !player.isSecondaryUseActive()) {
-                BlockEntity blockEntity = level.getBlockEntity(hit.getBlockPos());
-                if (blockEntity instanceof MenuProvider) {
-                    alarm(level, player, hit.getBlockPos());
-                }
+                Safety.run("Ruinenwächter: Alarm", () -> {
+                    BlockEntity blockEntity = level.getBlockEntity(hit.getBlockPos());
+                    if (blockEntity instanceof MenuProvider) {
+                        alarm(level, player, hit.getBlockPos());
+                    }
+                });
             }
             return InteractionResult.PASS;
         });

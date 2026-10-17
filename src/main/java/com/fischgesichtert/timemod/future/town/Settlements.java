@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.future.town;
 
 import com.fischgesichtert.timemod.future.Curve;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.ArrayList;
@@ -106,12 +107,12 @@ public final class Settlements {
     }
 
     public static void init() {
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> Safety.run("Siedlungen: Start", () -> {
             worldSeed = server.getWorldData().worldGenOptions().seed();
             villages = server.registryAccess().registryOrThrow(Registries.STRUCTURE_SET).getOptional(BuiltinStructureSets.VILLAGES)
                 .map(set -> set.placement() instanceof RandomSpreadStructurePlacement spread ? spread : null).orElse(null);
             SITES.clear();
-        });
+        }));
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             villages = null;
             SITES.clear();

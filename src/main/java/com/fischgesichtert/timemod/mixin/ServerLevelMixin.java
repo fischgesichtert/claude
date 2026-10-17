@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.era.Eras;
+import com.fischgesichtert.timemod.safety.CrashGuard;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeLevel;
@@ -152,14 +153,32 @@ public abstract class ServerLevelMixin {
 
     // ---------------- Zufalls-Ticks, Niederschlag, Blitze ----------------
 
-    @WrapWithCondition(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
-    private boolean timemod$randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        return timemod$engine().allowRandomTick(pos, state.getBlock());
+    @WrapOperation(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
+    private void timemod$randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random, Operation<Void> original) {
+        if (!timemod$engine().allowRandomTick(pos, state.getBlock())) {
+            return;
+        }
+        try {
+            original.call(state, level, pos, random);
+        } catch (Throwable error) {
+            if (!CrashGuard.absorb("Zufalls-Tick", error)) {
+                throw error;
+            }
+        }
     }
 
-    @WrapWithCondition(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;randomTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
-    private boolean timemod$fluidRandomTick(FluidState state, Level level, BlockPos pos, RandomSource random) {
-        return timemod$engine().allowEnvironment(pos);
+    @WrapOperation(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;randomTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"))
+    private void timemod$fluidRandomTick(FluidState state, Level level, BlockPos pos, RandomSource random, Operation<Void> original) {
+        if (!timemod$engine().allowEnvironment(pos)) {
+            return;
+        }
+        try {
+            original.call(state, level, pos, random);
+        } catch (Throwable error) {
+            if (!CrashGuard.absorb("Zufalls-Tick", error)) {
+                throw error;
+            }
+        }
     }
 
     @WrapOperation(method = "tickChunk", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))

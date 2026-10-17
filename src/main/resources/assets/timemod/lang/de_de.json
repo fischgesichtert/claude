@@ -602,6 +602,8 @@
   "subtitles.timemod.warden_hurt": "Zeitwächter wird getroffen",
   "subtitles.timemod.warden_vanish": "Zeitwächter verschwindet",
   "subtitles.timemod.zone_hum": "Zeitzone summt",
+  "timemod.safety.engine_reset": "⌛ TIME: Ein Fehler in der Zeit-Engine wurde abgefangen. Die Zeitzonen dieser Welt wurden sicherheitshalber aufgelöst – das Spiel läuft normal weiter.",
+  "timemod.safety.screen_closed": "⌛ TIME: Dieser Bildschirm hatte einen Fehler und wurde geschlossen. Das Spiel läuft normal weiter.",
   "tooltip.timemod.affects": "Wirkt auf: %s",
   "tooltip.timemod.chrono_armor.helmet": "Zeitsicht: zeigt alle Zeitzonen",
   "tooltip.timemod.chrono_armor.piece": "Jedes Teil spart 5 % Chronon",

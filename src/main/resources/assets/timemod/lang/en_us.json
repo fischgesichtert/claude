@@ -602,6 +602,8 @@
   "subtitles.timemod.warden_hurt": "Time Warden hurts",
   "subtitles.timemod.warden_vanish": "Time Warden vanishes",
   "subtitles.timemod.zone_hum": "Time zone hums",
+  "timemod.safety.engine_reset": "⌛ TIME: An error in the time engine was caught. The time zones in this world were dissolved to be safe – the game carries on normally.",
+  "timemod.safety.screen_closed": "⌛ TIME: This screen ran into an error and was closed. The game carries on normally.",
   "tooltip.timemod.affects": "Affects: %s",
   "tooltip.timemod.chrono_armor.helmet": "Time sight: shows all time zones",
   "tooltip.timemod.chrono_armor.piece": "Each piece saves 5% Chronon",

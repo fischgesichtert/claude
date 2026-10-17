@@ -5,6 +5,7 @@ import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
 import com.fischgesichtert.timemod.rewind.RewindSession;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import java.util.HashSet;
 import java.util.List;
@@ -52,7 +53,7 @@ public class TimeLoopItem extends ChrononToolItem implements RewindCapable, Rewi
 
     public static void init() {
         ServerLivingEntityEvents.ALLOW_DEATH.register((entity, source, amount) ->
-            !(entity instanceof ServerPlayer player && tryLoop(player, source)));
+            Safety.test("Zeitschleife", () -> !(entity instanceof ServerPlayer player && tryLoop(player, source)), true));
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> RESCUING.clear());
     }
 

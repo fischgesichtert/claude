@@ -1,8 +1,11 @@
 package com.fischgesichtert.timemod.mixin;
 
+import com.fischgesichtert.timemod.safety.CrashGuard;
 import com.fischgesichtert.timemod.time.RenderTimeState;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeAware;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -61,6 +64,29 @@ public abstract class EntityMixin implements TimeAware, RenderTimeState {
     @Inject(method = "load", at = @At("RETURN"))
     private void timemod$load(CompoundTag tag, CallbackInfo ci) {
         timemod$eigenzeit = tag.getLong(TIMEMOD_KEY);
+    }
+
+    /** Absturzschutz: Kaputte Daten einer TIME-Entity lassen sie unvollständig laden, statt das Spiel zu beenden. */
+    @WrapOperation(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
+    private void timemod$guardLoad(Entity self, CompoundTag tag, Operation<Void> original) {
+        try {
+            original.call(self, tag);
+        } catch (Throwable error) {
+            if (!CrashGuard.absorb("Entity laden", error)) {
+                throw error;
+            }
+        }
+    }
+
+    @WrapOperation(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
+    private void timemod$guardSave(Entity self, CompoundTag tag, Operation<Void> original) {
+        try {
+            original.call(self, tag);
+        } catch (Throwable error) {
+            if (!CrashGuard.absorb("Entity speichern", error)) {
+                throw error;
+            }
+        }
     }
 
     /** Zeitjournal: Verschwindet eine Entity (getötet, entfernt, Dimension gewechselt), ihren Zustand sichern. */

@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.future.ChangeTracking;
+import com.fischgesichtert.timemod.safety.Safety;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -29,11 +30,13 @@ abstract class ExplosionMixin {
         if (level.isClientSide || getToBlow().isEmpty()) {
             return;
         }
-        LongOpenHashSet chunks = new LongOpenHashSet();
-        for (BlockPos pos : getToBlow()) {
-            if (chunks.add(ChunkPos.asLong(pos))) {
-                ChangeTracking.changed(level, pos, false);
+        Safety.run("Zukunft: Explosion merken", () -> {
+            LongOpenHashSet chunks = new LongOpenHashSet();
+            for (BlockPos pos : getToBlow()) {
+                if (chunks.add(ChunkPos.asLong(pos))) {
+                    ChangeTracking.changed(level, pos, false);
+                }
             }
-        }
+        });
     }
 }

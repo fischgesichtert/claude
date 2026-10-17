@@ -7,6 +7,7 @@ import com.fischgesichtert.timemod.future.FutureDerivation;
 import com.fischgesichtert.timemod.paradox.ParadoxPressure;
 import com.fischgesichtert.timemod.registry.ModAdvancements;
 import com.fischgesichtert.timemod.registry.ModSounds;
+import com.fischgesichtert.timemod.safety.Safety;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,21 +74,22 @@ public final class TimeStream {
     }
 
     public static void init() {
-        ServerTickEvents.END_SERVER_TICK.register(TimeStream::tick);
-        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> !JOURNEYS.containsKey(entity.getUUID()));
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+        ServerTickEvents.END_SERVER_TICK.register(server -> Safety.run("Zeitstrom", () -> tick(server)));
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) ->
+            Safety.test("Zeitstrom: Schaden", () -> !JOURNEYS.containsKey(entity.getUUID()), true));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> Safety.run("Zeitstrom: Verlassen", () -> {
             Journey journey = JOURNEYS.remove(handler.player.getUUID());
             if (journey != null) {
                 land(handler.player, journey, false);
             }
-        });
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> recover(handler.player));
+        }));
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> Safety.run("Zeitstrom: Beitreten", () -> recover(handler.player)));
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             for (UUID uuid : new ArrayList<>(JOURNEYS.keySet())) {
                 ServerPlayer player = server.getPlayerList().getPlayer(uuid);
                 Journey journey = JOURNEYS.remove(uuid);
                 if (player != null && journey != null) {
-                    land(player, journey, false);
+                    Safety.run("Zeitstrom: Landen beim Beenden", () -> land(player, journey, false));
                 }
             }
             JOURNEYS.clear();

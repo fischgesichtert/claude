@@ -6,6 +6,7 @@ import com.fischgesichtert.timemod.chronos.ChronosWatchItem;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
 import com.fischgesichtert.timemod.rewind.RewindSession;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -32,11 +33,18 @@ public final class ChronosNetworking {
 
     public static void init() {
         ServerPlayNetworking.registerGlobalReceiver(ACTION, (server, player, handler, buf, sender) -> {
-            int action = buf.readVarInt();
-            int value = buf.readVarInt();
-            server.execute(() -> handle(player, action, value));
+            int action;
+            int value;
+            try {
+                action = buf.readVarInt();
+                value = buf.readVarInt();
+            } catch (Throwable error) {
+                Safety.report("Chronos-Uhr: Paket lesen", error);
+                return;
+            }
+            server.execute(() -> Safety.run("Chronos-Uhr: Aktion", () -> handle(player, action, value)));
         });
-        ServerTickEvents.END_WORLD_TICK.register(level -> {
+        ServerTickEvents.END_WORLD_TICK.register(level -> Safety.run("Chronos-Uhr: Zustand senden", () -> {
             if (level.getGameTime() % STATE_INTERVAL == 0) {
                 for (ServerPlayer player : level.players()) {
                     if (!ChronosWatchItem.inHand(player).isEmpty()) {
@@ -44,7 +52,7 @@ public final class ChronosNetworking {
                     }
                 }
             }
-        });
+        }));
     }
 
     static void handle(ServerPlayer player, int actionId, int value) {

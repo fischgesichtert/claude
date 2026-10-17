@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.rewind;
 
 import com.fischgesichtert.timemod.item.RewindCapable;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerLevel;
@@ -18,7 +19,7 @@ public final class RecordingDemand {
     public static void init() {
         ServerTickEvents.END_WORLD_TICK.register(level -> {
             if (level.getGameTime() % 20 == 0) {
-                update(level);
+                Safety.run("Zeitjournal: Bedarf", () -> update(level));
             }
         });
     }

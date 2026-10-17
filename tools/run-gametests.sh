@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Führt alle Gametests aus und zeigt pro Test Ergebnis bzw. Fehlermeldung.
+# Mit GRADLE_ARGS=-Pcompat laufen sie zusammen mit dem Modpack aus tools/fetch-compat-mods.py.
 set -u
 cd "$(dirname "$0")/.."
-timeout 1200 ./gradlew runGametest --no-daemon --console=plain > build/gametest.log 2>&1
+mkdir -p build
+timeout 1800 ./gradlew runGametest --no-daemon --console=plain ${GRADLE_ARGS:-} > build/gametest.log 2>&1
 status=$?
 python3 - <<'PY'
 import html, re, pathlib

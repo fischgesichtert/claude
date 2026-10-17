@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.rewind;
 
+import com.fischgesichtert.timemod.safety.Safety;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public final class PlayerHistory {
     }
 
     public static void init() {
-        ServerTickEvents.END_SERVER_TICK.register(PlayerHistory::tick);
+        ServerTickEvents.END_SERVER_TICK.register(server -> Safety.run("Spieler-Verlauf", () -> tick(server)));
     }
 
     private static void tick(MinecraftServer server) {

@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.era.EraSpawns;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
@@ -27,13 +28,14 @@ public abstract class NaturalSpawnerMixin {
     private static void timemod$eraLife(ServerLevel level, StructureManager structureManager, ChunkGenerator generator, MobCategory category,
                                         BlockPos pos, @Nullable Holder<Biome> biome,
                                         CallbackInfoReturnable<WeightedRandomList<MobSpawnSettings.SpawnerData>> cir) {
-        cir.setReturnValue(EraSpawns.filter(level.dimension(), cir.getReturnValue()));
+        WeightedRandomList<MobSpawnSettings.SpawnerData> spawns = cir.getReturnValue();
+        cir.setReturnValue(Safety.get("Epochen: Spawns", () -> EraSpawns.filter(level.dimension(), spawns), spawns));
     }
 
     @ModifyExpressionValue(method = "spawnMobsForChunkGeneration", at = @At(value = "INVOKE",
         target = "Lnet/minecraft/world/level/biome/MobSpawnSettings;getMobs(Lnet/minecraft/world/entity/MobCategory;)Lnet/minecraft/util/random/WeightedRandomList;"))
     private static WeightedRandomList<MobSpawnSettings.SpawnerData> timemod$eraChunkLife(WeightedRandomList<MobSpawnSettings.SpawnerData> spawns,
                                                                                        @Local(argsOnly = true) ServerLevelAccessor accessor) {
-        return EraSpawns.filter(accessor.getLevel().dimension(), spawns);
+        return Safety.get("Epochen: Spawns", () -> EraSpawns.filter(accessor.getLevel().dimension(), spawns), spawns);
     }
 }

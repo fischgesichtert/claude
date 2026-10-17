@@ -4,21 +4,26 @@ import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.network.TimeNetworking;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
+import com.fischgesichtert.timemod.safety.Safety;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
@@ -63,6 +68,13 @@ import org.jetbrains.annotations.Nullable;
  *       Flüssigkeiten → Zufalls-Ticks → Block-Events → Entities → Block-Entities.</li>
  * </ol>
  * Dadurch ist 2× exakt dasselbe wie zwei normale Ticks – ein schneller abgespieltes Video.
+ *
+ * <h2>Absturzschutz</h2>
+ * Jeder Einstieg aus dem Vanilla-Tick fängt eigene Fehler ab und fällt auf normale Zeit zurück.
+ * Scheitert der Ablauf selbst (Tick-Beginn/-Ende) oder häufen sich Fehler, zieht die Engine die
+ * Notbremse: Alle Zonen dieser Welt lösen sich auf, geplante Ticks kehren in die Welt zurück und die
+ * Spieler bekommen einen Hinweis. Zusätzliche Ticks, die nur die Engine auslöst, überspringen ein
+ * Objekt, das dabei scheitert, für den Rest des Ticks.
  */
 public final class ServerTimeEngine extends TimeEngine {
     private final ServerLevel level;
@@ -81,6 +93,16 @@ public final class ServerTimeEngine extends TimeEngine {
     private final List<Runnable> pending = new ArrayList<>();
     private final List<TimeZone> active = new ArrayList<>();
     private final ChronoJournal journal;
+
+    /** Absturzschutz: so viele Fehler in kurzer Zeit lösen die Notbremse aus. */
+    private static final int MAX_FAILURES = 64;
+    private static final long FAILURE_WINDOW = 200;
+    private int recentFailures;
+    private long failureWindowStart;
+    @Nullable
+    private String resetReason;
+    /** Objekte, deren Zusatz-Tick in diesem echten Tick gescheitert ist. */
+    private final Set<Object> brokenThisTick = new ReferenceOpenHashSet<>();
 
     public ServerTimeEngine(ServerLevel level) {
         super(level);
@@ -181,7 +203,7 @@ public final class ServerTimeEngine extends TimeEngine {
         if (ticking) {
             pending.add(action);
         } else {
-            action.run();
+            applyChange(action);
         }
     }
 
@@ -189,7 +211,18 @@ public final class ServerTimeEngine extends TimeEngine {
         if (!pending.isEmpty()) {
             List<Runnable> actions = new ArrayList<>(pending);
             pending.clear();
-            actions.forEach(Runnable::run);
+            actions.forEach(this::applyChange);
+        }
+    }
+
+    /** Eine Zonen-Änderung, die scheitert, lässt die übrigen Zonen unberührt. */
+    private void applyChange(Runnable action) {
+        try {
+            action.run();
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Zonen ändern", error);
+            recomputeFullGlobal();
+            dirty = true;
         }
     }
 
@@ -283,10 +316,23 @@ public final class ServerTimeEngine extends TimeEngine {
     // ------------------------------------------------------------------
 
     public void onLevelTickStart(BooleanSupplier hasTime) {
+        try {
+            if (resetReason != null) {
+                emergencyReset(resetReason);
+            }
+            tickStart(hasTime);
+        } catch (Throwable error) {
+            Safety.report("Zeit-Engine: Tick-Beginn", error);
+            emergencyReset("Fehler am Tick-Beginn");
+        }
+    }
+
+    private void tickStart(BooleanSupplier hasTime) {
         if (inExtraPass) {
             beginPass(false);
             return;
         }
+        brokenThisTick.clear();
         journal.beginRealTick();
         if (zones.isEmpty() && pending.isEmpty()) {
             return;
@@ -317,6 +363,15 @@ public final class ServerTimeEngine extends TimeEngine {
     }
 
     public void onLevelTickEnd() {
+        try {
+            tickEnd();
+        } catch (Throwable error) {
+            Safety.report("Zeit-Engine: Tick-Ende", error);
+            emergencyReset("Fehler am Tick-Ende");
+        }
+    }
+
+    private void tickEnd() {
         if (!ticking) {
             if (!inExtraPass) {
                 journal.endRealTick();
@@ -364,13 +419,77 @@ public final class ServerTimeEngine extends TimeEngine {
         if (frozenPass) {
             return 0;
         }
-        TimeZone best = null;
-        for (TimeZone zone : zones) {
-            if (zone != fullGlobal && zone.shape().isGlobal() && zone.accepts(category) && (best == null || zone.outranks(best))) {
-                best = zone;
+        try {
+            TimeZone best = null;
+            for (TimeZone zone : zones) {
+                if (zone != fullGlobal && zone.shape().isGlobal() && zone.accepts(category) && (best == null || zone.outranks(best))) {
+                    best = zone;
+                }
             }
+            return best == null ? 1 : best.steps();
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Welt-Systeme", error);
+            return 1;
         }
-        return best == null ? 1 : best.steps();
+    }
+
+    // ------------------------------------------------------------------
+    // Absturzschutz
+    // ------------------------------------------------------------------
+
+    /**
+     * Ein Fehler in einem Einzel-Hook: melden und zählen. Häufen sie sich, wird die Notbremse für
+     * den nächsten sicheren Moment (Tick-Beginn) vorgemerkt – mitten in einer Schleife über die Zonen
+     * darf die Liste nicht geleert werden.
+     */
+    private void fail(String where, Throwable error) {
+        Safety.report(where, error);
+        long now = level.getLevelData().getGameTime();
+        if (now - failureWindowStart > FAILURE_WINDOW || now < failureWindowStart) {
+            failureWindowStart = now;
+            recentFailures = 0;
+        }
+        if (++recentFailures >= MAX_FAILURES && resetReason == null) {
+            resetReason = "zu viele Fehler in „" + where + "“";
+        }
+    }
+
+    /**
+     * Notbremse: Alle Zonen dieser Welt lösen sich auf, ihre geplanten Ticks kehren in die Welt
+     * zurück, und die Engine steht wieder am Anfang. Danach läuft alles in normaler Zeit weiter.
+     */
+    private void emergencyReset(String reason) {
+        resetReason = null;
+        recentFailures = 0;
+        TimeMod.LOGGER.error("[TIME] Absturzschutz: Zeit-Engine in {} zurückgesetzt ({}). Alle Zeitzonen dort wurden aufgelöst.",
+            level.dimension().location(), reason);
+        List<TimeZone> removed = new ArrayList<>(zones);
+        zones.clear();
+        pending.clear();
+        active.clear();
+        brokenThisTick.clear();
+        fullGlobal = null;
+        ticking = false;
+        frozenPass = false;
+        globalSteps = 1;
+        substepDepth = 0;
+        entitiesTicked = false;
+        routingDisabled = false;
+        TimeContext.exit();
+        Safety.run("Zeit-Engine: geplante Ticks zurückgeben", () -> rebalanceTicks(removed));
+        dirty = true;
+        sync();
+        Safety.run("Zeit-Engine: Hinweis an Spieler", () -> {
+            Component message = Component.translatable("timemod.safety.engine_reset").withStyle(ChatFormatting.GOLD);
+            for (ServerPlayer player : level.players()) {
+                player.sendSystemMessage(message);
+            }
+        });
+    }
+
+    /** Ist ein Absturzschutz-Neustart vorgemerkt? (für Tests) */
+    public boolean isResetPending() {
+        return resetReason != null;
     }
 
     // ------------------------------------------------------------------
@@ -379,27 +498,35 @@ public final class ServerTimeEngine extends TimeEngine {
 
     /** Vor {@code ServerLevel#tickNonPassenger}. {@code false} = diesen Tick auslassen. */
     public boolean beforeEntityTick(Entity entity) {
-        if (entity instanceof TimeHitQueue queue && queue.timemod$hasPendingHits() && !isFrozen(entity)) {
-            queue.timemod$releaseHits();
-        }
-        if (substepDepth > 0 || zones.isEmpty()) {
-            return true;
-        }
-        if (inExtraPass && isOutsideTime(entity)) {
-            return false;
-        }
-        TimeZone zone = resolveEntity(entity);
-        if (zone == null) {
-            return true;
-        }
-        if (zone.steps() == 0) {
-            if (zone != fullGlobal) {
-                ((TimeAware) entity).timemod$addEigenzeit(-1);
+        try {
+            if (entity instanceof TimeHitQueue queue && queue.timemod$hasPendingHits() && !isFrozen(entity)) {
+                queue.timemod$releaseHits();
             }
-            return false;
+            if (substepDepth > 0 || zones.isEmpty()) {
+                return true;
+            }
+            if (inExtraPass && isOutsideTime(entity)) {
+                return false;
+            }
+            TimeZone zone = resolveEntity(entity);
+            if (zone == null) {
+                return true;
+            }
+            if (zone.steps() == 0) {
+                if (zone != fullGlobal) {
+                    ((TimeAware) entity).timemod$addEigenzeit(-1);
+                }
+                return false;
+            }
+            TimeContext.enter(level, ((TimeAware) entity).timemod$getEigenzeit());
+            return true;
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Entity", error);
+            if (substepDepth == 0) {
+                TimeContext.exit();
+            }
+            return true;
         }
-        TimeContext.enter(level, ((TimeAware) entity).timemod$getEigenzeit());
-        return true;
     }
 
     /** Vanilla tickt in diesem Durchlauf Entities und Block-Entities (sonst ruhen sie, z. B. leere Welt). */
@@ -415,7 +542,7 @@ public final class ServerTimeEngine extends TimeEngine {
 
     /** Spieler als Passagiere ticken in zusätzlichen Welt-Durchläufen nicht mit. */
     public boolean allowPassengerTick(Entity passenger) {
-        return !(inExtraPass && isOutsideTime(passenger));
+        return !inExtraPass || Safety.test("Zeit-Engine: Passagier", () -> !isOutsideTime(passenger), true);
     }
 
     @Override
@@ -424,22 +551,33 @@ public final class ServerTimeEngine extends TimeEngine {
             original.run();
             return;
         }
-        BlockPos pos = ticker.getPos();
-        TimeZone zone = resolveBlock(pos, TimeFilter.MACHINES);
+        TimeZone zone;
+        TimeAware aware = null;
+        try {
+            // Schlafende Block-Entities (Lithium) haben keine Position und tun ohnehin nichts
+            BlockPos pos = ticker.getPos();
+            zone = resolveBlock(pos, TimeFilter.MACHINES);
+            if (zone != null) {
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof TimeAnchored) {
+                    zone = null;
+                } else if (blockEntity instanceof TimeAware timeAware) {
+                    aware = timeAware;
+                }
+            }
+            if (zone != null && zone.steps() == 0) {
+                if (zone != fullGlobal && aware != null) {
+                    aware.timemod$addEigenzeit(-1);
+                }
+                return;
+            }
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Block-Entity", error);
+            original.run();
+            return;
+        }
         if (zone == null) {
             original.run();
-            return;
-        }
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof TimeAnchored) {
-            original.run();
-            return;
-        }
-        TimeAware aware = blockEntity instanceof TimeAware a ? a : null;
-        if (zone.steps() == 0) {
-            if (zone != fullGlobal && aware != null) {
-                aware.timemod$addEigenzeit(-1);
-            }
             return;
         }
         TimeContext.enter(level, aware != null ? aware.timemod$getEigenzeit() : 0);
@@ -460,31 +598,50 @@ public final class ServerTimeEngine extends TimeEngine {
         if (zones.isEmpty()) {
             return true;
         }
-        TimeZone zone = resolveBlock(pos, TimeFilter.randomTickCategory(block));
-        return zone == null || zone.steps() > 0;
+        try {
+            TimeZone zone = resolveBlock(pos, TimeFilter.randomTickCategory(block));
+            return zone == null || zone.steps() > 0;
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Zufalls-Tick", error);
+            return true;
+        }
     }
 
     public boolean allowEnvironment(BlockPos pos) {
         if (zones.isEmpty()) {
             return true;
         }
-        TimeZone zone = resolveBlock(pos, TimeFilter.ENVIRONMENT);
-        return zone == null || zone.steps() > 0;
+        try {
+            TimeZone zone = resolveBlock(pos, TimeFilter.ENVIRONMENT);
+            return zone == null || zone.steps() > 0;
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Umwelt", error);
+            return true;
+        }
     }
 
     public boolean allowBlockEvent(BlockPos pos) {
         if (zones.isEmpty()) {
             return true;
         }
-        TimeZone zone = resolveBlock(pos, TimeFilter.BLOCK_TICKS);
-        return zone == null || zone.steps() > 0;
+        try {
+            TimeZone zone = resolveBlock(pos, TimeFilter.BLOCK_TICKS);
+            return zone == null || zone.steps() > 0;
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Block-Event", error);
+            return true;
+        }
     }
 
     /** Nach den geplanten Block-Ticks der Welt: Zonen mit mindestens einem Schritt ziehen nach. */
     public void afterWorldBlockTicks() {
         for (TimeZone zone : zones) {
             if (zone != fullGlobal && zone.steps() > 0 && zone.blockTicks != null && !zone.blockTicks.isEmpty()) {
-                zone.blockTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickBlock);
+                try {
+                    zone.blockTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickBlock);
+                } catch (Throwable error) {
+                    fail("Zeit-Engine: geplante Block-Ticks", error);
+                }
             }
         }
     }
@@ -492,7 +649,11 @@ public final class ServerTimeEngine extends TimeEngine {
     public void afterWorldFluidTicks() {
         for (TimeZone zone : zones) {
             if (zone != fullGlobal && zone.steps() > 0 && zone.fluidTicks != null && !zone.fluidTicks.isEmpty()) {
-                zone.fluidTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickFluid);
+                try {
+                    zone.fluidTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickFluid);
+                } catch (Throwable error) {
+                    fail("Zeit-Engine: Flüssigkeits-Ticks", error);
+                }
             }
         }
     }
@@ -502,8 +663,13 @@ public final class ServerTimeEngine extends TimeEngine {
         if (zones.isEmpty()) {
             return false;
         }
-        TimeZone zone = resolveEntity(entity);
-        return zone != null && (zone.factor() > 1.0 || zone.isRewind());
+        try {
+            TimeZone zone = resolveEntity(entity);
+            return zone != null && (zone.factor() > 1.0 || zone.isRewind());
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Übertragung", error);
+            return false;
+        }
     }
 
     // ------------------------------------------------------------------
@@ -544,20 +710,36 @@ public final class ServerTimeEngine extends TimeEngine {
         }
         for (TimeZone zone : active) {
             if (zone.blockTicks != null && !zone.blockTicks.isEmpty()) {
-                zone.blockTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickBlock);
+                try {
+                    zone.blockTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickBlock);
+                } catch (Throwable error) {
+                    fail("Zeit-Engine: Block-Ticks im Zeitraffer", error);
+                }
             }
         }
         for (TimeZone zone : active) {
             if (zone.fluidTicks != null && !zone.fluidTicks.isEmpty()) {
-                zone.fluidTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickFluid);
+                try {
+                    zone.fluidTicks.run(zone.clock(), level::shouldTickBlocksAt, level::tickFluid);
+                } catch (Throwable error) {
+                    fail("Zeit-Engine: Flüssigkeiten im Zeitraffer", error);
+                }
             }
         }
         for (TimeZone zone : active) {
             if (zone.accepts(TimeFilter.GROWTH | TimeFilter.ENVIRONMENT)) {
-                randomTicks(zone);
+                try {
+                    randomTicks(zone);
+                } catch (Throwable error) {
+                    fail("Zeit-Engine: Zufalls-Ticks im Zeitraffer", error);
+                }
             }
         }
-        runBlockEvents(sub);
+        try {
+            runBlockEvents(sub);
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Block-Events im Zeitraffer", error);
+        }
         if (entitiesTicked) {
             level.entityTickList.forEach(entity -> substepEntity(entity, sub));
             substepBlockEntities(sub);
@@ -569,25 +751,39 @@ public final class ServerTimeEngine extends TimeEngine {
     }
 
     private void substepEntity(Entity entity, int sub) {
-        if (entity.isRemoved() || entity.isPassenger()) {
+        if (brokenThisTick.contains(entity)) {
             return;
         }
-        TimeZone zone = resolveEntity(entity);
-        if (!isActive(zone, sub)) {
+        TimeAware aware;
+        try {
+            if (entity.isRemoved() || entity.isPassenger()) {
+                return;
+            }
+            TimeZone zone = resolveEntity(entity);
+            if (!isActive(zone, sub)) {
+                return;
+            }
+            if (!level.getChunkSource().chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().toLong())) {
+                return;
+            }
+            entity.checkDespawn();
+            if (entity.isRemoved()) {
+                return;
+            }
+            aware = (TimeAware) entity;
+            aware.timemod$addEigenzeit(1);
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Entity im Zeitraffer", error);
+            brokenThisTick.add(entity);
             return;
         }
-        if (!level.getChunkSource().chunkMap.getDistanceManager().inEntityTickingRange(entity.chunkPosition().toLong())) {
-            return;
-        }
-        entity.checkDespawn();
-        if (entity.isRemoved()) {
-            return;
-        }
-        TimeAware aware = (TimeAware) entity;
-        aware.timemod$addEigenzeit(1);
         TimeContext.enter(level, aware.timemod$getEigenzeit());
         try {
             level.guardEntityTick(level::tickNonPassenger, entity);
+        } catch (Throwable error) {
+            // Der Zusatz-Tick stammt von der Engine: Scheitert er, fällt er für den Rest dieses Ticks aus
+            Safety.report("Zeitraffer: Entity " + BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()), error);
+            brokenThisTick.add(entity);
         } finally {
             TimeContext.exit();
         }
@@ -597,25 +793,42 @@ public final class ServerTimeEngine extends TimeEngine {
         List<TickingBlockEntity> tickers = level.blockEntityTickers;
         for (int i = 0, n = tickers.size(); i < n && i < tickers.size(); i++) {
             TickingBlockEntity ticker = tickers.get(i);
-            if (ticker.isRemoved()) {
+            if (brokenThisTick.contains(ticker)) {
                 continue;
             }
-            BlockPos pos = ticker.getPos();
-            TimeZone zone = resolveBlock(pos, TimeFilter.MACHINES);
-            if (!isActive(zone, sub) || !level.shouldTickBlocksAt(pos)) {
+            TimeAware aware = null;
+            try {
+                if (ticker.isRemoved()) {
+                    continue;
+                }
+                // Schlafende Block-Entities (Lithium) haben keine Position: nichts zu tun
+                BlockPos pos = ticker.getPos();
+                if (pos == null) {
+                    continue;
+                }
+                TimeZone zone = resolveBlock(pos, TimeFilter.MACHINES);
+                if (!isActive(zone, sub) || !level.shouldTickBlocksAt(pos)) {
+                    continue;
+                }
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (blockEntity instanceof TimeAnchored) {
+                    continue;
+                }
+                if (blockEntity instanceof TimeAware timeAware) {
+                    aware = timeAware;
+                    aware.timemod$addEigenzeit(1);
+                }
+            } catch (Throwable error) {
+                fail("Zeit-Engine: Block-Entity im Zeitraffer", error);
+                brokenThisTick.add(ticker);
                 continue;
-            }
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof TimeAnchored) {
-                continue;
-            }
-            TimeAware aware = blockEntity instanceof TimeAware a ? a : null;
-            if (aware != null) {
-                aware.timemod$addEigenzeit(1);
             }
             TimeContext.enter(level, aware != null ? aware.timemod$getEigenzeit() : 0);
             try {
                 ticker.tick();
+            } catch (Throwable error) {
+                Safety.report("Zeitraffer: Block-Entity " + ticker.getType(), error);
+                brokenThisTick.add(ticker);
             } finally {
                 TimeContext.exit();
             }
@@ -641,10 +854,14 @@ public final class ServerTimeEngine extends TimeEngine {
                 return;
             }
             for (BlockEventData event : batch) {
-                if (level.doBlockEvent(event)) {
-                    BlockPos pos = event.pos();
-                    level.getServer().getPlayerList().broadcast(null, pos.getX(), pos.getY(), pos.getZ(), 64.0, level.dimension(),
-                        new ClientboundBlockEventPacket(pos, event.block(), event.paramA(), event.paramB()));
+                try {
+                    if (level.doBlockEvent(event)) {
+                        BlockPos pos = event.pos();
+                        level.getServer().getPlayerList().broadcast(null, pos.getX(), pos.getY(), pos.getZ(), 64.0, level.dimension(),
+                            new ClientboundBlockEventPacket(pos, event.block(), event.paramA(), event.paramB()));
+                    }
+                } catch (Throwable error) {
+                    Safety.report("Zeitraffer: Block-Event " + BuiltInRegistries.BLOCK.getKey(event.block()), error);
                 }
             }
         }
@@ -704,12 +921,16 @@ public final class ServerTimeEngine extends TimeEngine {
             for (int m = 0; m < speed; m++) {
                 BlockPos pos = level.getBlockRandomPos(minX, minY, minZ, 15);
                 BlockState state = section.getBlockState(pos.getX() - minX, pos.getY() - minY, pos.getZ() - minZ);
-                if (state.isRandomlyTicking() && resolveBlock(pos, TimeFilter.randomTickCategory(state.getBlock())) == zone) {
-                    state.randomTick(level, pos, level.random);
-                }
-                FluidState fluid = state.getFluidState();
-                if (fluid.isRandomlyTicking() && resolveBlock(pos, TimeFilter.ENVIRONMENT) == zone) {
-                    fluid.randomTick(level, pos, level.random);
+                try {
+                    if (state.isRandomlyTicking() && resolveBlock(pos, TimeFilter.randomTickCategory(state.getBlock())) == zone) {
+                        state.randomTick(level, pos, level.random);
+                    }
+                    FluidState fluid = state.getFluidState();
+                    if (fluid.isRandomlyTicking() && resolveBlock(pos, TimeFilter.ENVIRONMENT) == zone) {
+                        fluid.randomTick(level, pos, level.random);
+                    }
+                } catch (Throwable error) {
+                    Safety.report("Zeitraffer: Zufalls-Tick " + BuiltInRegistries.BLOCK.getKey(state.getBlock()), error);
                 }
             }
         }
@@ -780,35 +1001,62 @@ public final class ServerTimeEngine extends TimeEngine {
         if (routingDisabled || zones.isEmpty()) {
             return false;
         }
-        TimeZone zone = resolveTickZone(tick.pos(), fluid);
-        if (zone == null) {
+        try {
+            TimeZone zone = resolveTickZone(tick.pos(), fluid);
+            if (zone == null) {
+                return false;
+            }
+            long delay = tick.triggerTick() - level.getLevelData().getGameTime();
+            ZoneTicks<T> queue = queue(zone, fluid);
+            queue.schedule(new ScheduledTick<>(tick.type(), tick.pos(), zone.clock() + delay, tick.priority(), tick.subTickOrder()));
+            return true;
+        } catch (Throwable error) {
+            // Dann plant eben die Welt den Tick wie gewohnt
+            fail("Zeit-Engine: geplanter Tick", error);
             return false;
         }
-        long delay = tick.triggerTick() - level.getLevelData().getGameTime();
-        ZoneTicks<T> queue = queue(zone, fluid);
-        queue.schedule(new ScheduledTick<>(tick.type(), tick.pos(), zone.clock() + delay, tick.priority(), tick.subTickOrder()));
-        return true;
     }
 
     public <T> boolean hasZoneTick(BlockPos pos, T type, boolean fluid) {
         if (zones.isEmpty()) {
             return false;
         }
-        TimeZone zone = resolveTickZone(pos, fluid);
-        return zone != null && queue(zone, fluid).hasScheduledTick(pos, type);
+        try {
+            TimeZone zone = resolveTickZone(pos, fluid);
+            return zone != null && queue(zone, fluid).hasScheduledTick(pos, type);
+        } catch (Throwable error) {
+            fail("Zeit-Engine: geplanter Tick", error);
+            return false;
+        }
     }
 
     public <T> boolean willZoneTickThisStep(BlockPos pos, T type, boolean fluid) {
         if (zones.isEmpty()) {
             return false;
         }
-        TimeZone zone = resolveTickZone(pos, fluid);
-        return zone != null && queue(zone, fluid).willTickThisStep(pos, type);
+        try {
+            TimeZone zone = resolveTickZone(pos, fluid);
+            return zone != null && queue(zone, fluid).willTickThisStep(pos, type);
+        } catch (Throwable error) {
+            fail("Zeit-Engine: geplanter Tick", error);
+            return false;
+        }
     }
 
     /** Neu geladener Chunk: seine geplanten Ticks wandern in die zuständigen Zonen. */
     public <T> void onContainerAdded(ChunkPos chunkPos, LevelChunkTicks<T> container, boolean fluid) {
-        if (zones.isEmpty() || !anyTickZoneTouches(chunkPos)) {
+        if (zones.isEmpty()) {
+            return;
+        }
+        try {
+            moveIntoZones(chunkPos, container, fluid);
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Chunk geladen", error);
+        }
+    }
+
+    private <T> void moveIntoZones(ChunkPos chunkPos, LevelChunkTicks<T> container, boolean fluid) {
+        if (!anyTickZoneTouches(chunkPos)) {
             return;
         }
         long gameTime = level.getLevelData().getGameTime();
@@ -831,7 +1079,11 @@ public final class ServerTimeEngine extends TimeEngine {
         for (TimeZone zone : zones) {
             ZoneTicks<?> queue = fluid ? zone.fluidTicks : zone.blockTicks;
             if (queue != null && !queue.isEmpty()) {
-                queue.extract(tick -> ChunkPos.asLong(tick.pos()) == chunkPos.toLong());
+                try {
+                    queue.extract(tick -> ChunkPos.asLong(tick.pos()) == chunkPos.toLong());
+                } catch (Throwable error) {
+                    fail("Zeit-Engine: Chunk entladen", error);
+                }
             }
         }
     }
@@ -841,6 +1093,14 @@ public final class ServerTimeEngine extends TimeEngine {
         if (zones.isEmpty()) {
             return;
         }
+        try {
+            writeZoneTicks(chunkPos, chunkTag);
+        } catch (Throwable error) {
+            fail("Zeit-Engine: Chunk speichern", error);
+        }
+    }
+
+    private void writeZoneTicks(ChunkPos chunkPos, CompoundTag chunkTag) {
         long gameTime = level.getLevelData().getGameTime();
         ListTag blocks = chunkTag.getList("block_ticks", Tag.TAG_COMPOUND);
         ListTag fluids = chunkTag.getList("fluid_ticks", Tag.TAG_COMPOUND);
@@ -966,7 +1226,7 @@ public final class ServerTimeEngine extends TimeEngine {
 
     private void sync() {
         dirty = false;
-        TimeNetworking.sendZones(level, zones);
+        Safety.run("Zeit-Engine: Zonen senden", () -> TimeNetworking.sendZones(level, zones));
         if (TimeMod.DEBUG) {
             TimeMod.LOGGER.info("Zeitzonen in {}: {}", level.dimension().location(), zones);
         }

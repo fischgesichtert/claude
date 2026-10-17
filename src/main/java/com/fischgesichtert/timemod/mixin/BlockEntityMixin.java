@@ -1,7 +1,10 @@
 package com.fischgesichtert.timemod.mixin;
 
+import com.fischgesichtert.timemod.safety.CrashGuard;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeAware;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -37,6 +40,18 @@ public abstract class BlockEntityMixin implements TimeAware {
     private void timemod$save(CallbackInfoReturnable<CompoundTag> cir) {
         if (timemod$eigenzeit != 0) {
             cir.getReturnValue().putLong(TIMEMOD_KEY, timemod$eigenzeit);
+        }
+    }
+
+    /** Absturzschutz: Eine TIME-Block-Entity, die sich nicht speichern lässt, darf nicht den ganzen Chunk mitreißen. */
+    @WrapOperation(method = "saveWithoutMetadata", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BlockEntity;saveAdditional(Lnet/minecraft/nbt/CompoundTag;)V"))
+    private void timemod$guardSave(BlockEntity self, CompoundTag tag, Operation<Void> original) {
+        try {
+            original.call(self, tag);
+        } catch (Throwable error) {
+            if (!CrashGuard.absorb("Block-Entity speichern", error)) {
+                throw error;
+            }
         }
     }
 

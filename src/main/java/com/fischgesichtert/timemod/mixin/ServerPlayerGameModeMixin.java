@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.future.ChangeTracking;
+import com.fischgesichtert.timemod.safety.Safety;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.InteractionHand;
@@ -20,8 +21,10 @@ abstract class ServerPlayerGameModeMixin {
     private void timemod$trackChange(ServerPlayer player, Level level, ItemStack stack, InteractionHand hand, BlockHitResult hit,
                                      CallbackInfoReturnable<InteractionResult> cir) {
         if (cir.getReturnValue().consumesAction()) {
-            ChangeTracking.changed(level, hit.getBlockPos(), true);
-            ChangeTracking.changed(level, hit.getBlockPos().relative(hit.getDirection()), true);
+            Safety.run("Zukunft: Änderung merken", () -> {
+                ChangeTracking.changed(level, hit.getBlockPos(), true);
+                ChangeTracking.changed(level, hit.getBlockPos().relative(hit.getDirection()), true);
+            });
         }
     }
 }

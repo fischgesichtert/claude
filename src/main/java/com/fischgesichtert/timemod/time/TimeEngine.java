@@ -117,8 +117,12 @@ public abstract class TimeEngine {
         }
     }
 
+    /** Zone an einer Block-Position. Ohne Position (z. B. schlafende Block-Entities von Lithium) gilt normale Zeit. */
     @Nullable
-    public TimeZone resolveBlock(BlockPos pos, int category) {
+    public TimeZone resolveBlock(@Nullable BlockPos pos, int category) {
+        if (pos == null) {
+            return null;
+        }
         return resolve(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, category);
     }
 
@@ -127,8 +131,8 @@ public abstract class TimeEngine {
      * ebenso alles mit dem Tag {@code #timemod:time_immune}.
      */
     @Nullable
-    public TimeZone resolveEntity(Entity entity) {
-        if (zones.isEmpty() || isOutsideTime(entity)) {
+    public TimeZone resolveEntity(@Nullable Entity entity) {
+        if (entity == null || zones.isEmpty() || isOutsideTime(entity)) {
             return null;
         }
         TimeZone zone = resolveFor(entity, TimeFilter.categoryOf(entity));

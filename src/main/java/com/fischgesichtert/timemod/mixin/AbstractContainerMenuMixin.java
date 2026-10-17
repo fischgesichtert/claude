@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.future.Echo;
+import com.fischgesichtert.timemod.safety.Safety;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
@@ -27,7 +28,7 @@ abstract class AbstractContainerMenuMixin {
         ci.cancel();
         if (!player.level().isClientSide) {
             slot.set(ItemStack.EMPTY);
-            Echo.dissolve(player.level(), player.getEyePosition().add(player.getLookAngle().scale(0.8)), player);
+            Safety.run("Zeit-Echo zerfällt", () -> Echo.dissolve(player.level(), player.getEyePosition().add(player.getLookAngle().scale(0.8)), player));
             menu.broadcastChanges();
         }
     }

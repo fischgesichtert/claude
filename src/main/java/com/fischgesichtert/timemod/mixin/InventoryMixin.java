@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.future.Echo;
+import com.fischgesichtert.timemod.safety.Safety;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +24,7 @@ abstract class InventoryMixin {
         if (Echo.is(stack)) {
             stack.setCount(0);
             if (!player.level().isClientSide) {
-                Echo.dissolve(player.level(), player.position().add(0, 1, 0), player);
+                Safety.run("Zeit-Echo zerfällt", () -> Echo.dissolve(player.level(), player.position().add(0, 1, 0), player));
             }
             cir.setReturnValue(true);
         }

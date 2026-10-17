@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.era;
 
+import com.fischgesichtert.timemod.safety.Safety;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -57,7 +58,7 @@ public class Timeline extends SavedData {
     }
 
     public static void init() {
-        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> {
+        ServerChunkEvents.CHUNK_LOAD.register((level, chunk) -> Safety.run("Zeitlinie: Chunk geladen", () -> {
             if (level.dimension() != Level.OVERWORLD) {
                 return;
             }
@@ -66,13 +67,13 @@ public class Timeline extends SavedData {
             if (timeline.byChunk.containsKey(pos)) {
                 timeline.due.add(pos);
             }
-        });
-        ServerTickEvents.END_SERVER_TICK.register(server -> {
+        }));
+        ServerTickEvents.END_SERVER_TICK.register(server -> Safety.run("Zeitlinie", () -> {
             Timeline timeline = get(server);
             if (!timeline.due.isEmpty()) {
                 timeline.deliverDue(server.overworld());
             }
-        });
+        }));
     }
 
     /** Merkt einen Gruß aus der Vergangenheit vor; ist die Stelle in der Gegenwart geladen, erscheint er noch in diesem Tick. */

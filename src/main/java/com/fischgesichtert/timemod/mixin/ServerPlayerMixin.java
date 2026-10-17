@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.rewind.RewindSession;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.time.TimeEngine;
 import com.fischgesichtert.timemod.time.TimeHitQueue;
 import com.fischgesichtert.timemod.time.TimeLevel;
@@ -20,11 +21,11 @@ public abstract class ServerPlayerMixin {
     private void timemod$freeze(CallbackInfo ci) {
         ServerPlayer self = (ServerPlayer) (Object) this;
         TimeEngine engine = ((TimeLevel) self.level()).timemod$getEngine();
-        if (engine != null && !engine.isIdle() && engine.isFrozenPlayer(self)) {
+        if (engine != null && !engine.isIdle() && Safety.test("Zeitstopp: Spieler", () -> engine.isFrozenPlayer(self), false)) {
             ci.cancel();
             return;
         }
-        ((TimeHitQueue) self).timemod$releaseHits();
+        Safety.run("Zeitstopp: aufgestaute Treffer", ((TimeHitQueue) self)::timemod$releaseHits);
     }
 
     /**
@@ -35,7 +36,7 @@ public abstract class ServerPlayerMixin {
         cancellable = true)
     private void timemod$holdItems(ItemStack stack, boolean dropAround, boolean traceItem, CallbackInfoReturnable<ItemEntity> cir) {
         ServerPlayer self = (ServerPlayer) (Object) this;
-        if (!stack.isEmpty() && !self.isDeadOrDying() && RewindSession.holdsInventory(self)) {
+        if (!stack.isEmpty() && !self.isDeadOrDying() && Safety.test("Zurückspulen: Inventar", () -> RewindSession.holdsInventory(self), false)) {
             self.getInventory().placeItemBackInInventory(stack.copy());
             stack.setCount(0);
             cir.setReturnValue(null);

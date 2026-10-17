@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.future.town.TownGrowth;
+import com.fischgesichtert.timemod.safety.Safety;
 import com.fischgesichtert.timemod.worldgen.FutureBiomeSource;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -44,8 +45,12 @@ abstract class ChunkGeneratorMixin {
             return original.call(structure, access, generator, biomes, random, templates, seed, pos, references, heights, valid);
         }
         StructureStart start = original.call(structure, access, generator, future.base(), random, templates, seed, pos, references, heights, valid);
-        return start.isValid() ? TownGrowth.grow(start, structure, future.years(), access, generator, random, heights, seed, manager, chunk, section)
-            : start;
+        if (!start.isValid()) {
+            return start;
+        }
+        // Wächst ein Dorf nicht fehlerfrei, bleibt es eben so, wie es heute ist
+        return Safety.get("Zukunft: Dorf wächst", () -> TownGrowth.grow(start, structure, future.years(), access, generator, random, heights, seed,
+            manager, chunk, section), start);
     }
 
     @ModifyArg(method = "createState", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/chunk/ChunkGeneratorStructureState;"

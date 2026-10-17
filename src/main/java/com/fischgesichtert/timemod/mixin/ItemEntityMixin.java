@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.future.Echo;
+import com.fischgesichtert.timemod.safety.Safety;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,7 +15,7 @@ abstract class ItemEntityMixin {
     private void timemod$echoVanishes(CallbackInfo ci) {
         ItemEntity self = (ItemEntity) (Object) this;
         if (!self.level().isClientSide && Echo.is(self.getItem())) {
-            Echo.dissolve(self.level(), self.position(), null);
+            Safety.run("Zeit-Echo zerfällt", () -> Echo.dissolve(self.level(), self.position(), null));
             self.discard();
             ci.cancel();
         }

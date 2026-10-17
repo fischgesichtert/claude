@@ -429,6 +429,8 @@ LANG_GATE = {
 LANG_EXTRA = {
     "de_de": {
         "itemGroup.timemod.time": "TIME",
+        "timemod.safety.engine_reset": "⌛ TIME: Ein Fehler in der Zeit-Engine wurde abgefangen. Die Zeitzonen dieser Welt wurden sicherheitshalber aufgelöst – das Spiel läuft normal weiter.",
+        "timemod.safety.screen_closed": "⌛ TIME: Dieser Bildschirm hatte einen Fehler und wurde geschlossen. Das Spiel läuft normal weiter.",
         "container.timemod.clockmaker_bench": "Uhrmacher-Werkbank",
         "tooltip.timemod.tension": "Federspannung: %s %%",
         "tooltip.timemod.wind_hint": "Schleichen + Rechtsklick halten: aufziehen",
@@ -514,6 +516,8 @@ LANG_EXTRA = {
         "book.timemod.astronomer.page5": "Wenn du dies liest: Zieh deine Uhr auf. Und traue nie einer Zeit, die zu still ist.",
     },
     "en_us": {
+        "timemod.safety.engine_reset": "⌛ TIME: An error in the time engine was caught. The time zones in this world were dissolved to be safe – the game carries on normally.",
+        "timemod.safety.screen_closed": "⌛ TIME: This screen ran into an error and was closed. The game carries on normally.",
         "itemGroup.timemod.time": "TIME",
         "container.timemod.clockmaker_bench": "Clockmaker's Bench",
         "tooltip.timemod.tension": "Spring tension: %s %%",

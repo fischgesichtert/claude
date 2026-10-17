@@ -6,6 +6,10 @@
   "client": [
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
+    "CrashGuardBlockEntityRenderMixin",
+    "CrashGuardEntityRenderMixin",
+    "CrashGuardMinecraftMixin",
+    "CrashGuardScreenMixin",
     "FogRendererMixin",
     "ItemRendererMixin",
     "LevelRendererMixin",
@@ -15,6 +19,7 @@
     "ParticleAccessor",
     "ParticleEngineMixin",
     "ParticleMixin",
+    "PoseStackAccessor",
     "SoundEngineMixin",
     "WalkAnimationStateMixin"
   ],

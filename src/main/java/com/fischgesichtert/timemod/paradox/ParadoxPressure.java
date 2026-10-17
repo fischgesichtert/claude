@@ -8,6 +8,7 @@ import com.fischgesichtert.timemod.gate.TimeStream;
 import com.fischgesichtert.timemod.module.Modules;
 import com.fischgesichtert.timemod.registry.ModAdvancements;
 import com.fischgesichtert.timemod.registry.ModSounds;
+import com.fischgesichtert.timemod.safety.Safety;
 import io.netty.buffer.Unpooled;
 import java.util.HashMap;
 import java.util.Map;
@@ -66,16 +67,17 @@ public class ParadoxPressure extends SavedData {
     public static void init() {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (server.getTickCount() % 20 == 0) {
-                get(server).decay(server);
+                Safety.run("Paradox-Druck: Abklingen", () -> get(server).decay(server));
             }
-            TimeWardens.tick(server);
+            Safety.run("Zeitwächter", () -> TimeWardens.tick(server));
         });
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> server.execute(() -> sync(handler.player, true)));
-        EntitySleepEvents.STOP_SLEEPING.register((entity, pos) -> {
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
+            server.execute(() -> Safety.run("Paradox-Druck: senden", () -> sync(handler.player, true))));
+        EntitySleepEvents.STOP_SLEEPING.register((entity, pos) -> Safety.run("Paradox-Druck: Schlaf", () -> {
             if (entity instanceof ServerPlayer player && player.level().isDay() && of(player) > 0.0F) {
                 relieve(player, SLEEP_RELIEF);
             }
-        });
+        }));
     }
 
     // ------------------------------------------------------------------ Lesen und Schreiben

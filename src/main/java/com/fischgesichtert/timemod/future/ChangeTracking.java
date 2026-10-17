@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.future;
 
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
+import com.fischgesichtert.timemod.safety.Safety;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -17,7 +18,7 @@ public final class ChangeTracking {
     }
 
     public static void init() {
-        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> changed(level, pos, true));
+        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> Safety.run("Zukunft: Änderung merken", () -> changed(level, pos, true)));
     }
 
     /** {@code byPlayer}: von Hand gebaut oder abgebaut (Explosionen verändern nur die Gegenwart). */

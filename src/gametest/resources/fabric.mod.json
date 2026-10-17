@@ -18,7 +18,8 @@
       "com.fischgesichtert.timemod.gametest.ChronosTests",
       "com.fischgesichtert.timemod.gametest.EraTests",
       "com.fischgesichtert.timemod.gametest.GateTests",
-      "com.fischgesichtert.timemod.gametest.LetterTests"
+      "com.fischgesichtert.timemod.gametest.LetterTests",
+      "com.fischgesichtert.timemod.gametest.FutureTests"
     ]
   },
   "mixins": [

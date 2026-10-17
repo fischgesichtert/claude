@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.registry;
 
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.block.BossAltarBlock;
+import com.fischgesichtert.timemod.block.BurntTorchBlock;
 import com.fischgesichtert.timemod.block.ChronoPillarBlock;
 import com.fischgesichtert.timemod.block.ChronosConsoleBlock;
 import com.fischgesichtert.timemod.block.ChronosPortalBlock;
@@ -19,8 +20,11 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CarpetBlock;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.GlassBlock;
+import net.minecraft.world.level.block.IronBarsBlock;
+import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -85,6 +89,22 @@ public final class ModBlocks {
     public static final Block AMBER_BLOCK = register("amber_block", new GlassBlock(BlockBehaviour.Properties.of()
         .mapColor(MapColor.COLOR_ORANGE).strength(1.5F).sound(SoundType.AMETHYST).noOcclusion().lightLevel(s -> 6)
         .isValidSpawn((s, l, p, e) -> false).isRedstoneConductor((s, l, p) -> false).isSuffocating((s, l, p) -> false).isViewBlocking((s, l, p) -> false)));
+
+    // Zukunft: was die Jahre aus Licht, Eisen und Tieren machen
+    public static final Block BURNT_TORCH = register("burnt_torch", new BurntTorchBlock(BlockBehaviour.Properties.of()
+        .noCollission().instabreak().sound(SoundType.WOOD).pushReaction(PushReaction.DESTROY)));
+    public static final Block BURNT_WALL_TORCH = register("burnt_wall_torch", new BurntTorchBlock.Wall(BlockBehaviour.Properties.of()
+        .noCollission().instabreak().sound(SoundType.WOOD).dropsLike(BURNT_TORCH).pushReaction(PushReaction.DESTROY)));
+    public static final Block DULL_LANTERN = register("dull_lantern", new LanternBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.METAL).forceSolidOn().requiresCorrectToolForDrops().strength(3.5F).sound(SoundType.LANTERN).noOcclusion()
+        .pushReaction(PushReaction.DESTROY)));
+    public static final Block RUSTY_IRON_BLOCK = register("rusty_iron_block", new Block(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.TERRACOTTA_ORANGE).instrument(NoteBlockInstrument.IRON_XYLOPHONE).requiresCorrectToolForDrops().strength(4.0F, 5.0F)
+        .sound(SoundType.METAL)));
+    public static final Block RUSTY_IRON_BARS = register("rusty_iron_bars", new IronBarsBlock(BlockBehaviour.Properties.of()
+        .requiresCorrectToolForDrops().strength(4.0F, 5.0F).sound(SoundType.METAL).noOcclusion()));
+    public static final Block BONE_PILE = register("bone_pile", new CarpetBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.SAND).strength(0.3F).sound(SoundType.BONE_BLOCK).noOcclusion().pushReaction(PushReaction.DESTROY)));
 
     private ModBlocks() {
     }

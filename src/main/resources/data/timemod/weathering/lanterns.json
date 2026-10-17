@@ -1,0 +1,23 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:lantern",
+    "minecraft:soul_lantern",
+    "timemod:dull_lantern"
+  ],
+  "remove": {
+    "100": 0.0,
+    "250": 0.1,
+    "500": 0.5,
+    "1000": 1.0
+  },
+  "convert": [
+    {
+      "to": "timemod:dull_lantern",
+      "chance": 1.0
+    }
+  ],
+  "span": {
+    "1": 4
+  }
+}

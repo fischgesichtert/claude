@@ -1,0 +1,22 @@
+{
+  "priority": 10,
+  "blocks": [
+    "#minecraft:wool",
+    "#minecraft:wool_carpets",
+    "#minecraft:beds",
+    "#minecraft:banners"
+  ],
+  "sounds": [
+    "wool"
+  ],
+  "remove": {
+    "5": 0.0,
+    "10": 0.05,
+    "50": 0.5,
+    "100": 0.85,
+    "500": 1.0
+  },
+  "span": {
+    "1": 4
+  }
+}

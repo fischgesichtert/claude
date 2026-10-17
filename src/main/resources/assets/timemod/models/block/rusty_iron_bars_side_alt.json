@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/iron_bars_side_alt",
+  "textures": {
+    "particle": "timemod:block/rusty_iron_bars",
+    "bars": "timemod:block/rusty_iron_bars",
+    "edge": "timemod:block/rusty_iron_bars"
+  }
+}

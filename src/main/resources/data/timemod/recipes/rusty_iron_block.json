@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "RRR",
+    "RRR",
+    "RRR"
+  ],
+  "key": {
+    "R": {
+      "item": "timemod:rusty_iron"
+    }
+  },
+  "result": {
+    "item": "timemod:rusty_iron_block"
+  }
+}

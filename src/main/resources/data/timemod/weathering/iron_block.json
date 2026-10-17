@@ -1,0 +1,27 @@
+{
+  "priority": 10,
+  "blocks": [
+    "minecraft:iron_block",
+    "timemod:rusty_iron_block"
+  ],
+  "remove": {
+    "250": 0.0,
+    "500": 0.15,
+    "1000": 0.5
+  },
+  "convert": [
+    {
+      "to": "timemod:rusty_iron_block",
+      "chance": {
+        "10": 0.1,
+        "25": 0.4,
+        "50": 0.85,
+        "100": 1.0
+      }
+    }
+  ],
+  "span": {
+    "1": 12,
+    "1000": 6
+  }
+}

@@ -4,6 +4,9 @@ import com.fischgesichtert.timemod.armor.ChronoArmorItem;
 import com.fischgesichtert.timemod.command.ChronoCommand;
 import com.fischgesichtert.timemod.item.ChronikGift;
 import com.fischgesichtert.timemod.era.Timeline;
+import com.fischgesichtert.timemod.future.ChangeTracking;
+import com.fischgesichtert.timemod.future.FutureDerivation;
+import com.fischgesichtert.timemod.future.WeatheringRules;
 import com.fischgesichtert.timemod.gate.TimeStream;
 import com.fischgesichtert.timemod.item.TimeLoopItem;
 import com.fischgesichtert.timemod.network.ChronosNetworking;
@@ -59,6 +62,9 @@ public class TimeMod implements ModInitializer {
         TimeLoopItem.init();
         TimeStream.init();
         Timeline.init();
+        WeatheringRules.init();
+        ChangeTracking.init();
+        FutureDerivation.init();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ChronoCommand.register(dispatcher));
         LOGGER.info("TIME geladen – die Zeit gehört dir.");
     }

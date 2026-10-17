@@ -1,0 +1,25 @@
+{
+  "priority": 100,
+  "blocks": [
+    "timemod:time_glass",
+    "timemod:chronos_gate_frame",
+    "timemod:chronos_console",
+    "timemod:chronos_portal",
+    "timemod:home_anchor",
+    "timemod:time_capsule",
+    "timemod:amber_block",
+    "timemod:amber_ore",
+    "timemod:clockmaker_altar",
+    "timemod:phage_altar",
+    "timemod:paradox_altar",
+    "timemod:temporal_workbench",
+    "timemod:chrono_pillar",
+    "timemod:lifetime_extractor",
+    "timemod:time_condenser",
+    "timemod:time_field_projector",
+    "timemod:deepslate_chronite_ore",
+    "timemod:chronite_sprout",
+    "timemod:brass_block",
+    "timemod:time_sand"
+  ]
+}

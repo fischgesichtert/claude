@@ -1,0 +1,19 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:campfire",
+    "minecraft:soul_campfire"
+  ],
+  "remove": {
+    "25": 0.0,
+    "50": 0.3,
+    "100": 0.7,
+    "250": 1.0
+  },
+  "convert": [
+    {
+      "to": "@unlit",
+      "chance": 1.0
+    }
+  ]
+}

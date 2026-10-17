@@ -1,0 +1,17 @@
+{
+  "priority": 30,
+  "blocks": [
+    "#minecraft:candles"
+  ],
+  "remove": {
+    "25": 0.0,
+    "50": 0.5,
+    "250": 1.0
+  },
+  "convert": [
+    {
+      "to": "@unlit",
+      "chance": 1.0
+    }
+  ]
+}

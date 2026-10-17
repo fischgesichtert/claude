@@ -1,0 +1,16 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:redstone_lamp"
+  ],
+  "remove": {
+    "500": 0.0,
+    "1000": 0.3
+  },
+  "convert": [
+    {
+      "to": "@unlit",
+      "chance": 1.0
+    }
+  ]
+}

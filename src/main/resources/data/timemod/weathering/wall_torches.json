@@ -1,0 +1,23 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:wall_torch",
+    "minecraft:soul_wall_torch",
+    "timemod:burnt_wall_torch"
+  ],
+  "remove": {
+    "50": 0.0,
+    "100": 0.1,
+    "250": 0.5,
+    "500": 1.0
+  },
+  "convert": [
+    {
+      "to": "timemod:burnt_wall_torch",
+      "chance": 1.0
+    }
+  ],
+  "span": {
+    "1": 4
+  }
+}

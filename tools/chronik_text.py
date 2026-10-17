@@ -236,16 +236,31 @@ CHAPTERS = {
         "Both avoid your buildings: no capsule and no tree destroys what you built in the present.",
     ),
     "future": (
-        "Was noch kommt",
-        "Das Tor steht, doch die Epochen sind noch jung.\n\n"
-        "Bald altern deine Bauten in der Zukunft: Ranken wachsen über deine Mauern, Dörfer werden zu Städten. "
-        "In der Eiszeit ziehen Mammuts über die Steppe, und in den Farnwäldern der Kreidezeit warten Echsen so groß wie Türme.\n\n"
-        "Diese Seiten werden sich füllen.",
-        "What Lies Ahead",
-        "The gate stands, but the eras are still young.\n\n"
-        "Soon your buildings will age in the future: vines grow over your walls, villages become cities. "
-        "In the Ice Age mammoths roam the steppe, and in the fern forests of the Cretaceous lizards as tall as towers are waiting.\n\n"
-        "These pages will fill.",
+        "Die Zukunft",
+        "Die Zukunft entsteht aus der Gegenwart. Reist du in ein Jahr der Zukunft, findest du dort, was du heute gebaut hast – so, wie es "
+        "die Jahre zurückgelassen haben.\n\n"
+        "• Fackeln und Laternen sind nach einem Jahr erloschen. Holz bekommt Löcher und verrottet, Glas zerspringt, Wolle zerfällt. "
+        "Stein bemoost und bekommt Risse, Eisen rostet, Kupfer läuft grün an – gewachstes Kupfer bleibt blank.\n\n"
+        "• Statik: Was keinen Halt mehr hat, stürzt ein. Erst brechen die Dächer, dann die Brücken.\n\n"
+        "• Die Natur holt sich alles zurück: Ranken an den Mauern, Moos auf den Böden, Spinnweben in den Ecken, Sand in den Wüsten, "
+        "Schnee auf offenen Böden – und durch eingestürzte Häuser wachsen Bäume. Aus Feldern wird Wiese, aus Wiese Wald.\n\n"
+        "• Von deinen Tieren bleiben Knochen. Ihre Nachkommen leben verwildert in der Nähe. Schilder verblassen.\n\n"
+        "• In deinen Truhen liegt, was die Zeit übrig ließ – als Zeit-Echo: sichtbar, aber es zerfällt bei Berührung. "
+        "Nur die Zeitkapsel trägt Dinge wirklich durch die Zeit.\n\n"
+        "Die Zukunft ist nicht festgeschrieben: Baust du heute weiter, sieht sie beim nächsten Besuch anders aus – außer dort, wo du in "
+        "der Zukunft selbst gebaut hast. Bald wachsen dort auch die Dörfer zu Städten.",
+        "The Future",
+        "The future grows out of the present. Travel to a year ahead and you find what you built today – the way the years left it.\n\n"
+        "• Torches and lanterns have gone out after a year. Wood rots full of holes, glass shatters, wool crumbles. Stone grows moss "
+        "and cracks, iron rusts, copper turns green – waxed copper stays bright.\n\n"
+        "• Statics: whatever has lost its support collapses. First the roofs, then the bridges.\n\n"
+        "• Nature takes everything back: vines on the walls, moss on the floors, cobwebs in the corners, sand in the deserts, snow on "
+        "open floors – and trees grow through collapsed houses. Fields turn to meadow, meadow to forest.\n\n"
+        "• Of your animals only bones remain. Their descendants roam wild nearby. Signs fade.\n\n"
+        "• Your chests hold what time left behind – as time echoes: visible, but they crumble at a touch. Only the time capsule truly "
+        "carries things through time.\n\n"
+        "The future is not written: keep building today and it looks different on your next visit – except where you built in the "
+        "future yourself. Soon the villages there will grow into cities, too.",
     ),
 }
 
@@ -320,6 +335,9 @@ ADVANCEMENTS = [
     ("time_seed", "first_journey", "timemod:time_seed", "task", ("impossible", None),
      "Wer Bäume pflanzt", "Streue Zeitsaat auf einen Setzling in der Vergangenheit", "Seeds of Time",
      "Sprinkle a time seed on a sapling in the past"),
+    ("remains", "first_journey", "timemod:burnt_torch", "goal", ("impossible", None),
+     "Was von uns bleibt", "Stehe in der Zukunft dort, wo du in der Gegenwart gebaut hast", "What Remains of Us",
+     "Stand in the future where you built in the present"),
     ("mesozoic", "dna", "minecraft:sniffer_egg", "challenge", ("impossible", None),
      "Willkommen im Erdmittelalter", "Reise in das Zeitalter der Dinosaurier", "Welcome to the Mesozoic", "Travel to the age of the dinosaurs"),
 ]

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "timemod:rusty_iron_block"
+    }
+  ],
+  "result": {
+    "item": "timemod:rusty_iron",
+    "count": 9
+  }
+}

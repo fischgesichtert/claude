@@ -1,0 +1,16 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:dirt_path"
+  ],
+  "convert": [
+    {
+      "to": "minecraft:grass_block",
+      "chance": {
+        "5": 0.1,
+        "25": 0.6,
+        "50": 1.0
+      }
+    }
+  ]
+}

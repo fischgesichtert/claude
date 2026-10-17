@@ -72,6 +72,9 @@ public class TimeModClient implements ClientModInitializer {
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHRONOS_PORTAL, RenderType.translucent());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHRONOS_CONSOLE, RenderType.cutout());
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.AMBER_BLOCK, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(), ModBlocks.BURNT_TORCH, ModBlocks.BURNT_WALL_TORCH, ModBlocks.DULL_LANTERN,
+            ModBlocks.BONE_PILE);
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.RUSTY_IRON_BARS, RenderType.cutoutMipped());
         ColorProviderRegistry.BLOCK.register((state, level, pos, tint) -> PortalColors.of(ChronosPortalBlock.era(state)), ModBlocks.CHRONOS_PORTAL);
         BlockEntityRenderers.register(ModBlockEntities.TEMPORAL_WORKBENCH, TemporalWorkbenchRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.TEMPORAL_WORKBENCH, RenderType.cutout());

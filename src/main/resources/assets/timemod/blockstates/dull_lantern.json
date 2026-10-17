@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "hanging=false": {
+      "model": "timemod:block/dull_lantern"
+    },
+    "hanging=true": {
+      "model": "timemod:block/dull_lantern_hanging"
+    }
+  }
+}

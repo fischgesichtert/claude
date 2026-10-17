@@ -1,0 +1,20 @@
+{
+  "priority": 10,
+  "blocks": [
+    "minecraft:chipped_anvil"
+  ],
+  "remove": {
+    "250": 0.0,
+    "500": 0.2,
+    "1000": 0.6
+  },
+  "convert": [
+    {
+      "to": "minecraft:damaged_anvil",
+      "chance": {
+        "100": 0.3,
+        "500": 1.0
+      }
+    }
+  ]
+}

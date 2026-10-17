@@ -1,0 +1,68 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:farmland"
+  ],
+  "convert": [
+    {
+      "to": "minecraft:grass_block",
+      "chance": {
+        "10": 0.1,
+        "25": 0.4,
+        "50": 1.0
+      }
+    },
+    {
+      "to": "minecraft:dirt",
+      "chance": 1.0
+    }
+  ],
+  "cover": [
+    {
+      "block": "minecraft:oak_sapling",
+      "chance": {
+        "250": 0.0,
+        "500": 0.02,
+        "1000": 0.05
+      }
+    },
+    {
+      "block": "minecraft:tall_grass",
+      "chance": {
+        "25": 0.05,
+        "100": 0.15,
+        "500": 0.3
+      }
+    },
+    {
+      "block": "minecraft:poppy",
+      "chance": {
+        "25": 0.02,
+        "250": 0.06,
+        "500": 0.08
+      }
+    },
+    {
+      "block": "minecraft:dandelion",
+      "chance": {
+        "25": 0.02,
+        "250": 0.06,
+        "500": 0.08
+      }
+    },
+    {
+      "block": "minecraft:cornflower",
+      "chance": {
+        "250": 0.0,
+        "500": 0.04
+      }
+    },
+    {
+      "block": "minecraft:grass",
+      "chance": {
+        "1": 0.35,
+        "50": 0.6
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:wheat",
+    "minecraft:carrots",
+    "minecraft:potatoes",
+    "minecraft:beetroots",
+    "minecraft:melon_stem",
+    "minecraft:attached_melon_stem",
+    "minecraft:pumpkin_stem",
+    "minecraft:attached_pumpkin_stem",
+    "minecraft:torchflower_crop",
+    "minecraft:pitcher_crop"
+  ],
+  "remove": {
+    "1": 0.5
+  },
+  "convert": [
+    {
+      "to": "minecraft:grass",
+      "chance": 1.0
+    }
+  ]
+}

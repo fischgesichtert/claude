@@ -26,12 +26,14 @@ import com.fischgesichtert.timemod.time.TimeFilter;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 
@@ -139,6 +141,12 @@ public final class ModItems {
     public static final Item TIME_CAPSULE = block(ModBlocks.TIME_CAPSULE);
     public static final Item TIME_SEED = register("time_seed", new TimeSeedItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
     public static final Item RUSTY_IRON = register("rusty_iron", new Item(new Item.Properties()));
+    public static final Item RUSTY_IRON_BLOCK = block(ModBlocks.RUSTY_IRON_BLOCK);
+    public static final Item RUSTY_IRON_BARS = block(ModBlocks.RUSTY_IRON_BARS);
+    public static final Item BURNT_TORCH = register("burnt_torch", new StandingAndWallBlockItem(ModBlocks.BURNT_TORCH, ModBlocks.BURNT_WALL_TORCH,
+        new Item.Properties(), Direction.DOWN));
+    public static final Item DULL_LANTERN = block(ModBlocks.DULL_LANTERN);
+    public static final Item BONE_PILE = block(ModBlocks.BONE_PILE);
     public static final Item MESOZOIC_FOCUS = register("mesozoic_focus", new EraFocusItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
         EnumSet.of(Era.Age.STONE_AGE, Era.Age.ICE_AGE, Era.Age.CENOZOIC, Era.Age.MESOZOIC)));
 

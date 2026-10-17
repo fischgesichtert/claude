@@ -2074,6 +2074,124 @@ def rusty_iron():
     return s
 
 
+RUST = [(86, 38, 18, 255), (122, 56, 26, 255), (156, 80, 36, 255), (188, 112, 54, 255), (118, 110, 104, 255)]
+
+
+def burnt_torch():
+    """Erloschene Fackel: verkohlter Stiel, schwarzer Kopf, ein letzter Glutpunkt (Stiel wie die Vanilla-UV: x 7–8, y 6–15)."""
+    s = Sprite()
+    for y in range(8, 16):
+        s.set(7, y, WOOD[0] if y % 3 == 0 else WOOD[1])
+        s.set(8, y, WOOD[1] if y % 3 == 0 else WOOD[2])
+    s.rect(7, 6, 8, 7, (30, 27, 27, 255))
+    s.set(8, 6, (54, 48, 46, 255))
+    s.set(7, 7, (118, 38, 22, 255))
+    return s
+
+
+def dull_lantern():
+    """Erloschene Laterne im Laternen-Layout: Deckel, rußiges Glas mit kaltem Docht, Boden, Henkel."""
+    s = Sprite()
+    frame = [(44, 42, 46, 255), (70, 66, 70, 255), (96, 90, 92, 255)]
+    soot = [(34, 32, 34, 255), (48, 44, 44, 255), (66, 62, 60, 255)]
+    rnd = random.Random(611)
+    # Deckel (Seiten)
+    s.rect(1, 0, 4, 1, frame[1])
+    s.set(1, 0, frame[2])
+    # Körper (Seiten): Rahmen und rußiges Glas
+    for y in range(2, 9):
+        for x in range(0, 6):
+            edge = x in (0, 5) or y in (2, 8)
+            s.set(x, y, frame[2 if x == 0 or y == 2 else 1] if edge else soot[rnd.choice([0, 0, 1, 1, 2])])
+    s.rect(2, 6, 3, 7, (22, 20, 20, 255))
+    s.set(2, 5, (60, 30, 22, 255))
+    # Boden und Deckel von oben
+    s.rect(0, 9, 5, 14, frame[1])
+    s.rect(1, 10, 4, 13, frame[0])
+    s.set(2, 11, frame[2])
+    # Henkel (Ringe)
+    for x0, y0, rows in ((11, 1, ("###", "#.#", "#.#", "###")), (11, 6, ("#.#", "###")), (11, 10, ("###", "#.#"))):
+        for dy, row in enumerate(rows):
+            for dx, ch in enumerate(row):
+                if ch == "#":
+                    s.set(x0 + dx, y0 + dy, frame[1 + (dx + dy) % 2])
+    return s
+
+
+def dull_lantern_item():
+    s = Sprite()
+    frame = [(44, 42, 46, 255), (70, 66, 70, 255), (96, 90, 92, 255)]
+    s.ring(7.5, 2.5, 1.0, 2.1, frame[1])
+    s.rect(5, 4, 10, 5, frame[2])
+    s.rect(4, 6, 11, 13, frame[1])
+    s.rect(5, 7, 10, 12, (40, 37, 38, 255))
+    s.rect(7, 10, 8, 12, (22, 20, 20, 255))
+    s.set(6, 8, (70, 66, 64, 255))
+    s.rect(4, 14, 11, 14, frame[0])
+    s.outline()
+    return s
+
+
+def rusty_iron_block():
+    """Eisenblock nach Jahrzehnten: Platten mit Rostkanten, Narben, hier und da noch blankes Metall."""
+    s = Sprite()
+    noise_fill(s, [RUST[1], RUST[2], RUST[3]], 707, weights=[3, 4, 1])
+    for i in range(16):
+        for x, y in ((i, 0), (0, i), (i, 15), (15, i)):
+            s.set(x, y, RUST[0])
+    rnd = random.Random(708)
+    for _ in range(14):
+        s.set(rnd.randint(1, 14), rnd.randint(1, 14), RUST[0])
+    for _ in range(9):
+        x, y = rnd.randint(1, 13), rnd.randint(1, 14)
+        s.set(x, y, RUST[4])
+        s.set(x + 1, y, IRON[1])
+    return s
+
+
+def rusty_iron_bars():
+    """Rostige Gitterstäbe: drei Stäbe (der mittlere trägt die Kanten des Modells), zwei Querstreben, durchgerostete Stellen."""
+    s = Sprite()
+    rnd = random.Random(709)
+    for x0 in (2, 7, 12):
+        for y in range(16):
+            s.set(x0, y, RUST[1])
+            s.set(x0 + 1, y, RUST[2 if rnd.random() < 0.7 else 3])
+    for y0 in (4, 11):
+        for x in range(16):
+            s.set(x, y0, RUST[2])
+            s.set(x, y0 + 1, RUST[1])
+    for x, y in ((12, 8), (13, 8), (2, 14), (3, 14)):
+        s.set(x, y, T)
+    for _ in range(8):
+        x, y = rnd.choice((2, 3, 7, 8, 12, 13)), rnd.randint(0, 15)
+        if s.get(x, y) != T:
+            s.set(x, y, RUST[0])
+    return s
+
+
+def bone_pile():
+    """Knochenhaufen von oben: drei Knochen mit Gelenkknöpfen und ein paar Splitter auf durchsichtigem Grund."""
+    s = Sprite()
+
+    def bone(shaft, knobs):
+        for x, y in shaft:
+            s.set(x, y, BONE[3])
+        for x, y in knobs:
+            s.set(x, y, BONE[2])
+
+    bone([(3 + i, 3 + i) for i in range(1, 7)], [(2, 3), (3, 2), (3, 3), (10, 9), (9, 10), (10, 10)])
+    bone([(x, 12) for x in range(5, 13)], [(4, 11), (4, 13), (13, 11), (13, 13)])
+    bone([(12, y) for y in range(2, 7)], [(11, 1), (13, 1), (11, 7), (13, 7)])
+    for x, y in ((2, 9), (7, 2), (15, 9), (9, 14)):
+        s.set(x, y, BONE[2])
+    for y in range(15, -1, -1):
+        for x in range(15, -1, -1):
+            if s.get(x, y) in (BONE[2], BONE[3]) and s.get(x + 1, y + 1) == T:
+                s.set(x + 1, y + 1, BONE[0])
+    return s
+
+
 def chronos_console_gui():
     """Konsolen-Oberfläche 176×208 mit Anzeige, Knopf-Sprites und Speicherbalken."""
     img = Image.new("RGBA", (256, 256), T)
@@ -2212,6 +2330,7 @@ ITEMS = {
     "chronos_watch": chronos_watch, "heart_of_time": heart_of_time, "time_loop": time_loop, "infinity_time_cell": infinity_time_cell,
     "fossil_fragment": fossil_fragment, "era_focus": era_focus, "mesozoic_focus": mesozoic_focus, "amber": lambda: amber_item(False),
     "insect_amber": lambda: amber_item(True), "dna_sample": dna_sample, "time_seed": time_seed, "rusty_iron": rusty_iron,
+    "dull_lantern": dull_lantern_item,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
@@ -2240,6 +2359,8 @@ BLOCKS = {
     "home_anchor_side": anchor_side, "home_anchor_top": anchor_top, "home_anchor_stem": anchor_stem,
     **{f"time_capsule_{part}_{stage}": (lambda f=f, stage=stage: f(stage)) for stage in ("open", "sealed", "ancient")
        for part, f in (("side", capsule_side), ("top", capsule_top))},
+    "burnt_torch": burnt_torch, "dull_lantern": dull_lantern, "rusty_iron_block": rusty_iron_block, "rusty_iron_bars": rusty_iron_bars,
+    "bone_pile": bone_pile,
 }
 
 

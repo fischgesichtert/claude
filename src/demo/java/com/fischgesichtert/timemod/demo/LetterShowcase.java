@@ -6,10 +6,6 @@ import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.QuartPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -18,11 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -37,8 +30,6 @@ final class LetterShowcase {
     private static final Logger LOGGER = LoggerFactory.getLogger("TIME-Demo");
     private static final int PAST = -1000;
     private static final int ICE_AGE = -20_000;
-    private static final ResourceKey<Biome> PLAINS = ResourceKey.create(Registries.BIOME, new ResourceLocation("plains"));
-    private static final ResourceKey<Biome> SUNFLOWER_PLAINS = ResourceKey.create(Registries.BIOME, new ResourceLocation("sunflower_plains"));
 
     // Vom Server gesetzt, vom Client für die Kamerafahrt gelesen
     private static volatile BlockPos capsule = BlockPos.ZERO;
@@ -155,58 +146,14 @@ final class LetterShowcase {
 
     /** Eine Ebene in der Gegenwart, die im Frühmittelalter Wald war – mit freiem Waldboden, wo Kapsel und Setzling hinkommen. */
     private static void chooseSite(ServerPlayer player) {
-        ServerLevel present = player.server.overworld();
         ServerLevel past = player.server.getLevel(Eras.byYears(PAST).level());
-        ChunkGenerator generator = present.getChunkSource().getGenerator();
-        RandomState random = present.getChunkSource().randomState();
-        // Grob nach einer weiten Ebene suchen (das Biom ist billig), erst dort die Höhen prüfen
-        int sea = generator.getSeaLevel();
-        BlockPos best = null;
-        int bestSpread = Integer.MAX_VALUE;
-        int tried = 0;
-        for (BlockPos.MutableBlockPos step : BlockPos.spiralAround(BlockPos.ZERO, 40, Direction.EAST, Direction.SOUTH)) {
-            int x = step.getX() * 64;
-            int z = step.getZ() * 64;
-            if (!isPlains(generator, random, x, sea + 8, z) || !isPlains(generator, random, x + 40, sea + 8, z)
-                || !isPlains(generator, random, x - 40, sea + 8, z) || !isPlains(generator, random, x, sea + 8, z + 40)
-                || !isPlains(generator, random, x, sea + 8, z - 40)) {
-                continue;
-            }
-            int centre = generator.getBaseHeight(x + 4, z, Heightmap.Types.WORLD_SURFACE_WG, present, random);
-            if (centre <= sea + 1 || !isPlains(generator, random, x + 4, centre, z)) {
-                continue;
-            }
-            int spread = spread(present, generator, random, x, z, centre);
-            if (spread < bestSpread && (spread > 3 || clearForestFloor(past, new BlockPos(x, centre, z)))) {
-                best = new BlockPos(x, centre, z);
-                bestSpread = spread;
-            }
-            if (bestSpread <= 2 || ++tried >= 80) {
-                break;
-            }
-        }
-        BlockPos site = best != null ? best : new BlockPos(0, generator.getBaseHeight(0, 0, Heightmap.Types.WORLD_SURFACE_WG, present, random), 0);
-        LOGGER.info("Bühne für die Zeitkapsel: {} (Höhenunterschied ringsum {})", site, bestSpread);
-        ground = site.getY();
-        capsule = site;
-        sapling = site.east(4);
-        stump = site.offset(4, 0, -30);
-    }
-
-    /** Wie stark der Boden rund um den künftigen Riesen und am Platz für den Stumpf schwankt (Wasser zählt als Klippe). */
-    private static int spread(ServerLevel level, ChunkGenerator generator, RandomState random, int x, int z, int centre) {
         int[][] around = {{0, 0}, {-6, 0}, {14, 0}, {4, 10}, {4, -10}, {4, 32}, {4, -30}, {9, -24}};
-        int spread = 0;
-        for (int[] offset : around) {
-            int height = generator.getBaseHeight(x + offset[0], z + offset[1], Heightmap.Types.WORLD_SURFACE_WG, level, random);
-            spread = Math.max(spread, height <= generator.getSeaLevel() + 1 ? 99 : Math.abs(height - centre));
-        }
-        return spread;
-    }
-
-    private static boolean isPlains(ChunkGenerator generator, RandomState random, int x, int y, int z) {
-        var biome = generator.getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(y), QuartPos.fromBlock(z), random.sampler());
-        return biome.is(PLAINS) || biome.is(SUNFLOWER_PLAINS);
+        DemoSites.Site site = DemoSites.flatPlains(player.server.overworld(), around, pos -> clearForestFloor(past, pos));
+        LOGGER.info("Bühne für die Zeitkapsel: {} (Höhenunterschied ringsum {})", site.pos(), site.spread());
+        ground = site.pos().getY();
+        capsule = site.pos();
+        sapling = site.pos().east(4);
+        stump = site.pos().offset(4, 0, -30);
     }
 
     /** Im Frühmittelalter: eine Lichtung – zwischen Standort, Kapsel und Setzling kein Baumstamm, überall Waldboden. */

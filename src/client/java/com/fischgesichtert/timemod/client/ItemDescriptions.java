@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.client;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.future.Echo;
 import java.util.List;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.minecraft.ChatFormatting;
@@ -12,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * Beschreibungszeile für jedes TIME-Item mit Text „….desc“ – auch für schlichte Items wie das Herz der
- * Zeit oder Fossilien, deren Klasse selbst keinen Tooltip schreibt.
+ * Zeit oder Fossilien, deren Klasse selbst keinen Tooltip schreibt. Dazu der Hinweis auf Zeit-Echos.
  */
 public final class ItemDescriptions {
     private ItemDescriptions() {
@@ -23,6 +24,9 @@ public final class ItemDescriptions {
     }
 
     private static void add(ItemStack stack, List<Component> lines) {
+        if (Echo.is(stack)) {
+            lines.add(Math.min(1, lines.size()), Component.translatable("tooltip.timemod.echo").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.ITALIC));
+        }
         if (!BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(TimeMod.MOD_ID)) {
             return;
         }

@@ -1,0 +1,38 @@
+{
+  "priority": 25,
+  "blocks": [
+    "minecraft:redstone_wire",
+    "minecraft:repeater",
+    "minecraft:comparator",
+    "minecraft:redstone_torch",
+    "minecraft:redstone_wall_torch",
+    "minecraft:lever",
+    "minecraft:tripwire_hook",
+    "minecraft:tripwire",
+    "minecraft:daylight_detector",
+    "minecraft:observer",
+    "minecraft:piston",
+    "minecraft:sticky_piston",
+    "minecraft:piston_head",
+    "minecraft:dispenser",
+    "minecraft:dropper",
+    "minecraft:target",
+    "minecraft:rail",
+    "minecraft:powered_rail",
+    "minecraft:detector_rail",
+    "minecraft:activator_rail",
+    "minecraft:calibrated_sculk_sensor",
+    "#minecraft:buttons",
+    "#minecraft:pressure_plates"
+  ],
+  "remove": {
+    "10": 0.0,
+    "25": 0.1,
+    "50": 0.4,
+    "250": 0.8,
+    "500": 1.0
+  },
+  "span": {
+    "1": 6
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "priority": 10,
+  "blocks": [
+    "minecraft:iron_door",
+    "minecraft:iron_trapdoor",
+    "minecraft:hopper",
+    "minecraft:cauldron",
+    "minecraft:water_cauldron",
+    "minecraft:lava_cauldron",
+    "minecraft:powder_snow_cauldron",
+    "minecraft:chain",
+    "minecraft:brewing_stand"
+  ],
+  "sounds": [
+    "metal",
+    "chain",
+    "anvil"
+  ],
+  "remove": {
+    "25": 0.0,
+    "50": 0.05,
+    "100": 0.15,
+    "250": 0.4,
+    "500": 0.7,
+    "1000": 1.0
+  },
+  "span": {
+    "1": 10
+  }
+}

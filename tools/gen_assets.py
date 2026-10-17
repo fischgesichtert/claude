@@ -1160,9 +1160,11 @@ def recipes():
 def tags():
     def tag(path, values):
         write(DATA / path, {"replace": False, "values": values})
-    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("brass_block"), t("deepslate_chronite_ore"), t("chronite_sprout"), t("time_condenser"), t("time_field_projector"),
-                                                        t("temporal_workbench"), t("chrono_pillar"), t("lifetime_extractor"),
-                                                        t("chronos_gate_frame"), t("chronos_console"), t("amber_ore"), t("amber_block")])
+    # Eine einzige Liste: ein zweiter Aufruf für dieselbe Datei würde die erste überschreiben
+    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t(n) for n in (
+        "brass_block", "deepslate_chronite_ore", "chronite_sprout", "time_condenser", "time_field_projector", "temporal_workbench",
+        "chrono_pillar", "lifetime_extractor", "chronos_gate_frame", "chronos_console", "amber_ore", "amber_block", "home_anchor",
+        "time_capsule", "dull_lantern", "rusty_iron_block", "rusty_iron_bars")])
     tag("minecraft/tags/blocks/mineable/shovel.json", [t("time_sand")])
     tag("minecraft/tags/blocks/mineable/axe.json", [t("clockmaker_bench")])
     tag("minecraft/tags/blocks/needs_iron_tool.json", [t("brass_block"), t("time_condenser"), t("time_field_projector"), t("chrono_pillar")])
@@ -1171,7 +1173,6 @@ def tags():
     tag("minecraft/tags/blocks/needs_stone_tool.json", [t("amber_ore")])
     # Hält der Wither, hält das Tor: Rahmen, Konsole und Portal lassen sich nicht wegsprengen
     tag("minecraft/tags/blocks/wither_immune.json", [t("chronos_portal")])
-    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("home_anchor"), t("time_capsule")])
     # Was die Zeit übersteht und was sie schnell frisst (Datenpakete können beides erweitern)
     tag(f"{NS}/tags/items/timeless.json", ["minecraft:" + n for n in (
         "diamond", "diamond_block", "emerald", "emerald_block", "gold_ingot", "gold_nugget", "gold_block", "raw_gold", "raw_gold_block",
@@ -1340,6 +1341,8 @@ def main():
     worldgen()
     advancements()
     lang()
+    import gen_future  # noqa: E402 – die Zukunft (M8) hat ihren eigenen Generator
+    gen_future.main()
     print("Assets erzeugt.")
 
 

@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.gate;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
+import com.fischgesichtert.timemod.future.FutureDerivation;
 import com.fischgesichtert.timemod.registry.ModAdvancements;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import io.netty.buffer.Unpooled;
@@ -187,7 +188,8 @@ public final class TimeStream {
         ChunkPos center = new ChunkPos(near);
         for (int dx = -READY_RADIUS; dx <= READY_RADIUS; dx++) {
             for (int dz = -READY_RADIUS; dz <= READY_RADIUS; dz++) {
-                if (level.getChunkSource().getChunkNow(center.x + dx, center.z + dz) == null) {
+                if (level.getChunkSource().getChunkNow(center.x + dx, center.z + dz) == null
+                    || !FutureDerivation.isSettled(level, new ChunkPos(center.x + dx, center.z + dz))) {
                     return false;
                 }
             }

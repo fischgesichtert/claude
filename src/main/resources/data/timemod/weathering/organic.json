@@ -1,0 +1,23 @@
+{
+  "priority": 30,
+  "blocks": [
+    "minecraft:hay_block",
+    "minecraft:slime_block",
+    "minecraft:honey_block",
+    "minecraft:honeycomb_block",
+    "minecraft:dried_kelp_block",
+    "minecraft:cake",
+    "minecraft:jack_o_lantern",
+    "minecraft:carved_pumpkin",
+    "#minecraft:candle_cakes"
+  ],
+  "remove": {
+    "1": 0.3,
+    "5": 0.6,
+    "25": 0.9,
+    "50": 1.0
+  },
+  "span": {
+    "1": 4
+  }
+}

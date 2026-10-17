@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "timemod:block/clockmaker_bench_top",
+    "front": "timemod:block/clockmaker_bench_front",
+    "side": "timemod:block/clockmaker_bench_side",
+    "bottom": "minecraft:block/spruce_planks"
+  }
+}

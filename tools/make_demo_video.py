@@ -22,6 +22,8 @@ SCENES = [
     ("seq_4_zeitstopp_aussen", "Zeitstopp – von außen", "die Zone wird zur grauen Kugel, Rauch hängt in der Luft"),
     ("seq_5_zeitstopp_innen", "Zeitstopp – mittendrin", "die ganze Welt verliert ihre Farbe"),
     ("seq_6_global_5x", "Globale Zeit 5×", "Sonne, Wolken und alle Tiere rasen"),
+    ("seq_7_zerstoerung", "Zerstörung", "TNT, tote Hühner, neue Blöcke …"),
+    ("seq_8_zurueckspulen", "Zurückspulen", "alles läuft rückwärts – Blöcke, Tiere, Loren, die Sonne"),
 ]
 
 

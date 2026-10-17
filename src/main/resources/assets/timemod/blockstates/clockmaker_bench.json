@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "timemod:block/clockmaker_bench"
+    },
+    "facing=east": {
+      "model": "timemod:block/clockmaker_bench",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "timemod:block/clockmaker_bench",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "timemod:block/clockmaker_bench",
+      "y": 270
+    }
+  }
+}

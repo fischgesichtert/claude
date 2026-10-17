@@ -3,7 +3,19 @@ package com.fischgesichtert.timemod.client;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.client.effect.RewindEffect;
 import com.fischgesichtert.timemod.client.effect.TimeStopEffect;
+import com.fischgesichtert.timemod.client.render.ChronoKnifeRenderer;
+import com.fischgesichtert.timemod.client.render.TimeCondenserRenderer;
+import com.fischgesichtert.timemod.client.screen.ClockmakerScreen;
+import com.fischgesichtert.timemod.registry.ModBlockEntities;
+import com.fischgesichtert.timemod.registry.ModBlocks;
+import com.fischgesichtert.timemod.registry.ModEntities;
+import com.fischgesichtert.timemod.registry.ModMenus;
 import com.fischgesichtert.timemod.registry.ModSounds;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import com.fischgesichtert.timemod.network.TimeNetworking;
 import com.fischgesichtert.timemod.time.TimeLevel;
 import com.fischgesichtert.timemod.time.TimeZone;
@@ -27,6 +39,14 @@ public class TimeModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        MenuScreens.register(ModMenus.CLOCKMAKER, ClockmakerScreen::new);
+        EntityRendererRegistry.register(ModEntities.CHRONO_KNIFE, ChronoKnifeRenderer::new);
+        BlockEntityRenderers.register(ModBlockEntities.TIME_CONDENSER, TimeCondenserRenderer::new);
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.TIME_GLASS, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.DEEPSLATE_CHRONITE_ORE, RenderType.translucent());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHRONITE_SPROUT, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.TIME_CONDENSER, RenderType.translucent());
+
         ClientPlayNetworking.registerGlobalReceiver(TimeNetworking.ZONES, (client, handler, buf, sender) -> {
             int count = buf.readVarInt();
             List<TimeZone> zones = new ArrayList<>(count);

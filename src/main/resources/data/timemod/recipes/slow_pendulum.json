@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "CBC",
+    "SKS",
+    "CTC"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "S": {
+      "item": "minecraft:slime_ball"
+    },
+    "K": {
+      "item": "timemod:clockwork"
+    },
+    "T": {
+      "item": "timemod:pocket_time_cell"
+    }
+  },
+  "result": {
+    "item": "timemod:slow_pendulum",
+    "count": 1
+  }
+}

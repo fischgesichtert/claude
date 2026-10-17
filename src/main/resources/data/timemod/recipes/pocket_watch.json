@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " N ",
+    "GCG",
+    " N "
+  ],
+  "key": {
+    "N": {
+      "item": "timemod:brass_nugget"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "C": {
+      "item": "timemod:clockwork"
+    }
+  },
+  "result": {
+    "item": "timemod:pocket_watch",
+    "count": 1
+  }
+}

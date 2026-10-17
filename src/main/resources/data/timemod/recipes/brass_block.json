@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "III",
+    "III",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "timemod:brass_ingot"
+    }
+  },
+  "result": {
+    "item": "timemod:brass_block",
+    "count": 1
+  },
+  "category": "misc"
+}

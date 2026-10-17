@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "timemod:block/time_field_projector_top_active",
+    "side": "timemod:block/time_field_projector_side_active",
+    "bottom": "timemod:block/time_field_projector_bottom"
+  }
+}

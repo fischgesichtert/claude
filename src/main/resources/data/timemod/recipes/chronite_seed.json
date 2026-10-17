@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "timemod:raw_chronite"
+    },
+    {
+      "item": "timemod:time_sand"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    }
+  ],
+  "result": {
+    "item": "timemod:chronite_seed",
+    "count": 1
+  }
+}

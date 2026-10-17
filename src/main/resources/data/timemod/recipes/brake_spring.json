@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "I I",
+    "MCM",
+    "I I"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "M": {
+      "item": "timemod:mainspring"
+    },
+    "C": {
+      "item": "timemod:clockwork"
+    }
+  },
+  "result": {
+    "item": "timemod:brake_spring",
+    "count": 1
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " I ",
+    "INI",
+    " I "
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_nugget"
+    },
+    "N": {
+      "item": "timemod:brass_nugget"
+    }
+  },
+  "result": {
+    "item": "timemod:mainspring",
+    "count": 1
+  }
+}

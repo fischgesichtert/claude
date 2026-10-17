@@ -1,0 +1,26 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "GMG",
+    "RBR",
+    "GGG"
+  ],
+  "key": {
+    "G": {
+      "item": "timemod:brass_gear"
+    },
+    "M": {
+      "item": "timemod:mainspring"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "B": {
+      "item": "timemod:balance_wheel"
+    }
+  },
+  "result": {
+    "item": "timemod:clockwork",
+    "count": 1
+  }
+}

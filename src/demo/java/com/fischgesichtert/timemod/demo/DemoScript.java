@@ -25,7 +25,7 @@ final class DemoScript {
             .command("time set 5000")
             .command("kill @e[type=!player]");
         buildStage(d);
-        d.command(CAMERA);
+        d.command(CAMERA).command("chrono record on 60");
 
         // Einschwingen
         d.wait(60).screenshot("01_buehne");
@@ -59,6 +59,21 @@ final class DemoScript {
         d.command("chrono global 5").wait(1)
             .record("seq_6_global_5x", 1).wait(100).stopRecording()
             .command("chrono clear");
+
+        // 7) Zerstörung … und alles zurückspulen
+        d.record("seq_7_zerstoerung", 1)
+            .command("summon tnt 5 100 3 {fuse:24}")
+            .command("summon tnt -6 100 6 {fuse:40}")
+            .wait(30)
+            .command("kill @e[type=chicken]")
+            .command("setblock -2 100 -12 oak_planks")
+            .command("fill -12 100 9 -9 103 12 stone_bricks")
+            .wait(50)
+            .stopRecording();
+        d.record("seq_8_zurueckspulen", 1)
+            .command("chrono rewind 4.5 1")
+            .wait(100)
+            .stopRecording();
 
         d.wait(5).screenshot("99_ende").wait(2).quit();
     }

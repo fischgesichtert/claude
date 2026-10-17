@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "BCB",
+    "CTC",
+    "BCB"
+  ],
+  "key": {
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "T": {
+      "item": "timemod:pocket_time_cell"
+    }
+  },
+  "result": {
+    "item": "timemod:chronite_time_cell",
+    "count": 1
+  }
+}

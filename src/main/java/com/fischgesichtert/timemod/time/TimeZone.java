@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.time;
 
 import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +18,11 @@ public final class TimeZone {
     public static final double MAX_FACTOR = 10.0;
 
     private final int id;
-    private final ZoneShape shape;
+    private ZoneShape shape;
+    /** Zone wirkt nur auf diese eine Entity (Netzwerk-ID) und folgt ihr; -1 = normale Zone. */
+    private int targetEntity = -1;
+    @Nullable
+    private UUID targetUuid;
     private final double factor;
     private final int mask;
     @Nullable
@@ -63,6 +68,30 @@ public final class TimeZone {
 
     public ZoneShape shape() {
         return shape;
+    }
+
+    /** Für mitwandernde Zonen: neue Position übernehmen. */
+    public void moveTo(ZoneShape shape) {
+        this.shape = shape;
+    }
+
+    public TimeZone target(Entity entity) {
+        this.targetEntity = entity.getId();
+        this.targetUuid = entity.getUUID();
+        return this;
+    }
+
+    public boolean isTargeted() {
+        return targetEntity >= 0;
+    }
+
+    public int targetEntity() {
+        return targetEntity;
+    }
+
+    @Nullable
+    public UUID targetUuid() {
+        return targetUuid;
     }
 
     public double factor() {
@@ -187,6 +216,7 @@ public final class TimeZone {
         buf.writeVarInt(mask);
         buf.writeVarInt(remainingTicks);
         buf.writeBoolean(rewind);
+        buf.writeVarInt(targetEntity + 1);
         buf.writeBoolean(owner != null);
         if (owner != null) {
             buf.writeUUID(owner);
@@ -200,8 +230,11 @@ public final class TimeZone {
         int mask = buf.readVarInt();
         int remaining = buf.readVarInt();
         boolean rewind = buf.readBoolean();
+        int target = buf.readVarInt() - 1;
         UUID owner = buf.readBoolean() ? buf.readUUID() : null;
-        return new TimeZone(id, shape, factor, mask, owner, remaining, false, rewind);
+        TimeZone zone = new TimeZone(id, shape, factor, mask, owner, remaining, false, rewind);
+        zone.targetEntity = target;
+        return zone;
     }
 
     @Override

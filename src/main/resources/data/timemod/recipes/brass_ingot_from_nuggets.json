@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "key": {
+    "N": {
+      "item": "timemod:brass_nugget"
+    }
+  },
+  "result": {
+    "item": "timemod:brass_ingot",
+    "count": 1
+  },
+  "category": "misc"
+}

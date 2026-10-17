@@ -45,6 +45,8 @@ public final class ChronoJournal {
     private final ArrayDeque<Frame> frames = new ArrayDeque<>();
     private int capacity = DEFAULT_SECONDS * 20;
     private boolean recording;
+    /** Per Befehl eingeschaltet (bleibt an) oder nur, weil jemand ein Rückspul-Werkzeug trägt. */
+    private boolean manual;
     private int replaying;
     private long nextIndex;
     private Frame open;
@@ -82,6 +84,18 @@ public final class ChronoJournal {
     }
 
     public void setRecording(boolean on) {
+        manual = on;
+        applyRecording(on);
+    }
+
+    /** Automatische Aufzeichnung (Rückspul-Werkzeuge); eine manuelle bleibt davon unberührt. */
+    public void setAutoRecording(boolean wanted) {
+        if (!manual) {
+            applyRecording(wanted);
+        }
+    }
+
+    private void applyRecording(boolean on) {
         if (on == recording) {
             return;
         }
@@ -148,7 +162,7 @@ public final class ChronoJournal {
         recording = false;
         clear();
         if (wasRecording) {
-            setRecording(true);
+            applyRecording(true);
         }
     }
 

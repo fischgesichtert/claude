@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "BXB",
+    "GCG",
+    "BSB"
+  ],
+  "key": {
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "X": {
+      "item": "minecraft:bone_meal"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "C": {
+      "item": "timemod:clockwork"
+    },
+    "S": {
+      "tag": "minecraft:sand"
+    }
+  },
+  "result": {
+    "item": "timemod:growth_hourglass",
+    "count": 1
+  }
+}

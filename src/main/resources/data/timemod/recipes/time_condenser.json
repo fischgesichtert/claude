@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BGB",
+    "GCG",
+    "BFB"
+  ],
+  "key": {
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "G": {
+      "item": "timemod:time_glass"
+    },
+    "C": {
+      "item": "timemod:clockwork"
+    },
+    "F": {
+      "item": "minecraft:blast_furnace"
+    }
+  },
+  "result": {
+    "item": "timemod:time_condenser",
+    "count": 1
+  },
+  "category": "misc"
+}

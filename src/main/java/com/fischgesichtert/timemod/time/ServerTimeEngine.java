@@ -221,6 +221,36 @@ public final class ServerTimeEngine extends TimeEngine {
         level.playSound(null, x, y, z, sound, SoundSource.PLAYERS, 3.0F, 1.0F);
     }
 
+    /** Mitwandernde Zonen, deren Entity verschwunden ist, lösen sich auf. */
+    private void dropOrphanedFollowers() {
+        List<TimeZone> orphaned = null;
+        for (TimeZone zone : zones) {
+            if (zone.isTargeted() && (zone.targetUuid() == null || level.getEntity(zone.targetUuid()) == null)) {
+                if (orphaned == null) {
+                    orphaned = new ArrayList<>();
+                }
+                orphaned.add(zone);
+            }
+        }
+        if (orphaned != null) {
+            zones.removeAll(orphaned);
+            onZonesChanged(orphaned);
+        }
+    }
+
+    /** Zone, die nur auf eine Entity wirkt und ihr folgt (Bremsfeder, Moment-Linse). */
+    public TimeZone addEntityZone(Entity target, double factor, int mask, @Nullable UUID owner, int durationTicks) {
+        double radius = Math.max(target.getBbWidth(), target.getBbHeight()) * 0.75 + 0.25;
+        TimeZone zone = new TimeZone(nextId++, new ZoneShape.Sphere(target.getBoundingBox().getCenter(), radius), factor, mask, owner, durationTicks, true).target(target);
+        runOrDefer(() -> {
+            zone.setClock(level.getLevelData().getGameTime());
+            zones.add(zone);
+            onZonesChanged(List.of());
+            playZoneSound(zone, true);
+        });
+        return zone;
+    }
+
     private void expireZones() {
         List<TimeZone> expired = null;
         for (TimeZone zone : zones) {
@@ -254,6 +284,8 @@ public final class ServerTimeEngine extends TimeEngine {
         if (zones.isEmpty() && pending.isEmpty()) {
             return;
         }
+        dropOrphanedFollowers();
+        updateFollowingZones();
         this.hasTime = hasTime;
         applyPending();
         expireZones();
@@ -391,7 +423,12 @@ public final class ServerTimeEngine extends TimeEngine {
             original.run();
             return;
         }
-        TimeAware aware = timeAware(pos);
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof TimeAnchored) {
+            original.run();
+            return;
+        }
+        TimeAware aware = blockEntity instanceof TimeAware a ? a : null;
         if (zone.steps() == 0) {
             if (zone != fullGlobal && aware != null) {
                 aware.timemod$addEigenzeit(-1);
@@ -561,7 +598,11 @@ public final class ServerTimeEngine extends TimeEngine {
             if (!isActive(zone, sub) || !level.shouldTickBlocksAt(pos)) {
                 continue;
             }
-            TimeAware aware = timeAware(pos);
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof TimeAnchored) {
+                continue;
+            }
+            TimeAware aware = blockEntity instanceof TimeAware a ? a : null;
             if (aware != null) {
                 aware.timemod$addEigenzeit(1);
             }

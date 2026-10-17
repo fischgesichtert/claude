@@ -73,11 +73,48 @@ public abstract class TimeEngine {
         TimeZone best = null;
         for (int i = 0, n = zones.size(); i < n; i++) {
             TimeZone zone = zones.get(i);
-            if (zone.accepts(category) && zone.shape().contains(x, y, z) && (best == null || zone.outranks(best))) {
+            if (!zone.isTargeted() && zone.accepts(category) && zone.shape().contains(x, y, z) && (best == null || zone.outranks(best))) {
                 best = zone;
             }
         }
         return best;
+    }
+
+    /** Wie {@link #resolve}, berücksichtigt aber Zonen, die nur auf eine bestimmte Entity wirken. */
+    @Nullable
+    protected TimeZone resolveFor(Entity entity, int category) {
+        double x = entity.getX();
+        double y = entity.getY(0.5);
+        double z = entity.getZ();
+        TimeZone best = null;
+        for (int i = 0, n = zones.size(); i < n; i++) {
+            TimeZone zone = zones.get(i);
+            if (zone.isTargeted()) {
+                if (zone.targetEntity() != entity.getId()) {
+                    continue;
+                }
+            } else if (!zone.accepts(category) || !zone.shape().contains(x, y, z)) {
+                continue;
+            }
+            if (best == null || zone.outranks(best)) {
+                best = zone;
+            }
+        }
+        return best;
+    }
+
+    /** Mitwandernde Zonen an die aktuelle Position ihrer Entity setzen (beide Seiten, jeden Tick). */
+    public void updateFollowingZones() {
+        for (TimeZone zone : zones) {
+            if (!zone.isTargeted()) {
+                continue;
+            }
+            Entity entity = level.getEntity(zone.targetEntity());
+            if (entity != null) {
+                double radius = Math.max(entity.getBbWidth(), entity.getBbHeight()) * 0.75 + 0.25;
+                zone.moveTo(new ZoneShape.Sphere(entity.getBoundingBox().getCenter(), radius));
+            }
+        }
     }
 
     @Nullable
@@ -94,7 +131,7 @@ public abstract class TimeEngine {
         if (zones.isEmpty() || isOutsideTime(entity)) {
             return null;
         }
-        return resolve(entity.getX(), entity.getY(0.5), entity.getZ(), TimeFilter.categoryOf(entity));
+        return resolveFor(entity, TimeFilter.categoryOf(entity));
     }
 
     public static boolean isOutsideTime(Entity entity) {
@@ -115,7 +152,7 @@ public abstract class TimeEngine {
         if (zones.isEmpty() || player.isSpectator()) {
             return false;
         }
-        TimeZone zone = resolve(player.getX(), player.getY(0.5), player.getZ(), TimeFilter.PLAYERS);
+        TimeZone zone = resolveFor(player, TimeFilter.PLAYERS);
         if (zone == null || !zone.isStop()) {
             return false;
         }

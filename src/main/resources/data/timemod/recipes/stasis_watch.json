@@ -1,0 +1,26 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "CDC",
+    "DWD",
+    "CTC"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "W": {
+      "item": "timemod:pocket_watch"
+    },
+    "T": {
+      "item": "timemod:pocket_time_cell"
+    }
+  },
+  "result": {
+    "item": "timemod:stasis_watch",
+    "count": 1
+  }
+}

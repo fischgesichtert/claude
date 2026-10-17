@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "PCP",
+    "PPP"
+  ],
+  "key": {
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "C": {
+      "item": "minecraft:crafting_table"
+    }
+  },
+  "result": {
+    "item": "timemod:clockmaker_bench",
+    "count": 1
+  },
+  "category": "misc"
+}

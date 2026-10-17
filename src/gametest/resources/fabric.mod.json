@@ -9,7 +9,8 @@
       "com.fischgesichtert.timemod.gametest.SmokeTests",
       "com.fischgesichtert.timemod.gametest.TimeEquivalenceTests",
       "com.fischgesichtert.timemod.gametest.TimeStopTests",
-      "com.fischgesichtert.timemod.gametest.RewindTests"
+      "com.fischgesichtert.timemod.gametest.RewindTests",
+      "com.fischgesichtert.timemod.gametest.ProgressionTests"
     ]
   },
   "depends": {

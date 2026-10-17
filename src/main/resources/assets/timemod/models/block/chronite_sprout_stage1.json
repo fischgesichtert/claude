@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "timemod:block/chronite_sprout_stage1"
+  }
+}

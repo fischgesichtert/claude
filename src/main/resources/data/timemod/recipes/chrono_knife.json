@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "C",
+    "I",
+    "B"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "timemod:brass_ingot"
+    }
+  },
+  "result": {
+    "item": "timemod:chrono_knife",
+    "count": 4
+  },
+  "category": "misc"
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "phased=false": {
+      "model": "timemod:block/deepslate_chronite_ore"
+    },
+    "phased=true": {
+      "model": "timemod:block/deepslate_chronite_ore_phased"
+    }
+  }
+}

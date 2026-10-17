@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "timemod:block/time_field_projector"
+    },
+    "active=true": {
+      "model": "timemod:block/time_field_projector_active"
+    }
+  }
+}

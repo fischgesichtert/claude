@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "timemod:block/time_glass"
+    }
+  }
+}

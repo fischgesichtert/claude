@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "CRC",
+    "GKG",
+    "CTC"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "G": {
+      "item": "timemod:brass_gear"
+    },
+    "K": {
+      "item": "timemod:clockwork"
+    },
+    "T": {
+      "item": "timemod:pocket_time_cell"
+    }
+  },
+  "result": {
+    "item": "timemod:time_accelerator",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "timemod:block/chronite_sprout_stage0"
+    },
+    "age=1": {
+      "model": "timemod:block/chronite_sprout_stage1"
+    },
+    "age=2": {
+      "model": "timemod:block/chronite_sprout_stage2"
+    },
+    "age=3": {
+      "model": "timemod:block/chronite_sprout_stage3"
+    }
+  }
+}

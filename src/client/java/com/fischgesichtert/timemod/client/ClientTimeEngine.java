@@ -55,6 +55,7 @@ public final class ClientTimeEngine extends TimeEngine {
     }
 
     public void beginTick() {
+        updateFollowingZones();
         for (TimeZone zone : zones) {
             zone.advance(effectiveFactor(zone));
         }

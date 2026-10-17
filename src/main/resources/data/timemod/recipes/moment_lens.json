@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " G ",
+    "GCG",
+    " A "
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "C": {
+      "item": "timemod:clockwork"
+    },
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "result": {
+    "item": "timemod:moment_lens",
+    "count": 1
+  }
+}

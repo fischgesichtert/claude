@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "CDC",
+    "GEG",
+    "BBB"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "timemod:time_glass"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "B": {
+      "item": "timemod:brass_block"
+    }
+  },
+  "result": {
+    "item": "timemod:time_field_projector",
+    "count": 1
+  }
+}

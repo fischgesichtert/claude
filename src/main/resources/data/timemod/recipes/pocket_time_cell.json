@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "NGN",
+    "GCG",
+    "NGN"
+  ],
+  "key": {
+    "N": {
+      "item": "timemod:brass_nugget"
+    },
+    "G": {
+      "item": "timemod:time_glass"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    }
+  },
+  "result": {
+    "item": "timemod:pocket_time_cell",
+    "count": 1
+  }
+}

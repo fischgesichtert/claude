@@ -2,6 +2,8 @@ package com.fischgesichtert.timemod.time;
 
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.network.TimeNetworking;
+import com.fischgesichtert.timemod.registry.ModSounds;
+import com.fischgesichtert.timemod.rewind.ChronoJournal;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -21,6 +23,9 @@ import net.minecraft.network.protocol.game.ClientboundBlockEventPacket;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockEventData;
 import net.minecraft.world.level.ChunkPos;
@@ -75,10 +80,17 @@ public final class ServerTimeEngine extends TimeEngine {
 
     private final List<Runnable> pending = new ArrayList<>();
     private final List<TimeZone> active = new ArrayList<>();
+    private final ChronoJournal journal;
 
     public ServerTimeEngine(ServerLevel level) {
         super(level);
         this.level = level;
+        this.journal = new ChronoJournal(level);
+    }
+
+    /** Das Zeitjournal dieser Welt (Aufzeichnung fürs Zurückspulen). */
+    public ChronoJournal journal() {
+        return journal;
     }
 
     public static ServerTimeEngine of(ServerLevel level) {
@@ -105,6 +117,20 @@ public final class ServerTimeEngine extends TimeEngine {
             }
             zones.add(zone);
             onZonesChanged(replaced);
+            playZoneSound(zone, true);
+        });
+        return zone;
+    }
+
+    /** Zone, in der gerade zurückgespult wird: alles steht, die Wiedergabe bewegt es. */
+    public TimeZone addRewindZone(ZoneShape shape, int mask, @Nullable UUID owner) {
+        TimeZone zone = new TimeZone(nextId++, shape, 0.0, mask, owner, -1, true, true);
+        runOrDefer(() -> {
+            zone.setClock(level.getLevelData().getGameTime());
+            zones.add(zone);
+            onZonesChanged(List.of());
+            level.playSound(null, zone.shape().bounds() == null ? level.getSharedSpawnPos() : BlockPos.containing(zone.shape().bounds().getCenter()),
+                ModSounds.REWIND, SoundSource.PLAYERS, 3.0F, 1.0F);
         });
         return zone;
     }
@@ -164,6 +190,35 @@ public final class ServerTimeEngine extends TimeEngine {
         recomputeFullGlobal();
         rebalanceTicks(removed);
         dirty = true;
+        for (TimeZone zone : removed) {
+            playZoneSound(zone, false);
+        }
+    }
+
+    /** Klang beim Erzeugen bzw. Auflösen einer Zone: Zeitstopp, Weiterlaufen, Vorspulen, Zeitlupe. */
+    private void playZoneSound(TimeZone zone, boolean created) {
+        SoundEvent sound;
+        if (zone.isRewind()) {
+            return;
+        }
+        if (zone.isStop()) {
+            sound = created ? ModSounds.TIME_STOP : ModSounds.TIME_RESUME;
+        } else if (!created) {
+            return;
+        } else {
+            sound = zone.factor() > 1.0 ? ModSounds.FAST_FORWARD : ModSounds.SLOW_MOTION;
+        }
+        if (zone.shape().isGlobal()) {
+            for (ServerPlayer player : level.players()) {
+                level.playSound(null, player.getX(), player.getY(), player.getZ(), sound, SoundSource.PLAYERS, 1.0F, 1.0F);
+            }
+            return;
+        }
+        AABB bounds = zone.shape().bounds();
+        double x = (bounds.minX + bounds.maxX) / 2;
+        double y = (bounds.minY + bounds.maxY) / 2;
+        double z = (bounds.minZ + bounds.maxZ) / 2;
+        level.playSound(null, x, y, z, sound, SoundSource.PLAYERS, 3.0F, 1.0F);
     }
 
     private void expireZones() {
@@ -195,6 +250,7 @@ public final class ServerTimeEngine extends TimeEngine {
             beginPass(false);
             return;
         }
+        journal.beginRealTick();
         if (zones.isEmpty() && pending.isEmpty()) {
             return;
         }
@@ -223,6 +279,9 @@ public final class ServerTimeEngine extends TimeEngine {
 
     public void onLevelTickEnd() {
         if (!ticking) {
+            if (!inExtraPass) {
+                journal.endRealTick();
+            }
             if (dirty) {
                 sync();
             }
@@ -246,6 +305,7 @@ public final class ServerTimeEngine extends TimeEngine {
         ticking = false;
         frozenPass = false;
         applyPending();
+        journal.endRealTick();
         if (dirty) {
             sync();
         }
@@ -280,6 +340,9 @@ public final class ServerTimeEngine extends TimeEngine {
 
     /** Vor {@code ServerLevel#tickNonPassenger}. {@code false} = diesen Tick auslassen. */
     public boolean beforeEntityTick(Entity entity) {
+        if (entity instanceof TimeHitQueue queue && queue.timemod$hasPendingHits() && !isFrozen(entity)) {
+            queue.timemod$releaseHits();
+        }
         if (substepDepth > 0 || zones.isEmpty()) {
             return true;
         }
@@ -396,7 +459,7 @@ public final class ServerTimeEngine extends TimeEngine {
             return false;
         }
         TimeZone zone = resolveEntity(entity);
-        return zone != null && zone.factor() > 1.0;
+        return zone != null && (zone.factor() > 1.0 || zone.isRewind());
     }
 
     // ------------------------------------------------------------------

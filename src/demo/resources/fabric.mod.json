@@ -8,6 +8,7 @@
   "entrypoints": {
     "client": ["com.fischgesichtert.timemod.demo.DemoDirector"]
   },
+  "mixins": ["timemod-demo.mixins.json"],
   "depends": {
     "timemod": "*"
   }

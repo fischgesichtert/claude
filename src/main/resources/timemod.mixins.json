@@ -7,11 +7,15 @@
     "BlockEntityMixin",
     "ChunkSerializerMixin",
     "EntityMixin",
+    "LevelChunkMixin",
     "LevelMixin",
     "LevelTicksMixin",
+    "LivingEntityMixin",
     "ServerChunkCacheMixin",
     "ServerEntityMixin",
-    "ServerLevelMixin"
+    "ServerGamePacketListenerImplMixin",
+    "ServerLevelMixin",
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

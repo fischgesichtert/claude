@@ -4,10 +4,14 @@ import com.fischgesichtert.timemod.time.RenderTimeState;
 import com.fischgesichtert.timemod.time.TimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeZone;
+import com.fischgesichtert.timemod.client.effect.TimeStopEffect;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +27,7 @@ public final class ClientTimeEngine extends TimeEngine {
     }
 
     public void setZones(List<TimeZone> newZones) {
+        List<TimeZone> before = List.copyOf(zones);
         for (TimeZone zone : newZones) {
             TimeZone old = zone(zone.id());
             if (old != null) {
@@ -32,6 +37,13 @@ public final class ClientTimeEngine extends TimeEngine {
         zones.clear();
         zones.addAll(newZones);
         recomputeFullGlobal();
+        TimeStopEffect.onZonesChanged(before, zones);
+    }
+
+    /** Ist der eigene Spieler gerade in einem fremden Zeitstopp gefangen? */
+    public boolean isLocalPlayerFrozen() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        return player != null && !zones.isEmpty() && isFrozenPlayer(player);
     }
 
     /** Effektiver Faktor einer Zone; lokale Zonen in einer globalen Zone multiplizieren sich. */
@@ -70,6 +82,10 @@ public final class ClientTimeEngine extends TimeEngine {
      * ganzen Tick gleitet statt zu springen.
      */
     public void tickEntity(Entity entity, Runnable vanillaTick) {
+        if (entity instanceof Player player && isFrozenPlayer(player)) {
+            setRenderTime(entity, 0.0F, 1.0F);
+            return;
+        }
         TimeZone zone = resolveEntity(entity);
         float rate = zone == null ? 1.0F : (float) effectiveFactor(zone);
         float phase = zone == null ? 0.0F : (float) zone.phase();

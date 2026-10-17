@@ -14,5 +14,9 @@
   "subtitles.timemod.fast_forward": "Time races",
   "subtitles.timemod.slow_motion": "Time slows down",
   "subtitles.timemod.rewind": "Time rewinds",
-  "subtitles.timemod.zone_hum": "Time zone hums"
+  "subtitles.timemod.zone_hum": "Time zone hums",
+  "commands.timemod.chrono.record.on": "Time journal recording (%s s)",
+  "commands.timemod.chrono.record.off": "Time journal off",
+  "commands.timemod.chrono.rewind.nothing": "Nothing to rewind – use /chrono record on first",
+  "commands.timemod.chrono.rewind.started": "Rewinding %s s …"
 }

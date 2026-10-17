@@ -234,6 +234,10 @@ public class TimeEquivalenceTests implements FabricGameTest {
         return out.toString();
     }
 
+    static void assertSameSnapshot(GameTestHelper helper, String what, String expected, String actual) {
+        assertSame(helper, what, expected, actual);
+    }
+
     private static void assertSame(GameTestHelper helper, String what, String expected, String actual) {
         if (expected.equals(actual)) {
             return;

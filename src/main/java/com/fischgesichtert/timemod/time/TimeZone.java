@@ -22,6 +22,11 @@ public final class TimeZone {
     private final int mask;
     @Nullable
     private final UUID owner;
+    /**
+     * Rückspul-Zone: Auf dem Server steht alles darin still (die Wiedergabe bewegt es), alle
+     * Spieler darin werden mitgespult. Der Client zeigt sie als laufendes Band.
+     */
+    private final boolean rewind;
     /** Verbleibende echte Ticks; negativ = unbegrenzt. */
     private int remainingTicks;
 
@@ -37,9 +42,14 @@ public final class TimeZone {
     final ZoneTicks<Fluid> fluidTicks;
 
     public TimeZone(int id, ZoneShape shape, double factor, int mask, @Nullable UUID owner, int durationTicks, boolean withTickQueues) {
+        this(id, shape, factor, mask, owner, durationTicks, withTickQueues, false);
+    }
+
+    public TimeZone(int id, ZoneShape shape, double factor, int mask, @Nullable UUID owner, int durationTicks, boolean withTickQueues, boolean rewind) {
         this.id = id;
         this.shape = shape;
-        this.factor = Math.max(0.0, Math.min(MAX_FACTOR, factor));
+        this.rewind = rewind;
+        this.factor = rewind ? 0.0 : Math.max(0.0, Math.min(MAX_FACTOR, factor));
         this.mask = shape.isGlobal() ? mask : mask & ~TimeFilter.ALL_WORLD;
         this.owner = owner;
         this.remainingTicks = durationTicks;
@@ -61,6 +71,10 @@ public final class TimeZone {
 
     public boolean isStop() {
         return factor == 0.0;
+    }
+
+    public boolean isRewind() {
+        return rewind;
     }
 
     public int mask() {
@@ -89,8 +103,11 @@ public final class TimeZone {
         return shape.isGlobal() && (mask & worldSim) == worldSim;
     }
 
-    /** Rangfolge bei Überschneidung: Stopp vor allem anderen, sonst gewinnt die neuere Zone. */
+    /** Rangfolge bei Überschneidung: Rückspulen, dann Stopp, sonst gewinnt die neuere Zone. */
     public boolean outranks(TimeZone other) {
+        if (rewind != other.rewind) {
+            return rewind;
+        }
         if (isStop() != other.isStop()) {
             return isStop();
         }
@@ -169,6 +186,7 @@ public final class TimeZone {
         buf.writeDouble(factor);
         buf.writeVarInt(mask);
         buf.writeVarInt(remainingTicks);
+        buf.writeBoolean(rewind);
         buf.writeBoolean(owner != null);
         if (owner != null) {
             buf.writeUUID(owner);
@@ -181,12 +199,13 @@ public final class TimeZone {
         double factor = buf.readDouble();
         int mask = buf.readVarInt();
         int remaining = buf.readVarInt();
+        boolean rewind = buf.readBoolean();
         UUID owner = buf.readBoolean() ? buf.readUUID() : null;
-        return new TimeZone(id, shape, factor, mask, owner, remaining, false);
+        return new TimeZone(id, shape, factor, mask, owner, remaining, false, rewind);
     }
 
     @Override
     public String toString() {
-        return "TimeZone#" + id + "[" + shape + ", " + factor + "x, mask=" + Integer.toBinaryString(mask) + "]";
+        return "TimeZone#" + id + "[" + shape + ", " + (rewind ? "rewind" : factor + "x") + ", mask=" + Integer.toBinaryString(mask) + "]";
     }
 }

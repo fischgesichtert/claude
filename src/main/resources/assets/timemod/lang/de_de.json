@@ -14,5 +14,9 @@
   "subtitles.timemod.fast_forward": "Zeit rast",
   "subtitles.timemod.slow_motion": "Zeit verlangsamt sich",
   "subtitles.timemod.rewind": "Zeit spult zurück",
-  "subtitles.timemod.zone_hum": "Zeitzone summt"
+  "subtitles.timemod.zone_hum": "Zeitzone summt",
+  "commands.timemod.chrono.record.on": "Zeitjournal zeichnet auf (%s s)",
+  "commands.timemod.chrono.record.off": "Zeitjournal ausgeschaltet",
+  "commands.timemod.chrono.rewind.nothing": "Es gibt nichts zum Zurückspulen – erst /chrono record on",
+  "commands.timemod.chrono.rewind.started": "Spule %s s zurück …"
 }

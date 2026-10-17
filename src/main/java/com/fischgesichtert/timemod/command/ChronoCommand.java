@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.command;
 
+import com.fischgesichtert.timemod.rewind.ChronoJournal;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeZone;
@@ -62,6 +63,17 @@ public final class ChronoCommand {
             .then(Commands.literal("weather")
                 .then(withDuration(Commands.argument("factor", DoubleArgumentType.doubleArg(0, 100)), (ctx, ticks) ->
                     create(ctx, ZoneShape.Global.INSTANCE, TimeFilter.WEATHER, ticks))))
+            .then(Commands.literal("record")
+                .then(Commands.literal("on")
+                    .executes(ctx -> record(ctx, true, ChronoJournal.DEFAULT_SECONDS))
+                    .then(Commands.argument("seconds", IntegerArgumentType.integer(1, 300))
+                        .executes(ctx -> record(ctx, true, IntegerArgumentType.getInteger(ctx, "seconds")))))
+                .then(Commands.literal("off").executes(ctx -> record(ctx, false, 0))))
+            .then(Commands.literal("rewind")
+                .then(Commands.argument("seconds", DoubleArgumentType.doubleArg(0.05, 300))
+                    .executes(ctx -> rewind(ctx, 2))
+                    .then(Commands.argument("speed", IntegerArgumentType.integer(0, 100))
+                        .executes(ctx -> rewind(ctx, IntegerArgumentType.getInteger(ctx, "speed"))))))
             .then(Commands.literal("clear").executes(ctx -> {
                 ServerTimeEngine.of(ctx.getSource().getLevel()).clear();
                 ctx.getSource().sendSuccess(() -> Component.translatable("commands.timemod.chrono.clear"), true);
@@ -90,6 +102,31 @@ public final class ChronoCommand {
         int id = ServerTimeEngine.of(source.getLevel()).addZone(shape, factor, mask, owner, ticks).id();
         source.sendSuccess(() -> Component.translatable("commands.timemod.chrono.created", id, format(factor)), true);
         return id;
+    }
+
+    private static int record(CommandContext<CommandSourceStack> ctx, boolean on, int seconds) {
+        ChronoJournal journal = ServerTimeEngine.of(ctx.getSource().getLevel()).journal();
+        if (on) {
+            journal.setSeconds(seconds);
+        }
+        journal.setRecording(on);
+        ctx.getSource().sendSuccess(() -> Component.translatable(on ? "commands.timemod.chrono.record.on" : "commands.timemod.chrono.record.off", seconds), true);
+        return 1;
+    }
+
+    /** speed = zurückgespulte Ticks pro Tick (0 = sofort). */
+    private static int rewind(CommandContext<CommandSourceStack> ctx, int speed) {
+        ChronoJournal journal = ServerTimeEngine.of(ctx.getSource().getLevel()).journal();
+        int ticks = (int) Math.round(DoubleArgumentType.getDouble(ctx, "seconds") * 20);
+        if (!journal.isRecording() || journal.availableTicks() == 0) {
+            ctx.getSource().sendFailure(Component.translatable("commands.timemod.chrono.rewind.nothing"));
+            return 0;
+        }
+        Entity entity = ctx.getSource().getEntity();
+        journal.rewind(ticks, speed, null, entity != null ? entity.getUUID() : null);
+        int actual = Math.min(ticks, journal.availableTicks());
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.timemod.chrono.rewind.started", String.format(Locale.ROOT, "%.1f", ticks / 20.0)), true);
+        return actual;
     }
 
     private static int list(CommandContext<CommandSourceStack> ctx) {

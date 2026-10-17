@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.mixin;
 
+import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeContext;
 import com.fischgesichtert.timemod.time.TimeEngine;
 import com.fischgesichtert.timemod.time.TimeLevel;
@@ -36,6 +37,10 @@ public abstract class LevelMixin implements TimeLevel {
     @WrapOperation(method = "tickBlockEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;tick()V"))
     private void timemod$tickBlockEntity(TickingBlockEntity ticker, Operation<Void> original) {
         TimeEngine engine = timemod$engine;
+        if (engine instanceof ServerTimeEngine server && server.journal().isRecording()) {
+            // Tickende Block-Entities (Öfen, Trichter …) ändern sich oft ohne setChanged()
+            server.journal().onBlockEntityChanged(ticker.getPos());
+        }
         if (engine == null || engine.isIdle()) {
             original.call(ticker);
         } else {

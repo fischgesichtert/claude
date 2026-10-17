@@ -27,6 +27,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /** Einhängepunkte der Zeit-Engine in den Welt-Tick des Servers. */
 @Mixin(ServerLevel.class)
@@ -167,5 +168,14 @@ public abstract class ServerLevelMixin {
     @WrapOperation(method = "runBlockEvents", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;shouldTickBlocksAt(Lnet/minecraft/core/BlockPos;)Z"))
     private boolean timemod$blockEvent(ServerLevel level, BlockPos pos, Operation<Boolean> original) {
         return original.call(level, pos) && timemod$engine().allowBlockEvent(pos);
+    }
+
+    // ---------------- Zeitjournal ----------------
+
+    @Inject(method = "addFreshEntity", at = @At("RETURN"))
+    private void timemod$recordSpawn(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (cir.getReturnValueZ()) {
+            timemod$engine().journal().onEntitySpawned(entity);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.mixin.client;
 
 import com.fischgesichtert.timemod.client.ClientTimeEngine;
+import com.fischgesichtert.timemod.client.TimeClientState;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeLevel;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -14,6 +15,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /** Bei globaler Zeit laufen auch Wolken, Regen und animierte Texturen (Wasser, Lava, Feuer) mit. */
 @Mixin(Minecraft.class)
@@ -43,6 +47,36 @@ public abstract class MinecraftMixin {
         int steps = timemod$globalSteps();
         for (int i = 0; i < steps; i++) {
             original.call(textures);
+        }
+    }
+
+    // ---------------- Eingefroren: keine Angriffe, kein Benutzen, kein Abbauen ----------------
+
+    @Inject(method = "startAttack", at = @At("HEAD"), cancellable = true)
+    private void timemod$frozenAttack(CallbackInfoReturnable<Boolean> cir) {
+        if (TimeClientState.isLocalPlayerFrozen()) {
+            cir.setReturnValue(false);
+        }
+    }
+
+    @Inject(method = "continueAttack", at = @At("HEAD"), cancellable = true)
+    private void timemod$frozenMining(boolean attacking, CallbackInfo ci) {
+        if (TimeClientState.isLocalPlayerFrozen()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "startUseItem", at = @At("HEAD"), cancellable = true)
+    private void timemod$frozenUse(CallbackInfo ci) {
+        if (TimeClientState.isLocalPlayerFrozen()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "pickBlock", at = @At("HEAD"), cancellable = true)
+    private void timemod$frozenPick(CallbackInfo ci) {
+        if (TimeClientState.isLocalPlayerFrozen()) {
+            ci.cancel();
         }
     }
 }

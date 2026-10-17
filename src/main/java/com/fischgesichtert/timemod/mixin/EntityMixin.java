@@ -1,8 +1,10 @@
 package com.fischgesichtert.timemod.mixin;
 
 import com.fischgesichtert.timemod.time.RenderTimeState;
+import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeAware;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -59,5 +61,17 @@ public abstract class EntityMixin implements TimeAware, RenderTimeState {
     @Inject(method = "load", at = @At("RETURN"))
     private void timemod$load(CompoundTag tag, CallbackInfo ci) {
         timemod$eigenzeit = tag.getLong(TIMEMOD_KEY);
+    }
+
+    /** Zeitjournal: Verschwindet eine Entity (getötet, entfernt, Dimension gewechselt), ihren Zustand sichern. */
+    @Inject(method = "setRemoved", at = @At("HEAD"))
+    private void timemod$recordRemoval(Entity.RemovalReason reason, CallbackInfo ci) {
+        Entity self = (Entity) (Object) this;
+        if (self.level() instanceof ServerLevel serverLevel && !self.isRemoved()) {
+            ServerTimeEngine engine = ServerTimeEngine.of(serverLevel);
+            if (engine != null) {
+                engine.journal().onEntityRemoved(self, reason);
+            }
+        }
     }
 }

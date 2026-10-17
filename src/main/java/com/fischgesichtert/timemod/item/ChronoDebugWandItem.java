@@ -60,9 +60,10 @@ public class ChronoDebugWandItem extends Item {
         ServerTimeEngine engine = ServerTimeEngine.of(serverLevel);
         engine.removeZonesOwnedBy(player.getUUID());
         double factor = factor(stack);
-        engine.addZone(new ZoneShape.Sphere(center, RADIUS), factor, TimeFilter.DEFAULT, player.getUUID(), DURATION);
+        // Ein Zeitstopp hält auch andere Spieler an (der Benutzer selbst bleibt beweglich)
+        int mask = factor == 0.0 ? TimeFilter.DEFAULT | TimeFilter.PLAYERS : TimeFilter.DEFAULT;
+        engine.addZone(new ZoneShape.Sphere(center, RADIUS), factor, mask, player.getUUID(), DURATION);
         serverPlayer.displayClientMessage(Component.translatable("item.timemod.chrono_debug_wand.created", format(factor)).withStyle(ChatFormatting.LIGHT_PURPLE), true);
-        level.playSound(null, center.x, center.y, center.z, SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0F, factor > 1 ? 1.8F : 0.6F);
         player.getCooldowns().addCooldown(this, 10);
         return InteractionResultHolder.consume(stack);
     }

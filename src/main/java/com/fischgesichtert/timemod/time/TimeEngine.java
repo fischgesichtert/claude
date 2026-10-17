@@ -107,6 +107,31 @@ public abstract class TimeEngine {
         return entity.getType().is(TIME_IMMUNE);
     }
 
+    /**
+     * Spieler in einer fremden Stopp-Zone sind eingefroren: Sie können sich nicht bewegen, nicht
+     * handeln und altern nicht. Der Erzeuger der Zone und Zuschauer sind ausgenommen.
+     */
+    public boolean isFrozenPlayer(Player player) {
+        if (zones.isEmpty() || player.isSpectator()) {
+            return false;
+        }
+        TimeZone zone = resolve(player.getX(), player.getY(0.5), player.getZ(), TimeFilter.PLAYERS);
+        if (zone == null || !zone.isStop()) {
+            return false;
+        }
+        // Beim Rückspulen läuft jeder mit zurück – auch wer es ausgelöst hat
+        return zone.isRewind() || !player.getUUID().equals(zone.owner()) && !TimeImmunity.isImmune(player);
+    }
+
+    /** Steht diese Entity gerade im Stillstand? */
+    public boolean isFrozen(Entity entity) {
+        if (entity instanceof Player player) {
+            return isFrozenPlayer(player);
+        }
+        TimeZone zone = resolveEntity(entity);
+        return zone != null && zone.isStop();
+    }
+
     /** Tickt eine Block-Entity im normalen Durchlauf – je nach Zone gar nicht, einmal oder öfter. */
     public abstract void tickBlockEntity(TickingBlockEntity ticker, Runnable original);
 

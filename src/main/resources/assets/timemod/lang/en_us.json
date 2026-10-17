@@ -5,5 +5,14 @@
   "item.timemod.chrono_debug_wand.hint": "Right-click: create zone · Sneak: change factor",
   "commands.timemod.chrono.created": "Time zone #%s created (factor %s)",
   "commands.timemod.chrono.clear": "All time zones removed",
-  "commands.timemod.chrono.none": "No time zones active"
+  "commands.timemod.chrono.none": "No time zones active",
+  "subtitles.timemod.time_stop": "Time stops",
+  "subtitles.timemod.time_resume": "Time resumes",
+  "subtitles.timemod.clock_tick": "Clock ticks",
+  "subtitles.timemod.clock_wind": "Clockwork winds",
+  "subtitles.timemod.heartbeat": "Heartbeat",
+  "subtitles.timemod.fast_forward": "Time races",
+  "subtitles.timemod.slow_motion": "Time slows down",
+  "subtitles.timemod.rewind": "Time rewinds",
+  "subtitles.timemod.zone_hum": "Time zone hums"
 }

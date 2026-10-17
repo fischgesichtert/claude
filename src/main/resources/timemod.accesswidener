@@ -11,3 +11,10 @@ accessible field net/minecraft/world/level/Level blockEntityTickers Ljava/util/L
 accessible field net/minecraft/world/ticks/LevelTicks allContainers Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
 accessible method net/minecraft/server/level/ChunkMap anyPlayerCloseEnoughForSpawning (Lnet/minecraft/world/level/ChunkPos;)Z
 accessible method net/minecraft/server/level/ChunkMap getChunks ()Ljava/lang/Iterable;
+
+# Client: Interpolationswerte nach mehreren Teilschritten zurücksetzen
+accessible field net/minecraft/world/entity/LivingEntity animStep F
+accessible field net/minecraft/world/entity/LivingEntity animStepO F
+accessible field net/minecraft/world/entity/LivingEntity run F
+accessible field net/minecraft/world/entity/LivingEntity oRun F
+accessible field net/minecraft/client/renderer/PostChain passes Ljava/util/List;

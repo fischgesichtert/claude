@@ -1,0 +1,12 @@
+{
+  "time_stop": { "subtitle": "subtitles.timemod.time_stop", "sounds": [ { "name": "timemod:time_stop", "attenuation_distance": 48 } ] },
+  "time_resume": { "subtitle": "subtitles.timemod.time_resume", "sounds": [ { "name": "timemod:time_resume", "attenuation_distance": 48 } ] },
+  "clock_tick": { "subtitle": "subtitles.timemod.clock_tick", "sounds": [ "timemod:clock_tick" ] },
+  "clock_wind": { "subtitle": "subtitles.timemod.clock_wind", "sounds": [ "timemod:clock_wind" ] },
+  "heartbeat": { "subtitle": "subtitles.timemod.heartbeat", "sounds": [ "timemod:heartbeat" ] },
+  "stop_ambience": { "sounds": [ { "name": "timemod:stop_ambience", "stream": true } ] },
+  "fast_forward": { "subtitle": "subtitles.timemod.fast_forward", "sounds": [ { "name": "timemod:fast_forward", "attenuation_distance": 32 } ] },
+  "slow_motion": { "subtitle": "subtitles.timemod.slow_motion", "sounds": [ { "name": "timemod:slow_motion", "attenuation_distance": 32 } ] },
+  "rewind": { "subtitle": "subtitles.timemod.rewind", "sounds": [ { "name": "timemod:rewind", "attenuation_distance": 32 } ] },
+  "zone_hum": { "subtitle": "subtitles.timemod.zone_hum", "sounds": [ { "name": "timemod:zone_hum", "attenuation_distance": 12 } ] }
+}

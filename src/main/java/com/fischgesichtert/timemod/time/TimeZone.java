@@ -102,7 +102,12 @@ public final class TimeZone {
 
     /** Schaltet den Akkumulator um einen Welt-Schritt weiter und liefert die Anzahl Spiel-Ticks. */
     public int advance() {
-        accumulator += factor;
+        return advance(factor);
+    }
+
+    /** Wie {@link #advance()}, aber mit einem abweichenden (z. B. verschachtelten) Faktor. */
+    public int advance(double effectiveFactor) {
+        accumulator += effectiveFactor;
         int s = (int) Math.floor(accumulator + 1.0E-9);
         accumulator -= s;
         if (accumulator < 0) {
@@ -123,6 +128,12 @@ public final class TimeZone {
     /** Rest des Akkumulators: wie weit der nächste Spiel-Tick schon „angebrochen“ ist (0..1). */
     public double phase() {
         return accumulator;
+    }
+
+    /** Übernimmt den Laufzustand einer älteren Kopie derselben Zone (Client-Synchronisation). */
+    public void copyStateFrom(TimeZone other) {
+        this.accumulator = other.accumulator;
+        this.steps = other.steps;
     }
 
     public long clock() {

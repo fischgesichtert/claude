@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod;
 import com.fischgesichtert.timemod.command.ChronoCommand;
 import com.fischgesichtert.timemod.network.TimeNetworking;
 import com.fischgesichtert.timemod.registry.ModItems;
+import com.fischgesichtert.timemod.registry.ModSounds;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,7 @@ public class TimeMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModSounds.init();
         ModItems.init();
         TimeNetworking.init();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ChronoCommand.register(dispatcher));

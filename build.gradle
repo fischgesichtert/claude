@@ -10,17 +10,25 @@ base {
     archivesName = project.archives_base_name
 }
 
+loom {
+    splitEnvironmentSourceSets()
+    accessWidenerPath = file('src/main/resources/timemod.accesswidener')
+}
+
 sourceSets {
+    // In-Welt-Tests (Server), laufen mit ./gradlew runGametest
     gametest {
         compileClasspath += main.compileClasspath + main.output
         runtimeClasspath += main.runtimeClasspath + main.output
     }
+    // Automatische Vorführung im echten Client (Screenshots), läuft mit ./gradlew runDemoClient
+    demo {
+        compileClasspath += client.compileClasspath + client.output + main.output
+        runtimeClasspath += client.runtimeClasspath + client.output + main.output
+    }
 }
 
 loom {
-    splitEnvironmentSourceSets()
-    accessWidenerPath = file('src/main/resources/timemod.accesswidener')
-
     mods {
         timemod {
             sourceSet sourceSets.main
@@ -29,10 +37,12 @@ loom {
         'timemod-gametest' {
             sourceSet sourceSets.gametest
         }
+        'timemod-demo' {
+            sourceSet sourceSets.demo
+        }
     }
 
     runs {
-        // Automatische In-Welt-Tests: startet einen Server, führt alle Gametests aus und beendet sich.
         gametest {
             server()
             name 'Gametest'
@@ -41,6 +51,14 @@ loom {
             vmArg "-Dfabric-api.gametest.report-file=${project.buildDir}/gametest/report.xml"
             runDir 'build/gametest'
             source sourceSets.gametest
+        }
+        demoClient {
+            client()
+            name 'Demo-Client'
+            vmArg '-Dtimemod.debug=true'
+            programArgs '--width', '1280', '--height', '720'
+            runDir 'run-demo'
+            source sourceSets.demo
         }
     }
 }

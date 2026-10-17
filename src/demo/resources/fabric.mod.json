@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "timemod-demo",
+  "version": "1.0.0",
+  "name": "TIME Demo",
+  "description": "Automatische Vorführung für Screenshots und Videos (nur Entwicklung).",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["com.fischgesichtert.timemod.demo.DemoDirector"]
+  },
+  "depends": {
+    "timemod": "*"
+  }
+}

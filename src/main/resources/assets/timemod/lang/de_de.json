@@ -5,5 +5,14 @@
   "item.timemod.chrono_debug_wand.hint": "Rechtsklick: Zone erzeugen · Schleichen: Faktor wechseln",
   "commands.timemod.chrono.created": "Zeitzone #%s erzeugt (Faktor %s)",
   "commands.timemod.chrono.clear": "Alle Zeitzonen entfernt",
-  "commands.timemod.chrono.none": "Keine Zeitzonen aktiv"
+  "commands.timemod.chrono.none": "Keine Zeitzonen aktiv",
+  "subtitles.timemod.time_stop": "Die Zeit bleibt stehen",
+  "subtitles.timemod.time_resume": "Die Zeit läuft weiter",
+  "subtitles.timemod.clock_tick": "Uhr tickt",
+  "subtitles.timemod.clock_wind": "Uhrwerk wird aufgezogen",
+  "subtitles.timemod.heartbeat": "Herzschlag",
+  "subtitles.timemod.fast_forward": "Zeit rast",
+  "subtitles.timemod.slow_motion": "Zeit verlangsamt sich",
+  "subtitles.timemod.rewind": "Zeit spult zurück",
+  "subtitles.timemod.zone_hum": "Zeitzone summt"
 }

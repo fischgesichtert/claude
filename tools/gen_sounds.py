@@ -1,0 +1,349 @@
+"""Synthetisiert alle Klänge von TIME (keine fremden Aufnahmen) und schreibt sie als .ogg.
+
+Aufruf:  python3 -I tools/gen_sounds.py
+Benötigt numpy und ffmpeg (libvorbis).
+"""
+import subprocess
+import sys
+import tempfile
+import wave
+from pathlib import Path
+
+import numpy as np
+
+SR = 44100
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "src/main/resources/assets/timemod/sounds"
+RNG = np.random.default_rng(20261017)
+
+
+# ---------------------------------------------------------------------------------------------
+# Bausteine
+# ---------------------------------------------------------------------------------------------
+
+def t(seconds):
+    return np.arange(int(seconds * SR)) / SR
+
+
+def silence(seconds):
+    return np.zeros(int(seconds * SR))
+
+
+def mix(*signals):
+    """Addiert Signale unterschiedlicher Länge (kürzere werden mit Stille aufgefüllt)."""
+    n = max(len(sig) for sig in signals)
+    out = np.zeros(n)
+    for sig in signals:
+        out[: len(sig)] += sig
+    return out
+
+
+def place(buf, sig, at):
+    start = int(at * SR)
+    end = min(len(buf), start + len(sig))
+    if end > start:
+        buf[start:end] += sig[: end - start]
+    return buf
+
+
+def env_ad(n, attack, decay, curve=4.0):
+    """Hüllkurve: linearer Anstieg, exponentielles Abklingen."""
+    a = max(1, int(attack * SR))
+    e = np.ones(n)
+    e[:a] = np.linspace(0, 1, a)
+    rest = np.arange(n - a) / SR
+    e[a:] = np.exp(-curve * rest / max(decay, 1e-4))
+    return e
+
+
+def sweep(f0, f1, seconds, shape="exp"):
+    """Sinus mit gleitender Frequenz (phasenkontinuierlich)."""
+    n = int(seconds * SR)
+    if shape == "exp":
+        f = f0 * (f1 / f0) ** (np.arange(n) / n)
+    else:
+        f = np.linspace(f0, f1, n)
+    phase = 2 * np.pi * np.cumsum(f) / SR
+    return np.sin(phase)
+
+
+def fft_filter(sig, low=None, high=None, slope=12.0):
+    """Nullphasiges Filtern im Frequenzbereich (Hoch-/Tiefpass mit weicher Flanke)."""
+    n = len(sig)
+    spec = np.fft.rfft(sig)
+    freqs = np.fft.rfftfreq(n, 1 / SR)
+    gain = np.ones_like(freqs)
+    if low is not None:  # Tiefpass bei 'low'
+        gain *= 1 / np.sqrt(1 + (freqs / low) ** (slope / 3))
+    if high is not None:  # Hochpass bei 'high'
+        with np.errstate(divide="ignore"):
+            gain *= 1 / np.sqrt(1 + (high / np.maximum(freqs, 1e-3)) ** (slope / 3))
+    return np.fft.irfft(spec * gain, n)
+
+
+def svf_sweep(sig, f_start, f_end, q=4.0, mode="band"):
+    """Zustandsvariablen-Filter mit gleitender Mittenfrequenz (für Wusch-Geräusche)."""
+    n = len(sig)
+    freqs = f_start * (f_end / f_start) ** (np.arange(n) / max(n - 1, 1))
+    out = np.zeros(n)
+    low = band = 0.0
+    damp = 1.0 / q
+    for i in range(n):
+        f = 2 * np.sin(np.pi * min(freqs[i], SR / 6) / SR)
+        high = sig[i] - low - damp * band
+        band += f * high
+        low += f * band
+        out[i] = band if mode == "band" else (low if mode == "low" else high)
+    return out
+
+
+def reverb(sig, seconds=2.0, mix=0.35, brightness=6000):
+    """Faltungshall mit exponentiell abklingendem, gefiltertem Rauschen."""
+    n = int(seconds * SR)
+    ir = RNG.standard_normal(n) * np.exp(-6.9 * np.arange(n) / n)
+    ir = fft_filter(ir, low=brightness)
+    ir /= np.sqrt(np.sum(ir ** 2))
+    wet = np.fft.irfft(np.fft.rfft(sig, len(sig) + n) * np.fft.rfft(ir, len(sig) + n), len(sig) + n)
+    dry = np.concatenate([sig, np.zeros(n)])
+    return (1 - mix) * dry + mix * wet
+
+
+def saturate(sig, drive=2.0):
+    return np.tanh(sig * drive) / np.tanh(drive)
+
+
+def normalize(sig, peak_db=-1.0):
+    peak = np.max(np.abs(sig)) or 1.0
+    return sig / peak * (10 ** (peak_db / 20))
+
+
+def fade(sig, fade_in=0.005, fade_out=0.05):
+    sig = sig.copy()
+    a = int(fade_in * SR)
+    b = int(fade_out * SR)
+    if a:
+        sig[:a] *= np.linspace(0, 1, a)
+    if b:
+        sig[-b:] *= np.linspace(1, 0, b)
+    return sig
+
+
+def trim(sig, threshold_db=-60):
+    thr = 10 ** (threshold_db / 20) * np.max(np.abs(sig))
+    idx = np.where(np.abs(sig) > thr)[0]
+    return sig[: idx[-1] + int(0.05 * SR)] if len(idx) else sig
+
+
+# ---------------------------------------------------------------------------------------------
+# Klangquellen
+# ---------------------------------------------------------------------------------------------
+
+def bell(freq, seconds, partials=((1.0, 1.0, 1.0), (2.76, 0.6, 0.55), (5.40, 0.35, 0.35), (8.93, 0.2, 0.22), (13.34, 0.12, 0.15))):
+    """Metallische Glocke mit unharmonischen Teiltönen und leichter Schwebung."""
+    x = t(seconds)
+    out = np.zeros_like(x)
+    for ratio, amp, decay_ratio in partials:
+        f = freq * ratio
+        detune = 1 + RNG.uniform(-0.002, 0.002)
+        out += amp * (np.sin(2 * np.pi * f * x) + 0.5 * np.sin(2 * np.pi * f * detune * x)) * np.exp(-x / (seconds * 0.35 * decay_ratio))
+    return out * env_ad(len(x), 0.002, seconds, curve=1.5)
+
+
+def tick(freq=3200, body=900, length=0.06, level=1.0):
+    """Uhrwerk-Klick: heller Anschlag plus kurzer Holz-/Metallkörper."""
+    x = t(length)
+    click = RNG.standard_normal(len(x)) * np.exp(-x / 0.0025)
+    click = fft_filter(click, high=freq * 0.6)
+    tone = np.sin(2 * np.pi * body * x) * np.exp(-x / 0.012)
+    ping = np.sin(2 * np.pi * freq * x) * np.exp(-x / 0.006) * 0.4
+    return level * (0.7 * click + 0.5 * tone + ping)
+
+
+def boom(seconds=1.6, f0=95, f1=28):
+    """Tiefer Einschlag mit absinkender Tonhöhe und Sättigung."""
+    x = t(seconds)
+    body = sweep(f0, f1, seconds) * env_ad(len(x), 0.004, seconds * 0.6, curve=3.0)
+    sub = np.sin(2 * np.pi * 42 * x) * env_ad(len(x), 0.01, seconds * 0.8, curve=3.5) * 0.6
+    hit = fft_filter(RNG.standard_normal(len(x)), low=1800) * np.exp(-x / 0.02) * 0.8
+    return saturate(body + sub + hit, 2.5)
+
+
+def heartbeat(level=1.0):
+    """Herzschlag (lub-dub)."""
+    out = silence(0.9)
+    for at, f, amp in ((0.0, 55, 1.0), (0.22, 48, 0.75)):
+        x = t(0.18)
+        thump = np.sin(2 * np.pi * f * x * (1 - 0.35 * x / 0.18)) * env_ad(len(x), 0.006, 0.12, curve=3.0)
+        place(out, thump * amp, at)
+    return fft_filter(out, low=300) * level
+
+
+def noise(seconds):
+    return RNG.standard_normal(int(seconds * SR))
+
+
+# ---------------------------------------------------------------------------------------------
+# Die eigentlichen Klänge
+# ---------------------------------------------------------------------------------------------
+
+def time_stop():
+    """„Die Welt hält an“: rückwärts anschwellender Hall → Einschlag → Glocke → verhallendes Ticken."""
+    total = silence(4.2)
+    # 1) Rückwärts-Hall: ein Glockenschlag mit Hall, umgedreht, endet genau beim Einschlag
+    swell_src = mix(bell(392, 0.4), 0.4 * tick(level=1.5))
+    swell = reverb(np.concatenate([swell_src, silence(0.1)]), seconds=1.3, mix=0.9)[::-1]
+    swell = swell[-int(0.85 * SR):]
+    swell *= np.linspace(0.2, 1.0, len(swell)) ** 2
+    place(total, normalize(swell, -6), 0.0)
+    hit_at = 0.85
+    # 2) Einschlag
+    place(total, normalize(boom(1.8), -2), hit_at)
+    # 3) Gong/Glocke tief, lange ausklingend
+    gong = mix(bell(146.8, 3.0), 0.5 * bell(220.0, 2.4))
+    place(total, normalize(reverb(gong, 2.5, 0.45), -7), hit_at)
+    # 4) Hohes Schimmern (Zeit „friert“ ein)
+    x = t(2.4)
+    shimmer = sum(np.sin(2 * np.pi * f * x + RNG.uniform(0, 6.28)) for f in (2093, 2637, 3136, 4186)) * np.exp(-x / 0.8)
+    shimmer *= 0.5 + 0.5 * np.sin(2 * np.pi * 7 * x)
+    place(total, normalize(shimmer, -20), hit_at + 0.05)
+    # 5) Verhallendes Uhr-Ticken in der Stille
+    for i, at in enumerate((1.55, 2.05, 2.55, 3.05)):
+        place(total, reverb(tick(level=1.0), 1.0, 0.5) * (0.5 * 0.7 ** i), hit_at + at - 0.85)
+    return trim(normalize(fade(total, 0.01, 0.4), -1))
+
+
+def time_resume():
+    """„Die Zeit läuft weiter“: Aufzieh-Ratschen, rückwärts gesaugter Hall, dann Wusch."""
+    total = silence(2.2)
+    # Aufziehen: beschleunigende Ratsche
+    at = 0.0
+    gap = 0.11
+    for i in range(9):
+        place(total, tick(freq=2600 + i * 120, body=700 + i * 40, level=0.55), at)
+        at += gap
+        gap *= 0.86
+    # Rückwärts gesaugter Hall mit Klick am Ende
+    src = mix(tick(level=2.0), bell(523, 0.3) * 0.6)
+    rev = reverb(np.concatenate([src, silence(0.05)]), 1.0, 0.9)[::-1]
+    rev = rev[-int(0.6 * SR):] * np.linspace(0.1, 1, int(0.6 * SR)) ** 2
+    place(total, normalize(rev, -5), 0.35)
+    # Freigabe: Wusch nach oben + tiefer Puls
+    w = svf_sweep(noise(1.1), 300, 6000, q=3) * env_ad(int(1.1 * SR), 0.02, 0.8, curve=2.0)
+    place(total, normalize(w, -6), 0.92)
+    place(total, normalize(boom(0.9, 70, 40), -8), 0.95)
+    return trim(normalize(fade(total, 0.01, 0.3), -1))
+
+
+def clock_tick():
+    return normalize(fade(tick(), 0.0005, 0.01), -3)
+
+
+def clock_wind():
+    out = silence(0.8)
+    at, gap = 0.0, 0.07
+    for i in range(10):
+        place(out, tick(freq=2400 + 50 * i, body=650, level=0.8), at)
+        at += gap
+    return trim(normalize(fade(out, 0.001, 0.05), -3))
+
+
+def heartbeat_sound():
+    return normalize(fade(heartbeat(), 0.001, 0.05), -3)
+
+
+def stop_ambience():
+    """Loop für die Stille im Zeitstopp: tiefes Brummen, Herzschlag, fernes Ticken (4 s)."""
+    length = 4.0
+    x = t(length)
+    drone = (np.sin(2 * np.pi * 55 * x) + 0.5 * np.sin(2 * np.pi * 55.4 * x) + 0.25 * np.sin(2 * np.pi * 110.3 * x))
+    drone = fft_filter(drone, low=200) * 0.25
+    out = drone.copy()
+    for at in (0.2, 2.2):
+        place(out, heartbeat(0.9), at)
+    for at in (1.0, 3.0):
+        place(out, reverb(tick(level=0.25), 0.8, 0.6)[: int(0.9 * SR)], at)
+    out = out[: len(x)]
+    # nahtlos loopen: Anfang und Ende überblenden
+    xf = int(0.05 * SR)
+    out[:xf] = out[:xf] * np.linspace(0, 1, xf) + out[-xf:] * np.linspace(1, 0, xf)
+    return normalize(out[:-xf], -4)
+
+
+def fast_forward():
+    """Vorspulen: steigender Wusch mit flatterndem Band-Klang."""
+    n = int(1.3 * SR)
+    w = svf_sweep(noise(1.3), 200, 7000, q=5) * env_ad(n, 0.05, 1.0, curve=2.5)
+    x = t(1.3)
+    flutter = sweep(300, 2400, 1.3) * (0.5 + 0.5 * np.sin(2 * np.pi * 24 * x)) * env_ad(n, 0.05, 1.0, curve=3) * 0.25
+    return trim(normalize(fade(w + flutter, 0.01, 0.2), -2))
+
+
+def slow_motion():
+    """Zeitlupe: tief absinkender Wusch mit dumpfem Nachhall."""
+    n = int(1.8 * SR)
+    w = svf_sweep(noise(1.8), 4000, 120, q=4, mode="band") * env_ad(n, 0.04, 1.4, curve=2.0)
+    low = sweep(160, 40, 1.8) * env_ad(n, 0.05, 1.4, curve=2.5) * 0.6
+    return trim(normalize(fade(reverb(w + low, 1.8, 0.4), 0.01, 0.3), -2))
+
+
+def rewind():
+    """Zurückspulen: Band-Rückspulen mit zirpendem, wackelndem Ton."""
+    length = 1.6
+    x = t(length)
+    wobble = 1 + 0.35 * np.sin(2 * np.pi * 9 * x) + 0.15 * np.sin(2 * np.pi * 23 * x)
+    f = 900 * wobble * (1 + 0.8 * x / length)
+    saw = 2 * ((np.cumsum(f) / SR) % 1.0) - 1
+    chirp = fft_filter(saw, low=5000, high=300) * 0.4
+    hiss = svf_sweep(noise(length), 6000, 1500, q=2) * 0.5
+    out = (chirp + hiss) * env_ad(len(x), 0.03, length, curve=1.2)
+    return trim(normalize(fade(out, 0.01, 0.15), -2))
+
+
+def zone_hum():
+    """Leises Summen einer aktiven Zeitzone (Loop, 2 s)."""
+    x = t(2.0)
+    hum = sum(a * np.sin(2 * np.pi * f * x) for f, a in ((110, 1.0), (165.2, 0.5), (220.4, 0.3), (330, 0.15)))
+    hum *= 0.75 + 0.25 * np.sin(2 * np.pi * 1.0 * x)
+    return normalize(fft_filter(hum, low=900), -10)
+
+
+SOUNDS = {
+    "time_stop": time_stop,
+    "time_resume": time_resume,
+    "clock_tick": clock_tick,
+    "clock_wind": clock_wind,
+    "heartbeat": heartbeat_sound,
+    "stop_ambience": stop_ambience,
+    "fast_forward": fast_forward,
+    "slow_motion": slow_motion,
+    "rewind": rewind,
+    "zone_hum": zone_hum,
+}
+
+
+def write_ogg(name, sig):
+    pcm = np.clip(sig, -1, 1)
+    pcm16 = (pcm * 32767).astype("<i2")
+    OUT.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmp:
+        wav_path = Path(tmp) / f"{name}.wav"
+        with wave.open(str(wav_path), "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(SR)
+            w.writeframes(pcm16.tobytes())
+        subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(wav_path),
+                        "-c:a", "libvorbis", "-q:a", "6", str(OUT / f"{name}.ogg")], check=True)
+
+
+def main(names):
+    for name, fn in SOUNDS.items():
+        if names and name not in names:
+            continue
+        sig = fn()
+        write_ogg(name, sig)
+        print(f"{name}: {len(sig) / SR:.2f} s")
+
+
+if __name__ == "__main__":
+    main(set(sys.argv[1:]))

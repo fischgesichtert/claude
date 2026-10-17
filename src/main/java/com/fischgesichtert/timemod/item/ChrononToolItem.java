@@ -2,6 +2,9 @@ package com.fischgesichtert.timemod.item;
 
 import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.energy.ChrononHolder;
+import com.fischgesichtert.timemod.module.ModularTool;
+import com.fischgesichtert.timemod.module.ModuleItem;
+import com.fischgesichtert.timemod.module.Modules;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -54,5 +57,17 @@ public abstract class ChrononToolItem extends Item implements ChrononHolder {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.timemod.chronon", Chronon.format(Chronon.stored(stack)), Chronon.format(capacity)).withStyle(ChatFormatting.AQUA));
         tooltip.add(Component.translatable(getDescriptionId() + ".desc").withStyle(ChatFormatting.GRAY));
+        if (this instanceof ModularTool modular) {
+            List<ModuleItem> installed = Modules.installed(stack);
+            if (!installed.isEmpty()) {
+                tooltip.add(Component.translatable("tooltip.timemod.modules").withStyle(ChatFormatting.DARK_AQUA));
+                for (ModuleItem module : installed) {
+                    tooltip.add(Component.literal(" • ").append(module.getDescription()).withStyle(ChatFormatting.GRAY));
+                }
+            }
+            for (Component line : modular.moduleStats(stack)) {
+                tooltip.add(line.copy().withStyle(ChatFormatting.DARK_GRAY));
+            }
+        }
     }
 }

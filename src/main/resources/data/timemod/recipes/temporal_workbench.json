@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "CKC",
+    "NWN",
+    "BBB"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "K": {
+      "item": "timemod:clockwork_core"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "W": {
+      "item": "timemod:clockmaker_bench"
+    },
+    "B": {
+      "item": "timemod:brass_block"
+    }
+  },
+  "result": {
+    "item": "timemod:temporal_workbench",
+    "count": 1
+  }
+}

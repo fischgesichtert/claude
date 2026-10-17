@@ -5,6 +5,8 @@
     "timemod:deepslate_chronite_ore",
     "timemod:chronite_sprout",
     "timemod:time_condenser",
-    "timemod:time_field_projector"
+    "timemod:time_field_projector",
+    "timemod:temporal_workbench",
+    "timemod:chrono_pillar"
   ]
 }

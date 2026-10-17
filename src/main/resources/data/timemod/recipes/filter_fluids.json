@@ -1,0 +1,20 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " X ",
+    "XMX",
+    " X "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:bucket"
+    },
+    "M": {
+      "item": "timemod:blank_module"
+    }
+  },
+  "result": {
+    "item": "timemod:filter_fluids",
+    "count": 1
+  }
+}

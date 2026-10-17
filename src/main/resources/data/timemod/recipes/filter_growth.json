@@ -1,0 +1,20 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " X ",
+    "XMX",
+    " X "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:bone_meal"
+    },
+    "M": {
+      "item": "timemod:blank_module"
+    }
+  },
+  "result": {
+    "item": "timemod:filter_growth",
+    "count": 1
+  }
+}

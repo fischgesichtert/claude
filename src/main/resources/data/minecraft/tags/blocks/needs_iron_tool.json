@@ -3,6 +3,7 @@
   "values": [
     "timemod:brass_block",
     "timemod:time_condenser",
-    "timemod:time_field_projector"
+    "timemod:time_field_projector",
+    "timemod:chrono_pillar"
   ]
 }

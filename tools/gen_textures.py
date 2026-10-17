@@ -639,6 +639,195 @@ def projector(part, active):
 
 
 # ------------------------------------------------------------------------------------------
+# Stufe III: Module, Temporal-Werkbank, Chrono-Säule, Boss-Beute
+# ------------------------------------------------------------------------------------------
+
+PCB = [(24, 28, 40, 255), (36, 44, 60, 255), (52, 64, 84, 255)]
+
+ICON_PALETTE = {
+    "p": (240, 160, 170, 255), "P": (200, 110, 125, 255), "k": (30, 20, 30, 255), "n": (120, 50, 70, 255),
+    "g": (96, 190, 80, 255), "G": (60, 140, 50, 255), "K": (24, 40, 24, 255),
+    "e": (60, 200, 120, 255), "E": (150, 250, 190, 255),
+    "h": (90, 60, 40, 255), "s": (220, 170, 130, 255), "b": (70, 110, 220, 255), "w": (245, 245, 255, 255),
+    "f": (210, 210, 220, 255), "a": (150, 110, 70, 255), "A": (110, 80, 50, 255),
+    "y": (250, 230, 90, 255), "Y": (200, 170, 40, 255), "o": (140, 220, 80, 255),
+    "i": (150, 150, 165, 255), "I": (95, 95, 110, 255), "c": (80, 210, 240, 255), "C": (170, 245, 255, 255),
+    "l": (110, 190, 255, 255), "L": (60, 120, 220, 255), "r": (230, 40, 40, 255), "R": (255, 120, 90, 255),
+    "S": (130, 130, 140, 255), "d": (40, 40, 48, 255), "F": (255, 170, 40, 255), "m": (255, 210, 120, 255),
+    "B": (180, 130, 60, 255), "q": (230, 200, 150, 255),
+}
+
+ICONS = {
+    "animals": ["........", ".pp..pp.", ".pppppp.", ".pkppkp.", ".pppppp.", ".pPPPPp.", ".pPnnPp.", "..pppp.."],
+    "monsters": ["gggggggg", "gKKggKKg", "gKKggKKg", "gggKKggg", "ggKKKKgg", "ggKKKKgg", "ggKggKgg", "gggggggg"],
+    "villagers": ["...ee...", "..eEEe..", ".eEeeEe.", "eEeeeeEe", ".eEeeEe.", "..eEEe..", "...ee...", "........"],
+    "players": ["hhhhhhhh", "hhhhhhhh", "hssssssh", "swbsswbs", "ssssssss", "sssAAsss", "ssAssAss", "ssssssss"],
+    "projectiles": [".....fff", "......ff", ".....a.f", "....a...", "...a....", ".wa.....", "ww......", ".w......"],
+    "items": ["..yyyy..", ".yYYYYy.", "yYooooYy", "yYowooYy", "yYooooYy", "yYooooYy", ".yYYYYy.", "..yyyy.."],
+    "vehicles": ["........", "........", "iiiiiiii", "iIIIIIIi", "iIIIIIIi", ".iiiiii.", ".k....k.", "kSk..kSk"],
+    "growth": ["...gg...", "..gGGg..", ".gGggGg.", "..gGGg..", "...aa...", "...a....", "..aa....", ".hhhhhh."],
+    "environment": ["...w....", ".w.w.w..", "..www...", "wwwCwww.", "..www...", ".w.w.w..", "...w....", "........"],
+    "fluids": ["...l....", "...l....", "..lll...", ".llLll..", ".lLLLl..", ".lLwLl..", "..lll...", "........"],
+    "redstone": ["...rr...", "..rRRr..", "...rr...", "...aa...", "...aa...", "...aa...", "...AA...", "........"],
+    "machines": ["SSSSSSSS", "SiiiiiiS", "SiddddiS", "SidFFdiS", "SiFmmFiS", "SiddddiS", "SiiiiiiS", "SSSSSSSS"],
+    "radius": ["w..cc..w", ".w....w.", "...cc...", "c.cCCc.c", "c.cCCc.c", "...cc...", ".w....w.", "w..cc..w"],
+    "duration": ["BBBBBBBB", ".BqqqqB.", "..BqqB..", "...BB...", "...BB...", "..B.qB..", ".BqqqqB.", "BBBBBBBB"],
+    "strength": ["....yy..", "...yy...", "..yy....", ".yyyyy..", "....yy..", "...yy...", "..yy....", ".y......"],
+    "efficiency": ["...ww...", ".wwwwww.", ".w....w.", ".wggggw.", ".wGGGGw.", ".wggggw.", ".wGGGGw.", ".wwwwww."],
+}
+
+
+def module_base(kind):
+    s = Sprite()
+    s.rect(2, 2, 13, 12, PCB[1])
+    s.rect(3, 3, 12, 11, PCB[0])
+    accent = {"filter": GLOW[1], "amp": BRASS[3], "blank": PCB[2]}[kind]
+    s.rect(2, 2, 13, 2, accent)
+    s.rect(2, 2, 2, 12, accent)
+    s.rect(13, 3, 13, 12, PCB[2])
+    s.rect(3, 12, 13, 12, PCB[2])
+    # Kontakte unten (Messing)
+    for x in range(3, 13, 2):
+        s.set(x, 13, BRASS[3])
+        s.set(x, 14, BRASS[2])
+    # Leiterbahnen
+    s.set(3, 5, GLOW[0])
+    s.set(12, 9, GLOW[0])
+    s.set(12, 4, BRASS[2])
+    s.set(3, 10, BRASS[2])
+    return s
+
+
+def module(kind, icon=None):
+    s = module_base(kind)
+    if icon is None:
+        # leerer Sockel
+        s.rect(5, 5, 10, 10, PCB[1])
+        s.rect(6, 6, 9, 9, PCB[0])
+        for x, y in ((5, 5), (10, 5), (5, 10), (10, 10)):
+            s.set(x, y, BRASS[2])
+    else:
+        rows = ICONS[icon]
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch != ".":
+                    s.set(4 + x, 3 + y, ICON_PALETTE[ch])
+    s.outline()
+    return s
+
+
+def clockwork_core():
+    s = Sprite()
+    gear(s, 7.5, 7.5, 7.0, BRASS, teeth=10, hole=0.0)
+    s.shade_disc(7.5, 7.5, 4.2, [BRASS[1], BRASS[2], BRASS[3]])
+    s.disc(7.5, 7.5, 2.8, GLOW[0])
+    s.disc(7.5, 7.5, 1.8, GLOW[1])
+    s.disc(7.2, 7.2, 0.9, GLOW[2])
+    for a in range(0, 360, 90):
+        x = 7.5 + 3.5 * math.cos(math.radians(a + 45))
+        y = 7.5 + 3.5 * math.sin(math.radians(a + 45))
+        s.set(int(round(x)), int(round(y)), BRASS[4])
+    s.outline()
+    return s
+
+
+def phage_heart():
+    s = Sprite()
+    heart = [(7.5, 14), (1.5, 7), (1.5, 4), (4, 2), (7.5, 4.5), (11, 2), (13.5, 4), (13.5, 7)]
+    for y in range(16):
+        for x in range(16):
+            if inside(heart, x + 0.5, y + 0.5):
+                f = (x + y) / 30
+                s.set(x, y, [CHRON[2], CHRON[1], CHRON[0]][min(2, int(f * 3))])
+    # Adern und Zähne
+    s.line(4, 4, 7, 9, RED[0])
+    s.line(11, 4, 8, 9, RED[0])
+    s.line(7, 9, 7, 12, RED[1])
+    for x in range(5, 11, 2):
+        s.set(x, 7, (240, 230, 220, 255))
+    s.disc(7.5, 8.0, 1.2, GLOW[1])
+    s.set(7, 8, GLOW[2])
+    s.set(4, 3, CHRON[4])
+    s.outline()
+    return s
+
+
+def workbench_side(formed):
+    s = Sprite()
+    noise_fill(s, [(34, 26, 52, 255), (44, 34, 66, 255), (56, 44, 82, 255)], 71, weights=[2, 3, 1])
+    s.rect(0, 0, 15, 1, BRASS[3])
+    s.rect(0, 2, 15, 2, BRASS[1])
+    s.rect(0, 14, 15, 15, BRASS[1])
+    rune = GLOW[1] if formed else CHRON[1]
+    for x in (3, 7, 11):
+        s.line(x, 5, x + 2, 5, rune)
+        s.line(x + 1, 6, x + 1, 10, rune)
+        s.line(x, 11, x + 2, 11, rune)
+    if formed:
+        s.set(4, 8, GLOW[2])
+        s.set(8, 8, GLOW[2])
+        s.set(12, 8, GLOW[2])
+    return s
+
+
+def workbench_top(formed):
+    s = Sprite()
+    noise_fill(s, [(34, 26, 52, 255), (44, 34, 66, 255)], 73, weights=[3, 2])
+    s.ring(7.5, 7.5, 6.0, 7.4, BRASS[2])
+    s.ring(7.5, 7.5, 4.0, 4.7, GLOW[1] if formed else CHRON[1])
+    for a in range(0, 360, 30):
+        x = 7.5 + 5.3 * math.cos(math.radians(a))
+        y = 7.5 + 5.3 * math.sin(math.radians(a))
+        s.set(int(round(x)), int(round(y)), GLOW[2] if formed else CHRON[2])
+    s.disc(7.5, 7.5, 2.2, GLOW[2] if formed else CHRON[2])
+    s.disc(7.5, 7.5, 1.0, (255, 255, 255, 255) if formed else CHRON[3])
+    return s
+
+
+def workbench_stem():
+    s = Sprite()
+    noise_fill(s, [CHRON[0], CHRON[1], CHRON[2]], 75, weights=[2, 3, 1])
+    for y in range(0, 16, 5):
+        s.line(0, y, 15, y, BRASS[2])
+    s.set(7, 7, GLOW[2])
+    s.set(3, 2, GLOW[1])
+    s.set(12, 11, GLOW[1])
+    return s
+
+
+def pillar_side():
+    s = Sprite()
+    s.rect(0, 0, 15, 15, BRASS[2])
+    noise_fill(s, [BRASS[1], BRASS[2]], 81, 0, 0, 15, 15, weights=[1, 3])
+    s.rect(0, 0, 15, 1, BRASS[3])
+    s.rect(0, 14, 15, 15, BRASS[1])
+    s.rect(3, 3, 12, 12, (24, 18, 36, 255))
+    s.rect(5, 2, 10, 13, CHRON[1])
+    s.rect(6, 3, 9, 12, CHRON[2])
+    s.line(7, 4, 7, 11, GLOW[1])
+    s.set(8, 6, GLOW[2])
+    s.set(7, 9, GLOW[2])
+    return s
+
+
+def pillar_top():
+    s = Sprite()
+    noise_fill(s, [BRASS[2], BRASS[3]], 83, weights=[3, 1])
+    s.disc(7.5, 7.5, 3.0, CHRON[1])
+    s.disc(7.5, 7.5, 1.6, GLOW[1])
+    s.set(7, 7, GLOW[2])
+    return s
+
+
+def pillar_core():
+    s = Sprite()
+    noise_fill(s, [CHRON[1], CHRON[2], CHRON[3]], 85, weights=[2, 3, 1])
+    for x, y in ((3, 4), (10, 2), (6, 11), (13, 9)):
+        s.set(x, y, GLOW[2])
+    return s
+
+
+# ------------------------------------------------------------------------------------------
 # Oberfläche
 # ------------------------------------------------------------------------------------------
 
@@ -692,6 +881,91 @@ def clockmaker_gui():
     return img
 
 
+def temporal_workbench_gui():
+    img = Image.new("RGBA", (256, 256), T)
+    px = img.load()
+    bg, light, dark, slot = (198, 198, 198, 255), (255, 255, 255, 255), (85, 85, 85, 255), (139, 139, 139, 255)
+    w, h = 176, 166
+    for y in range(h):
+        for x in range(w):
+            px[x, y] = bg
+    for x in range(w):
+        px[x, 0] = (0, 0, 0, 255)
+        px[x, h - 1] = (0, 0, 0, 255)
+        px[x, 1] = light
+        px[x, h - 2] = dark
+    for y in range(h):
+        px[0, y] = (0, 0, 0, 255)
+        px[w - 1, y] = (0, 0, 0, 255)
+        px[1, y] = light
+        px[w - 2, y] = dark
+    for x in range(4, w - 4):
+        for y in (3, 4):
+            px[x, y] = CHRON[2] if (x // 6) % 2 else GLOW[1]
+
+    def draw_slot(x0, y0, size=18):
+        for y in range(y0, y0 + size):
+            for x in range(x0, x0 + size):
+                px[x, y] = slot
+        for i in range(size):
+            px[x0 + i, y0] = dark
+            px[x0, y0 + i] = dark
+            px[x0 + i, y0 + size - 1] = light
+            px[x0 + size - 1, y0 + i] = light
+
+    # Ringe um den Werkzeugplatz
+    for y in range(10, 64):
+        for x in range(4, 50):
+            d = math.hypot(x - 25, y - 43)
+            if 15.5 <= d <= 16.5:
+                px[x, y] = BRASS[2]
+            elif 12.0 <= d <= 12.6 and (int(math.degrees(math.atan2(y - 43, x - 25))) // 15) % 2 == 0:
+                px[x, y] = CHRON[2]
+    draw_slot(16, 34)
+    # Verbindungslinien zu den Modulplätzen
+    for i, my in enumerate((16, 34, 52)):
+        y = my + 8
+        for x in range(35, 52):
+            px[x, y] = GLOW[0] if i != 1 else GLOW[1]
+        draw_slot(52, my)
+    # Werte-Feld
+    for y in range(16, 71):
+        for x in range(76, 169):
+            px[x, y] = (30, 26, 44, 255)
+    for x in range(76, 169):
+        px[x, 16] = BRASS[1]
+        px[x, 70] = BRASS[3]
+    for y in range(16, 71):
+        px[76, y] = BRASS[1]
+        px[168, y] = BRASS[3]
+    for row in range(3):
+        for col in range(9):
+            draw_slot(7 + col * 18, 83 + row * 18)
+    for col in range(9):
+        draw_slot(7 + col * 18, 141)
+    # Schloss-Kachel für gesperrte Modulplätze (bei 176,0)
+    for y in range(18):
+        for x in range(18):
+            px[176 + x, y] = (60, 56, 70, 255)
+    for i in range(18):
+        px[176 + i, 0] = dark
+        px[176, i] = dark
+        px[176 + i, 17] = light
+        px[193, i] = light
+    for y in range(7, 13):
+        for x in range(182, 188):
+            px[x, y] = BRASS[2]
+    for x in (183, 186):
+        for y in range(4, 7):
+            px[x, y] = IRON[2]
+    px[184, 4] = IRON[2]
+    px[185, 4] = IRON[2]
+    px[184, 9] = (30, 20, 30, 255)
+    px[185, 9] = (30, 20, 30, 255)
+    px[184, 10] = (30, 20, 30, 255)
+    return img
+
+
 # ------------------------------------------------------------------------------------------
 
 ITEMS = {
@@ -701,6 +975,11 @@ ITEMS = {
     "brake_spring": brake_spring, "moment_lens": moment_lens, "recall_watch": recall_watch, "stasis_watch": stasis_watch,
     "time_accelerator": time_accelerator, "slow_pendulum": slow_pendulum, "rewind_spool": rewind_spool, "chrono_knife": chrono_knife,
     "pocket_time_cell": pocket_time_cell, "chronite_time_cell": chronite_time_cell,
+    "clockwork_core": clockwork_core, "phage_heart": phage_heart,
+    "blank_module": lambda: module("blank"),
+    **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
+       ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
+    **{f"{n}_module": (lambda n=n: module("amp", n)) for n in ("radius", "duration", "strength", "efficiency")},
 }
 
 BLOCKS = {
@@ -712,6 +991,10 @@ BLOCKS = {
     "time_field_projector_bottom": lambda: projector("bottom", False),
     "time_field_projector_top_active": lambda: projector("top", True), "time_field_projector_side_active": lambda: projector("side", True),
     **{f"chronite_sprout_stage{i}": (lambda i=i: chronite_sprout(i)) for i in range(4)},
+    "temporal_workbench_side": lambda: workbench_side(False), "temporal_workbench_side_formed": lambda: workbench_side(True),
+    "temporal_workbench_top": lambda: workbench_top(False), "temporal_workbench_top_formed": lambda: workbench_top(True),
+    "temporal_workbench_stem": workbench_stem,
+    "chrono_pillar_side": pillar_side, "chrono_pillar_top": pillar_top, "chrono_pillar_core": pillar_core,
 }
 
 
@@ -727,6 +1010,7 @@ def main(preview=None):
         sprites.append((name, s.img))
     GUI.mkdir(parents=True, exist_ok=True)
     clockmaker_gui().save(GUI / "clockmaker_bench.png")
+    temporal_workbench_gui().save(GUI / "temporal_workbench.png")
     print(f"{len(sprites)} Texturen geschrieben")
     if preview:
         cols = 10

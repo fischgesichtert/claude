@@ -13,6 +13,8 @@ import com.fischgesichtert.timemod.item.RewindSpoolItem;
 import com.fischgesichtert.timemod.item.SlowPendulumItem;
 import com.fischgesichtert.timemod.item.StasisWatchItem;
 import com.fischgesichtert.timemod.item.TimeAcceleratorItem;
+import com.fischgesichtert.timemod.module.ModuleItem;
+import com.fischgesichtert.timemod.time.TimeFilter;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Registry;
@@ -63,6 +65,29 @@ public final class ModItems {
     public static final Item TIME_CONDENSER = block(ModBlocks.TIME_CONDENSER);
     public static final Item TIME_FIELD_PROJECTOR = block(ModBlocks.TIME_FIELD_PROJECTOR);
 
+    // Stufe III: Temporaltechnik
+    public static final Item TEMPORAL_WORKBENCH = block(ModBlocks.TEMPORAL_WORKBENCH);
+    public static final Item CHRONO_PILLAR = block(ModBlocks.CHRONO_PILLAR);
+    public static final Item CLOCKWORK_CORE = register("clockwork_core", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE).fireResistant()));
+    public static final Item PHAGE_HEART = register("phage_heart", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE).fireResistant()));
+    public static final Item BLANK_MODULE = module("blank_module", ModuleItem.Kind.BLANK, 0);
+    public static final Item FILTER_ANIMALS = module("filter_animals", ModuleItem.Kind.FILTER, TimeFilter.ANIMALS);
+    public static final Item FILTER_MONSTERS = module("filter_monsters", ModuleItem.Kind.FILTER, TimeFilter.MONSTERS);
+    public static final Item FILTER_VILLAGERS = module("filter_villagers", ModuleItem.Kind.FILTER, TimeFilter.VILLAGERS);
+    public static final Item FILTER_PLAYERS = module("filter_players", ModuleItem.Kind.FILTER, TimeFilter.PLAYERS);
+    public static final Item FILTER_PROJECTILES = module("filter_projectiles", ModuleItem.Kind.FILTER, TimeFilter.PROJECTILES | TimeFilter.OTHER_ENTITIES);
+    public static final Item FILTER_ITEMS = module("filter_items", ModuleItem.Kind.FILTER, TimeFilter.ITEMS);
+    public static final Item FILTER_VEHICLES = module("filter_vehicles", ModuleItem.Kind.FILTER, TimeFilter.VEHICLES);
+    public static final Item FILTER_GROWTH = module("filter_growth", ModuleItem.Kind.FILTER, TimeFilter.GROWTH);
+    public static final Item FILTER_ENVIRONMENT = module("filter_environment", ModuleItem.Kind.FILTER, TimeFilter.ENVIRONMENT);
+    public static final Item FILTER_FLUIDS = module("filter_fluids", ModuleItem.Kind.FILTER, TimeFilter.FLUIDS);
+    public static final Item FILTER_REDSTONE = module("filter_redstone", ModuleItem.Kind.FILTER, TimeFilter.BLOCK_TICKS);
+    public static final Item FILTER_MACHINES = module("filter_machines", ModuleItem.Kind.FILTER, TimeFilter.MACHINES);
+    public static final Item RADIUS_MODULE = module("radius_module", ModuleItem.Kind.RADIUS, 0);
+    public static final Item DURATION_MODULE = module("duration_module", ModuleItem.Kind.DURATION, 0);
+    public static final Item STRENGTH_MODULE = module("strength_module", ModuleItem.Kind.STRENGTH, 0);
+    public static final Item EFFICIENCY_MODULE = module("efficiency_module", ModuleItem.Kind.EFFICIENCY, 0);
+
     // Entwicklung
     public static final Item CHRONO_DEBUG_WAND = register("chrono_debug_wand", new ChronoDebugWandItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
 
@@ -73,6 +98,10 @@ public final class ModItems {
         Item registered = Registry.register(BuiltInRegistries.ITEM, TimeMod.id(name), item);
         TAB_ORDER.add(registered);
         return registered;
+    }
+
+    private static Item module(String name, ModuleItem.Kind kind, int mask) {
+        return register(name, new ModuleItem(kind, mask, new Item.Properties().rarity(kind == ModuleItem.Kind.BLANK ? Rarity.COMMON : Rarity.UNCOMMON)));
     }
 
     private static Item block(Block block) {

@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "BDB",
+    "DMD",
+    "BDB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:blaze_powder"
+    },
+    "D": {
+      "item": "timemod:time_dust"
+    },
+    "M": {
+      "item": "timemod:blank_module"
+    }
+  },
+  "result": {
+    "item": "timemod:strength_module",
+    "count": 1
+  }
+}

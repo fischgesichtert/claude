@@ -1,0 +1,20 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " X ",
+    "XMX",
+    " X "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:repeater"
+    },
+    "M": {
+      "item": "timemod:blank_module"
+    }
+  },
+  "result": {
+    "item": "timemod:filter_redstone",
+    "count": 1
+  }
+}

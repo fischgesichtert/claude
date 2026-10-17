@@ -42,8 +42,11 @@ final class Frame {
     record BlockChange(BlockPos pos, BlockState oldState, @Nullable CompoundTag oldBlockEntity) {
     }
 
-    /** {@code removedState == null}: Entity ist entstanden; sonst wurde sie mit diesem Zustand entfernt. */
-    record EntityEvent(UUID uuid, @Nullable CompoundTag removedState, Vec3 pos) {
+    /**
+     * {@code removedState == null}: Entity ist entstanden; sonst wurde sie mit diesem Zustand entfernt.
+     * {@code category} ist die Filter-Kategorie (für Rückspulen mit Filtermodulen).
+     */
+    record EntityEvent(UUID uuid, @Nullable CompoundTag removedState, Vec3 pos, int category) {
         boolean spawned() {
             return removedState == null;
         }

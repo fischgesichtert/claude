@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "BCB",
+    "BGB",
+    "BCB"
+  ],
+  "key": {
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "G": {
+      "item": "timemod:time_glass"
+    }
+  },
+  "result": {
+    "item": "timemod:chrono_pillar",
+    "count": 2
+  }
+}

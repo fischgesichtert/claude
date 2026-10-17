@@ -47,10 +47,10 @@ public class DemoDirector implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        if ("items".equals(System.getProperty("timemod.demo.script"))) {
-            ItemShowcase.write(this);
-        } else {
-            DemoScript.write(this);
+        switch (System.getProperty("timemod.demo.script", "time")) {
+            case "items" -> ItemShowcase.write(this);
+            case "tier3" -> TierThreeShowcase.write(this);
+            default -> DemoScript.write(this);
         }
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
     }

@@ -61,6 +61,45 @@ ITEMS = [
     ("time_dust", "generated", "Zeitstaub", "Time Dust", None, None),
     ("chronite_seed", "generated", "Chronit-Keim", "Chronite Seed", None, None),
     ("chrono_debug_wand", "handheld", "Chrono-Debugstab", "Chrono Debug Wand", None, None),
+    # Stufe III
+    ("clockwork_core", "generated", "Uhrwerkskern", "Clockwork Core",
+     "Das tickende Herz des Uhrmachers. Es schlägt noch.", "The ticking heart of the Clockmaker. It still beats."),
+    ("phage_heart", "generated", "Phagenherz", "Phage Heart",
+     "Hat unzählige Sekunden gefressen – und gibt sie nur widerwillig her.", "It devoured countless seconds – and gives them back only grudgingly."),
+    ("blank_module", "generated", "Leeres Modul", "Blank Module",
+     "Grundplatine für Filter und Verstärker.", "Base board for filters and amplifiers."),
+    ("filter_animals", "generated", "Filtermodul: Tiere", "Filter Module: Animals",
+     "Das Werkzeug wirkt nur auf Tiere.", "The tool only affects animals."),
+    ("filter_monsters", "generated", "Filtermodul: Monster", "Filter Module: Monsters",
+     "Das Werkzeug wirkt nur auf Monster.", "The tool only affects monsters."),
+    ("filter_villagers", "generated", "Filtermodul: Dorfbewohner", "Filter Module: Villagers",
+     "Das Werkzeug wirkt nur auf Dorfbewohner und Händler.", "The tool only affects villagers and traders."),
+    ("filter_players", "generated", "Filtermodul: Spieler", "Filter Module: Players",
+     "Das Werkzeug wirkt auf andere Spieler (nie auf dich).", "The tool affects other players (never you)."),
+    ("filter_projectiles", "generated", "Filtermodul: Geschosse", "Filter Module: Projectiles",
+     "Pfeile, Feuerbälle, TNT und fallende Blöcke.", "Arrows, fireballs, TNT and falling blocks."),
+    ("filter_items", "generated", "Filtermodul: Gegenstände", "Filter Module: Items",
+     "Herumliegende Gegenstände und Erfahrungskugeln.", "Dropped items and experience orbs."),
+    ("filter_vehicles", "generated", "Filtermodul: Fahrzeuge", "Filter Module: Vehicles",
+     "Loren und Boote.", "Minecarts and boats."),
+    ("filter_growth", "generated", "Filtermodul: Wachstum", "Filter Module: Growth",
+     "Pflanzen, Bäume, Gras, Amethyst, Eier.", "Plants, trees, grass, amethyst, eggs."),
+    ("filter_environment", "generated", "Filtermodul: Umwelt", "Filter Module: Environment",
+     "Schnee, Eis, Feuer, Laub und Verwitterung.", "Snow, ice, fire, leaves and weathering."),
+    ("filter_fluids", "generated", "Filtermodul: Flüssigkeiten", "Filter Module: Fluids",
+     "Fließendes Wasser und Lava.", "Flowing water and lava."),
+    ("filter_redstone", "generated", "Filtermodul: Redstone", "Filter Module: Redstone",
+     "Redstone, Kolben, geplante Block-Ticks – und gebaute Blöcke beim Zurückspulen.", "Redstone, pistons, scheduled block ticks – and built blocks when rewinding."),
+    ("filter_machines", "generated", "Filtermodul: Maschinen", "Filter Module: Machines",
+     "Öfen, Trichter, Spawner und Maschinen anderer Mods.", "Furnaces, hoppers, spawners and machines from other mods."),
+    ("radius_module", "generated", "Verstärker: Radius", "Amplifier: Radius",
+     "+50 % Radius (kostet nach Fläche mehr).", "+50% radius (costs more by area)."),
+    ("duration_module", "generated", "Verstärker: Dauer", "Amplifier: Duration",
+     "+50 % Dauer – bei der Spule: weiter zurück.", "+50% duration – for the spool: further back."),
+    ("strength_module", "generated", "Verstärker: Stärke", "Amplifier: Strength",
+     "Schaltet stärkere Faktoren frei (bis 10× bzw. 0,05×) – bei der Spule: schneller.", "Unlocks stronger factors (up to 10× or 0.05×) – for the spool: faster."),
+    ("efficiency_module", "generated", "Verstärker: Effizienz", "Amplifier: Efficiency",
+     "−25 % Chronon-Verbrauch.", "−25% Chronon cost."),
 ]
 
 BLOCKS = {
@@ -72,6 +111,8 @@ BLOCKS = {
     "chronite_sprout": ("Chronit-Keim", "Chronite Sprout"),
     "time_condenser": ("Zeitkondensator", "Time Condenser"),
     "time_field_projector": ("Zeitfeld-Projektor", "Time Field Projector"),
+    "temporal_workbench": ("Temporal-Werkbank", "Temporal Workbench"),
+    "chrono_pillar": ("Chrono-Säule", "Chrono Pillar"),
 }
 
 LANG_EXTRA = {
@@ -100,6 +141,29 @@ LANG_EXTRA = {
         "moon.timemod.first_quarter": "erstes Viertel",
         "moon.timemod.waxing_gibbous": "zunehmender Mond",
         "entity.timemod.chrono_knife": "Chrono-Wurfmesser",
+        "container.timemod.temporal_workbench": "Temporal-Werkbank",
+        "gui.timemod.workbench.hint": "Lege ein Zeitwerkzeug ein, um Module einzubauen.",
+        "message.timemod.workbench.incomplete": "Die Werkbank schläft: Sie braucht 4 Chrono-Säulen (je 2 hoch) diagonal im Abstand von 2 Blöcken.",
+        "message.timemod.workbench.busy": "Jemand arbeitet gerade an dieser Werkbank.",
+        "tooltip.timemod.module.install": "Einbau an der Temporal-Werkbank",
+        "tooltip.timemod.modules": "Module:",
+        "tooltip.timemod.affects": "Wirkt auf: %s",
+        "tooltip.timemod.stats": "Radius %s · %s s · %s Chronon",
+        "tooltip.timemod.rewind_stats": "Radius %s · %s s zurück · %s× · %s Chronon",
+        "filter.timemod.animals": "Tiere",
+        "filter.timemod.monsters": "Monster",
+        "filter.timemod.villagers": "Dorfbewohner",
+        "filter.timemod.players": "Spieler",
+        "filter.timemod.projectiles": "Geschosse",
+        "filter.timemod.items": "Gegenstände",
+        "filter.timemod.vehicles": "Fahrzeuge",
+        "filter.timemod.growth": "Wachstum",
+        "filter.timemod.environment": "Umwelt",
+        "filter.timemod.fluids": "Flüssigkeiten",
+        "filter.timemod.redstone": "Redstone",
+        "filter.timemod.machines": "Maschinen",
+        "filter.timemod.daytime": "Tag/Nacht",
+        "filter.timemod.weather": "Wetter",
     },
     "en_us": {
         "itemGroup.timemod.time": "TIME",
@@ -126,6 +190,29 @@ LANG_EXTRA = {
         "moon.timemod.first_quarter": "first quarter",
         "moon.timemod.waxing_gibbous": "waxing gibbous",
         "entity.timemod.chrono_knife": "Chrono Knife",
+        "container.timemod.temporal_workbench": "Temporal Workbench",
+        "gui.timemod.workbench.hint": "Insert a time tool to install modules.",
+        "message.timemod.workbench.incomplete": "The workbench sleeps: it needs 4 Chrono Pillars (2 high each) placed diagonally 2 blocks away.",
+        "message.timemod.workbench.busy": "Someone is already working at this workbench.",
+        "tooltip.timemod.module.install": "Install at a Temporal Workbench",
+        "tooltip.timemod.modules": "Modules:",
+        "tooltip.timemod.affects": "Affects: %s",
+        "tooltip.timemod.stats": "Radius %s · %s s · %s Chronon",
+        "tooltip.timemod.rewind_stats": "Radius %s · %s s back · %s× · %s Chronon",
+        "filter.timemod.animals": "animals",
+        "filter.timemod.monsters": "monsters",
+        "filter.timemod.villagers": "villagers",
+        "filter.timemod.players": "players",
+        "filter.timemod.projectiles": "projectiles",
+        "filter.timemod.items": "items",
+        "filter.timemod.vehicles": "vehicles",
+        "filter.timemod.growth": "growth",
+        "filter.timemod.environment": "environment",
+        "filter.timemod.fluids": "fluids",
+        "filter.timemod.redstone": "redstone",
+        "filter.timemod.machines": "machines",
+        "filter.timemod.daytime": "day/night",
+        "filter.timemod.weather": "weather",
     },
 }
 
@@ -235,6 +322,38 @@ def block_models():
         "active=true": {"model": t("block/time_field_projector_active")},
     }})
 
+    # Temporal-Werkbank: Sockel, Säule, Platte – erwacht leuchten die Runen
+    for suffix in ("", "_formed"):
+        side = t(f"block/temporal_workbench_side{suffix}")
+        top = t(f"block/temporal_workbench_top{suffix}")
+        stem = t("block/temporal_workbench_stem")
+        faces = lambda tex_side, tex_top: {"down": {"texture": "#bottom"}, "up": {"texture": tex_top},
+                                           "north": {"texture": tex_side}, "south": {"texture": tex_side},
+                                           "east": {"texture": tex_side}, "west": {"texture": tex_side}}
+        write(ASSETS / f"models/block/temporal_workbench{suffix}.json", {
+            "parent": "minecraft:block/block",
+            "textures": {"particle": side, "side": side, "top": top, "stem": stem, "bottom": t("block/time_field_projector_bottom")},
+            "elements": [
+                {"from": [0, 0, 0], "to": [16, 4, 16], "faces": faces("#side", "#bottom")},
+                {"from": [3, 4, 3], "to": [13, 10, 13], "faces": faces("#stem", "#stem")},
+                {"from": [1, 10, 1], "to": [15, 13, 15], "faces": faces("#side", "#top")},
+            ],
+        })
+    write(ASSETS / "blockstates/temporal_workbench.json", {"variants": {
+        "formed=false": {"model": t("block/temporal_workbench")},
+        "formed=true": {"model": t("block/temporal_workbench_formed")},
+    }})
+
+    # Chrono-Säule
+    write(ASSETS / "models/block/chrono_pillar.json", {
+        "parent": "minecraft:block/block",
+        "textures": {"particle": t("block/chrono_pillar_side"), "side": t("block/chrono_pillar_side"), "top": t("block/chrono_pillar_top")},
+        "elements": [{"from": [3, 0, 3], "to": [13, 16, 13], "faces": {
+            "down": {"texture": "#top", "cullface": "down"}, "up": {"texture": "#top", "cullface": "up"},
+            "north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}}}],
+    })
+    simple_state("chrono_pillar")
+
 
 # ------------------------------------------------------------------------------------------
 # Beutetabellen
@@ -255,7 +374,7 @@ SILK = {"condition": "minecraft:match_tool", "predicate": {"enchantments": [{"en
 
 
 def loot_tables():
-    for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector"):
+    for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar"):
         self_drop(name)
     write(DATA / f"{NS}/loot_tables/blocks/time_glass.json", {
         "type": "minecraft:block",
@@ -355,6 +474,22 @@ def recipes():
     clockmaker("rewind_spool", ["CEC", "SKS", "CTC"], {"C": t("chronite_crystal"), "E": "minecraft:echo_shard", "S": "minecraft:string", "K": t("clockwork"), "T": t("pocket_time_cell")}, t("rewind_spool"))
     clockmaker("time_field_projector", ["CDC", "GEG", "BBB"], {"C": t("chronite_crystal"), "D": "minecraft:diamond", "G": t("time_glass"), "E": "minecraft:ender_eye", "B": t("brass_block")}, t("time_field_projector"))
 
+    # Stufe III: Temporaltechnik (der Uhrwerkskern des ersten Bosses ist der Schlüssel)
+    clockmaker("chrono_pillar", ["BCB", "BGB", "BCB"], {"B": t("brass_ingot"), "C": t("chronite_crystal"), "G": t("time_glass")}, t("chrono_pillar"), 2)
+    clockmaker("temporal_workbench", ["CKC", "NWN", "BBB"], {"C": t("chronite_crystal"), "K": t("clockwork_core"), "N": "minecraft:netherite_ingot",
+                                                             "W": t("clockmaker_bench"), "B": t("brass_block")}, t("temporal_workbench"))
+    clockmaker("blank_module", ["BQB", "CSC", "BRB"], {"B": t("brass_ingot"), "Q": "minecraft:quartz", "C": t("chronite_crystal"),
+                                                       "S": "minecraft:netherite_scrap", "R": "minecraft:redstone"}, t("blank_module"), 2)
+    for name, item in (("filter_animals", "minecraft:leather"), ("filter_monsters", "minecraft:rotten_flesh"), ("filter_villagers", "minecraft:emerald"),
+                       ("filter_players", "minecraft:armor_stand"), ("filter_projectiles", "minecraft:arrow"), ("filter_items", "minecraft:hopper"),
+                       ("filter_vehicles", "minecraft:minecart"), ("filter_growth", "minecraft:bone_meal"), ("filter_environment", "minecraft:snowball"),
+                       ("filter_fluids", "minecraft:bucket"), ("filter_redstone", "minecraft:repeater"), ("filter_machines", "minecraft:furnace")):
+        clockmaker(name, [" X ", "XMX", " X "], {"X": item, "M": t("blank_module")}, t(name))
+    clockmaker("radius_module", ["EDE", "DMD", "EDE"], {"E": "minecraft:ender_pearl", "D": t("time_dust"), "M": t("blank_module")}, t("radius_module"))
+    clockmaker("duration_module", ["CDC", "DMD", "CDC"], {"C": "minecraft:clock", "D": t("time_dust"), "M": t("blank_module")}, t("duration_module"))
+    clockmaker("strength_module", ["BDB", "DMD", "BDB"], {"B": "minecraft:blaze_powder", "D": t("time_dust"), "M": t("blank_module")}, t("strength_module"))
+    clockmaker("efficiency_module", [" E ", "DMD", " E "], {"E": "minecraft:echo_shard", "D": t("time_dust"), "M": t("blank_module")}, t("efficiency_module"))
+
 
 # ------------------------------------------------------------------------------------------
 # Tags und Weltgenerierung
@@ -363,11 +498,12 @@ def recipes():
 def tags():
     def tag(path, values):
         write(DATA / path, {"replace": False, "values": values})
-    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("brass_block"), t("deepslate_chronite_ore"), t("chronite_sprout"), t("time_condenser"), t("time_field_projector")])
+    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("brass_block"), t("deepslate_chronite_ore"), t("chronite_sprout"), t("time_condenser"), t("time_field_projector"),
+                                                        t("temporal_workbench"), t("chrono_pillar")])
     tag("minecraft/tags/blocks/mineable/shovel.json", [t("time_sand")])
     tag("minecraft/tags/blocks/mineable/axe.json", [t("clockmaker_bench")])
-    tag("minecraft/tags/blocks/needs_iron_tool.json", [t("brass_block"), t("time_condenser"), t("time_field_projector")])
-    tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore")])
+    tag("minecraft/tags/blocks/needs_iron_tool.json", [t("brass_block"), t("time_condenser"), t("time_field_projector"), t("chrono_pillar")])
+    tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore"), t("temporal_workbench")])
     tag("c/tags/items/brass_ingots.json", [t("brass_ingot")])
     tag("c/tags/items/brass_nuggets.json", [t("brass_nugget")])
     tag("c/tags/items/brass_blocks.json", [t("brass_block")])

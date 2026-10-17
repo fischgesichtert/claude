@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "timemod:deepslate_chronite_ore"
+    "timemod:deepslate_chronite_ore",
+    "timemod:temporal_workbench"
   ]
 }

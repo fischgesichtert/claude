@@ -1,0 +1,20 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " X ",
+    "XMX",
+    " X "
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:rotten_flesh"
+    },
+    "M": {
+      "item": "timemod:blank_module"
+    }
+  },
+  "result": {
+    "item": "timemod:filter_monsters",
+    "count": 1
+  }
+}

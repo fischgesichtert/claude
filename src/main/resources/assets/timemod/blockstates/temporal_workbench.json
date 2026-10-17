@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "formed=false": {
+      "model": "timemod:block/temporal_workbench"
+    },
+    "formed=true": {
+      "model": "timemod:block/temporal_workbench_formed"
+    }
+  }
+}

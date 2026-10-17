@@ -15,14 +15,16 @@ import org.jetbrains.annotations.Nullable;
 /** Chronon-Werkzeug mit umschaltbarem Faktor (Schleichen + Rechtsklick). */
 public abstract class ModeChrononToolItem extends ChrononToolItem {
     private static final String MODE = "Mode";
-    private final double[] factors;
 
-    protected ModeChrononToolItem(int capacity, double[] factors, Properties properties) {
+    protected ModeChrononToolItem(int capacity, Properties properties) {
         super(capacity, properties);
-        this.factors = factors;
     }
 
+    /** Die wählbaren Faktoren – Stärkemodule können weitere freischalten. */
+    protected abstract double[] factors(ItemStack stack);
+
     public double factor(ItemStack stack) {
+        double[] factors = factors(stack);
         int mode = stack.hasTag() ? stack.getTag().getInt(MODE) : 0;
         return factors[Math.floorMod(mode, factors.length)];
     }
@@ -31,6 +33,7 @@ public abstract class ModeChrononToolItem extends ChrononToolItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown()) {
+            double[] factors = factors(stack);
             int mode = Math.floorMod((stack.hasTag() ? stack.getTag().getInt(MODE) : 0) + 1, factors.length);
             stack.getOrCreateTag().putInt(MODE, mode);
             if (!level.isClientSide) {
@@ -50,7 +53,7 @@ public abstract class ModeChrononToolItem extends ChrononToolItem {
         tooltip.add(Component.translatable("tooltip.timemod.mode_hint").withStyle(ChatFormatting.DARK_GRAY));
     }
 
-    static String format(double factor) {
+    public static String format(double factor) {
         return factor == Math.rint(factor) ? (long) factor + "×" : String.format(Locale.ROOT, "%.2f×", factor);
     }
 }

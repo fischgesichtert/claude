@@ -18,3 +18,4 @@ accessible field net/minecraft/world/entity/LivingEntity animStepO F
 accessible field net/minecraft/world/entity/LivingEntity run F
 accessible field net/minecraft/world/entity/LivingEntity oRun F
 accessible field net/minecraft/client/renderer/PostChain passes Ljava/util/List;
+accessible field net/minecraft/world/entity/LivingEntity dead Z

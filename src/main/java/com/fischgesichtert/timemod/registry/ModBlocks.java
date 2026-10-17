@@ -1,9 +1,11 @@
 package com.fischgesichtert.timemod.registry;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.block.ChronoPillarBlock;
 import com.fischgesichtert.timemod.block.ChroniteOreBlock;
 import com.fischgesichtert.timemod.block.ChroniteSproutBlock;
 import com.fischgesichtert.timemod.block.ClockmakerBenchBlock;
+import com.fischgesichtert.timemod.block.TemporalWorkbenchBlock;
 import com.fischgesichtert.timemod.block.TimeCondenserBlock;
 import com.fischgesichtert.timemod.block.TimeFieldProjectorBlock;
 import com.fischgesichtert.timemod.block.TimeSandBlock;
@@ -37,6 +39,11 @@ public final class ModBlocks {
     public static final Block TIME_FIELD_PROJECTOR = register("time_field_projector", new TimeFieldProjectorBlock(BlockBehaviour.Properties.of()
         .mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(5.0F, 9.0F).sound(SoundType.METAL)
         .lightLevel(s -> s.getValue(TimeFieldProjectorBlock.ACTIVE) ? 12 : 3)));
+    public static final Block TEMPORAL_WORKBENCH = register("temporal_workbench", new TemporalWorkbenchBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(6.0F, 12.0F).sound(SoundType.NETHERITE_BLOCK)
+        .lightLevel(s -> s.getValue(TemporalWorkbenchBlock.FORMED) ? 13 : 4).noOcclusion()));
+    public static final Block CHRONO_PILLAR = register("chrono_pillar", new ChronoPillarBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.GOLD).requiresCorrectToolForDrops().strength(5.0F, 9.0F).sound(SoundType.METAL).lightLevel(s -> 7).noOcclusion()));
 
     private ModBlocks() {
     }

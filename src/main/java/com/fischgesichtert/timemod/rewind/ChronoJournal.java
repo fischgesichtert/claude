@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.rewind;
 
+import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.TimeMod;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
@@ -228,7 +229,7 @@ public final class ChronoJournal {
         if (!active() || entity instanceof Player || !isRecorded(entity.getX(), entity.getY(), entity.getZ())) {
             return;
         }
-        open.entityEvents.add(new Frame.EntityEvent(entity.getUUID(), null, entity.position()));
+        open.entityEvents.add(new Frame.EntityEvent(entity.getUUID(), null, entity.position(), TimeFilter.categoryOf(entity)));
     }
 
     public void onEntityRemoved(Entity entity, Entity.RemovalReason reason) {
@@ -240,7 +241,7 @@ public final class ChronoJournal {
         }
         CompoundTag state = fullState(entity);
         if (state != null) {
-            open.entityEvents.add(new Frame.EntityEvent(entity.getUUID(), state, entity.position()));
+            open.entityEvents.add(new Frame.EntityEvent(entity.getUUID(), state, entity.position(), TimeFilter.categoryOf(entity)));
         }
     }
 
@@ -402,6 +403,14 @@ public final class ChronoJournal {
      */
     @Nullable
     public RewindSession rewind(int ticks, int speed, @Nullable RewindSession.Region region, @Nullable UUID owner) {
+        return rewind(ticks, speed, region, owner, RewindSession.EVERYTHING);
+    }
+
+    /**
+     * Spult {@code ticks} zurück. {@code speed} Ticks pro echtem Tick (0 = sofort). Mit {@code mask}
+     * (Kategorien aus {@link TimeFilter}) lässt sich einschränken, was zurückgespult wird.
+     */
+    public RewindSession rewind(int ticks, int speed, @Nullable RewindSession.Region region, @Nullable UUID owner, int mask) {
         if (!recording || session != null || open == null) {
             return null;
         }
@@ -410,7 +419,7 @@ public final class ChronoJournal {
         frames.addLast(open);
         open = null;
         int count = Math.min(ticks, frames.size() - 1);
-        session = new RewindSession(this, level, count + 1, speed, region, owner);
+        session = new RewindSession(this, level, count + 1, speed, region, owner, mask);
         if (speed <= 0) {
             session.runToEnd();
             session = null;

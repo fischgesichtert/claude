@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -35,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class RewindSession {
     private static final int SET_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS;
+    /** Alles zurückspulen (Standard ohne Filtermodule). */
+    public static final int EVERYTHING = TimeFilter.ALL_ENTITIES | TimeFilter.ALL_BLOCKS | TimeFilter.ALL_WORLD;
 
     private final ChronoJournal journal;
     private final ServerLevel level;
@@ -42,6 +45,7 @@ public final class RewindSession {
     private final int speed;
     @Nullable
     private final Region region;
+    private final int mask;
     private int done;
     private boolean finished;
     @Nullable
@@ -60,17 +64,49 @@ public final class RewindSession {
         }
     }
 
-    RewindSession(ChronoJournal journal, ServerLevel level, int steps, int speed, @Nullable Region region, @Nullable UUID owner) {
+    RewindSession(ChronoJournal journal, ServerLevel level, int steps, int speed, @Nullable Region region, @Nullable UUID owner, int mask) {
         this.journal = journal;
         this.level = level;
         this.totalSteps = steps;
         this.speed = speed;
         this.region = region;
+        this.mask = mask;
         if (speed > 0) {
             ZoneShape shape = region != null ? new ZoneShape.Sphere(region.center(), region.radius()) : ZoneShape.Global.INSTANCE;
-            int mask = TimeFilter.DEFAULT | TimeFilter.PLAYERS;
             zone = ServerTimeEngine.of(level).addRewindZone(shape, mask, owner);
         }
+    }
+
+    private boolean wants(int category) {
+        return (mask & category) != 0;
+    }
+
+    /**
+     * Zu welcher Filter-Kategorie gehört eine Blockänderung? Pflanzen und Bäume zählen zum Wachstum,
+     * Wasser und Lava zu den Flüssigkeiten, Schnee, Eis und Feuer zur Umwelt – alles andere
+     * (gebaute Blöcke, Redstone, Explosionen) zu den Blöcken/Redstone.
+     */
+    static int blockCategory(BlockState before, BlockState after) {
+        if (!before.getFluidState().isEmpty() || !after.getFluidState().isEmpty()) {
+            return TimeFilter.FLUIDS;
+        }
+        if (isGrowth(before) || isGrowth(after)) {
+            return TimeFilter.GROWTH;
+        }
+        if (isEnvironment(before) || isEnvironment(after)) {
+            return TimeFilter.ENVIRONMENT;
+        }
+        return TimeFilter.BLOCK_TICKS;
+    }
+
+    private static boolean isGrowth(BlockState state) {
+        return state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES) || state.is(BlockTags.SAPLINGS) || state.is(BlockTags.CROPS)
+            || state.is(BlockTags.FLOWERS) || state.is(BlockTags.REPLACEABLE_BY_TREES)
+            || (state.isRandomlyTicking() && TimeFilter.randomTickCategory(state.getBlock()) == TimeFilter.GROWTH);
+    }
+
+    private static boolean isEnvironment(BlockState state) {
+        return state.is(BlockTags.SNOW) || state.is(BlockTags.ICE) || state.is(BlockTags.FIRE);
     }
 
     public boolean isFinished() {
@@ -137,6 +173,9 @@ public final class RewindSession {
             if (region != null && !region.contains(change.pos())) {
                 continue;
             }
+            if (mask != EVERYTHING && !wants(blockCategory(change.oldState(), level.getBlockState(change.pos())))) {
+                continue;
+            }
             level.setBlock(change.pos(), change.oldState(), SET_FLAGS);
             if (change.oldBlockEntity() != null) {
                 loadBlockEntity(change.pos(), change.oldBlockEntity());
@@ -145,7 +184,7 @@ public final class RewindSession {
         }
         // 2) Block-Entities, deren Daten sich in diesem Tick geändert haben
         for (BlockPos pos : frame.blockEntityAfter.keySet()) {
-            if (region != null && !region.contains(pos)) {
+            if ((region != null && !region.contains(pos)) || !wants(TimeFilter.MACHINES)) {
                 continue;
             }
             CompoundTag before = journal.blockEntityState(pos);
@@ -157,7 +196,7 @@ public final class RewindSession {
         List<Frame.EntityEvent> events = frame.entityEvents;
         for (int i = events.size() - 1; i >= 0; i--) {
             Frame.EntityEvent event = events.get(i);
-            if (!inRegion(event.pos().x, event.pos().y, event.pos().z)) {
+            if (!inRegion(event.pos().x, event.pos().y, event.pos().z) || !wants(event.category())) {
                 continue;
             }
             if (event.spawned()) {
@@ -171,7 +210,7 @@ public final class RewindSession {
         }
         // 4) Spieler-Inventare
         for (Map.Entry<UUID, Frame.PlayerItems> entry : frame.playerItems.entrySet()) {
-            if (level.getEntity(entry.getKey()) instanceof ServerPlayer player && inRegion(player.getX(), player.getY(), player.getZ())) {
+            if (wants(TimeFilter.PLAYERS) && level.getEntity(entry.getKey()) instanceof ServerPlayer player && inRegion(player.getX(), player.getY(), player.getZ())) {
                 Frame.PlayerItems before = journal.playerItems(entry.getKey());
                 if (before != null) {
                     applyItems(player, before);
@@ -207,6 +246,7 @@ public final class RewindSession {
         }
         if (entity instanceof LivingEntity living) {
             living.deathTime = 0;
+            living.dead = false;
             living.setHealth(Math.max(living.getHealth(), 0.5F));
         }
         level.addFreshEntity(entity);
@@ -220,7 +260,7 @@ public final class RewindSession {
                 continue;
             }
             Entity entity = level.getEntity(entry.getKey());
-            if (entity == null) {
+            if (entity == null || !wants(TimeFilter.categoryOf(entity))) {
                 continue;
             }
             if (entity instanceof ServerPlayer player) {
@@ -241,6 +281,11 @@ public final class RewindSession {
                 if (living.isAlive() || pose.health() > 0) {
                     living.setHealth(pose.health());
                 }
+                if (pose.health() > 0 && living.deathTime > 0) {
+                    // Mitten im Sterben zurückgespult: wieder ganz lebendig (sonst stirbt es nie wieder)
+                    living.deathTime = 0;
+                    living.dead = false;
+                }
             }
             entity.setOnGround(pose.onGround());
             entity.fallDistance = pose.fallDistance();
@@ -249,7 +294,7 @@ public final class RewindSession {
             entity.setDeltaMovement(exact ? new Vec3(pose.vx(), pose.vy(), pose.vz()) : Vec3.ZERO);
             entity.hasImpulse = true;
         }
-        if (region == null) {
+        if (region == null && wants(TimeFilter.DAYTIME)) {
             level.setDayTime(frame.dayTime);
         }
     }
@@ -289,7 +334,7 @@ public final class RewindSession {
                 // Innere Zustände (KI, Inventare von Mobs …) aus dem letzten Schlüsselbild ≤ Ziel
                 for (UUID uuid : target.poses.keySet()) {
                     Entity entity = level.getEntity(uuid);
-                    if (entity == null || entity instanceof ServerPlayer) {
+                    if (entity == null || entity instanceof ServerPlayer || !wants(TimeFilter.categoryOf(entity))) {
                         continue;
                     }
                     CompoundTag state = journal.entityState(uuid);

@@ -24,7 +24,7 @@ def find(rel):
 
 def names(java_file):
     text = (JAVA / java_file).read_text(encoding="utf-8")
-    return re.findall(r'register\("([a-z0-9_]+)"', text)
+    return re.findall(r'(?:register|module)\("([a-z0-9_]+)"', text)
 
 
 def texture_refs(model_path, seen=None):

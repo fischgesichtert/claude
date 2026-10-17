@@ -4,8 +4,10 @@ import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.client.effect.RewindEffect;
 import com.fischgesichtert.timemod.client.effect.TimeStopEffect;
 import com.fischgesichtert.timemod.client.render.ChronoKnifeRenderer;
+import com.fischgesichtert.timemod.client.render.TemporalWorkbenchRenderer;
 import com.fischgesichtert.timemod.client.render.TimeCondenserRenderer;
 import com.fischgesichtert.timemod.client.screen.ClockmakerScreen;
+import com.fischgesichtert.timemod.client.screen.TemporalWorkbenchScreen;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModEntities;
@@ -40,6 +42,10 @@ public class TimeModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         MenuScreens.register(ModMenus.CLOCKMAKER, ClockmakerScreen::new);
+        MenuScreens.register(ModMenus.TEMPORAL_WORKBENCH, TemporalWorkbenchScreen::new);
+        BlockEntityRenderers.register(ModBlockEntities.TEMPORAL_WORKBENCH, TemporalWorkbenchRenderer::new);
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.TEMPORAL_WORKBENCH, RenderType.cutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.CHRONO_PILLAR, RenderType.cutout());
         EntityRendererRegistry.register(ModEntities.CHRONO_KNIFE, ChronoKnifeRenderer::new);
         BlockEntityRenderers.register(ModBlockEntities.TIME_CONDENSER, TimeCondenserRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.TIME_GLASS, RenderType.translucent());

@@ -2401,6 +2401,9 @@ def main(preview=None):
     for layer in (1, 2):
         armor_layer(layer).save(armor_dir / f"timemod_chrono_layer_{layer}.png")
     print(f"{len(sprites)} Texturen geschrieben")
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import gen_creature_textures  # noqa: E402 – Wesen der Zukunft (ab M8d)
+    gen_creature_textures.main()
     if preview:
         cols = 10
         scale = 6

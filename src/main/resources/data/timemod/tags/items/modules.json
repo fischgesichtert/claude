@@ -16,6 +16,7 @@
     "timemod:radius_module",
     "timemod:duration_module",
     "timemod:strength_module",
-    "timemod:efficiency_module"
+    "timemod:efficiency_module",
+    "timemod:damping_module"
   ]
 }

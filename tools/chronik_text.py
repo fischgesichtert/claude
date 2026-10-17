@@ -61,6 +61,38 @@ CHAPTERS = {
         "• Chrono Knives: thrown in stopped time, they hang in the air.\n\n"
         "Sneak + right-click changes the factor of accelerator and pendulum.",
     ),
+    "wardens": (
+        "Paradox-Druck und Zeitwächter",
+        "Wer die Zeit verbiegt, hinterlässt Spuren in ihr. Jedes Chronon, das du in einen Eingriff steckst, und jede Reise durch die "
+        "Zeit erhöhen deinen Paradox-Druck. Die Taschenuhr nennt ihn, und mit einem Zeitwerkzeug in der Hand siehst du ihn oben links.\n\n"
+        "• Ab 25 % wird die Zeit um dich unruhig.\n"
+        "• Ab 50 % bemerken dich die Zeitwächter, die Polizei der Zeitlinie: Nach einer Weile erscheint einer in deiner Nähe.\n"
+        "• Ab 75 % kommen sie zu zweit, ab 90 % zu dritt – und öfter.\n\n"
+        "Zeitwächter stehen außerhalb der Zeit: Stopp, Zeitlupe und Zurückspulen gehen durch sie hindurch. Sie springen dir nach, "
+        "werfen Stasis-Zeiger, und ihr Treffer setzt dich kurz fest – vor diesem Zeitarrest schützt nur die volle Chrono-Rüstung. "
+        "Jeder Treffer treibt aber auch Schuld ein: Dein Druck sinkt, und etwas Chronon wird eingezogen. Fällt der Druck unter 25 %, "
+        "ist der Fall erledigt, und der Wächter verschwindet.\n\n"
+        "Der Druck sinkt von selbst um 2 % pro Minute. Eine durchschlafene Nacht nimmt 15 %, ein besiegter Wächter 10 %. Wächter "
+        "hinterlassen manchmal ein Zeitsiegel (−20 %) und selten ihre Zeigerklinge, deren Treffer die Zeit des Getroffenen stocken "
+        "lassen. Aus zwei Zeitsiegeln, Wolle und einem leeren Modul wird an der Uhrmacher-Werkbank ein Dämpfungsmodul: Jedes halbiert "
+        "den Druck seines Werkzeugs. Die Meisterschaft der Chronos-Uhr senkt ihn um bis zu 40 %.\n\n"
+        "Im Kreativmodus entsteht kein Druck. Mit der Spielregel doTimeWardens lassen sich die Wächter abschalten.",
+        "Paradox Pressure and Time Wardens",
+        "Whoever bends time leaves traces in it. Every Chronon you pour into an effect and every journey through time raises your "
+        "paradox pressure. The pocket watch tells you, and with a time tool in hand you see it in the top left corner.\n\n"
+        "• From 25% on, time grows restless around you.\n"
+        "• From 50% on, the Time Wardens notice you – the police of the timeline: after a while one appears near you.\n"
+        "• From 75% on they come in pairs, from 90% in threes – and more often.\n\n"
+        "Time Wardens stand outside of time: stop, slow motion and rewind pass right through them. They blink after you, throw stasis "
+        "bolts, and their strike holds you in place for a moment – only the full Chrono armor protects you from this time arrest. Yet "
+        "every hit also collects a debt: your pressure drops, and some Chronon is confiscated. Once the pressure falls below 25%, the "
+        "case is closed and the warden vanishes.\n\n"
+        "Pressure drops by itself by 2% per minute. A night slept through takes 15%, a defeated warden 10%. Wardens sometimes leave a "
+        "time seal (−20%) and rarely their clock hand blade, whose strikes make the victim's time stutter. Two time seals, wool and a "
+        "blank module make a damping module at the Clockmaker's Bench: each one halves the pressure of its tool. Mastery of the Chronos "
+        "Watch lowers it by up to 40%.\n\n"
+        "Creative mode causes no pressure. The game rule doTimeWardens switches the wardens off.",
+    ),
     "tier3": (
         "Stufe III – Temporaltechnik",
         "Die Temporal-Werkbank erwacht nur zwischen vier Chrono-Säulen: je zwei übereinander, diagonal zwei Blöcke von der Werkbank entfernt. Dann beginnen ihre Ringe zu kreisen. Für ihren Bau brauchst du den Uhrwerkskern des Uhrmachers.\n\n"
@@ -355,6 +387,12 @@ ADVANCEMENTS = [
     ("future_city", "first_journey", "minecraft:bell", "challenge", ("impossible", None),
      "Die Stadt der Zukunft", "Betritt eine Stadt, die in tausend Jahren aus einem Dorf gewachsen ist", "The City of the Future",
      "Enter a city that grew out of a village in a thousand years"),
+    ("wanted", "stasis", "timemod:pocket_watch", "task", ("impossible", None),
+     "Gesucht", "Treibe deinen Paradox-Druck auf 75 %", "Wanted", "Drive your paradox pressure up to 75%"),
+    ("time_police", "wanted", "timemod:time_seal", "goal", ("kill", "timemod:time_warden"),
+     "Wer bewacht die Wächter?", "Besiege einen Zeitwächter", "Who Watches the Watchmen?", "Defeat a Time Warden"),
+    ("clock_hand", "time_police", "timemod:clock_hand_blade", "challenge", ("item", "timemod:clock_hand_blade"),
+     "Fünf vor zwölf", "Erbeute die Zeigerklinge eines Zeitwächters", "At the Eleventh Hour", "Take a Time Warden's clock hand blade"),
     ("mesozoic", "dna", "minecraft:sniffer_egg", "challenge", ("impossible", None),
      "Willkommen im Erdmittelalter", "Reise in das Zeitalter der Dinosaurier", "Welcome to the Mesozoic", "Travel to the age of the dinosaurs"),
 ]

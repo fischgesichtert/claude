@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.item;
 
+import com.fischgesichtert.timemod.paradox.ParadoxPressure;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeLevel;
@@ -9,6 +10,7 @@ import java.util.Locale;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -44,6 +46,14 @@ public class PocketWatchItem extends Item {
         if (zone != null) {
             line.append(" · ").append(Component.translatable(zone.isStop() ? "message.timemod.pocket_watch.stopped" : "message.timemod.pocket_watch.flow",
                 String.format(Locale.ROOT, "%.2f", zone.factor())).withStyle(ChatFormatting.AQUA));
+        }
+        if (player instanceof ServerPlayer serverPlayer) {
+            float pressure = ParadoxPressure.of(serverPlayer);
+            if (pressure >= 1.0F) {
+                ChatFormatting color = pressure >= ParadoxPressure.HUNTED ? ChatFormatting.LIGHT_PURPLE
+                    : pressure >= ParadoxPressure.NOTICED ? ChatFormatting.RED : pressure >= ParadoxPressure.UNEASE ? ChatFormatting.YELLOW : ChatFormatting.GRAY;
+                line.append(" · ").append(Component.translatable("message.timemod.pocket_watch.paradox", Math.round(pressure)).withStyle(color));
+            }
         }
         player.displayClientMessage(line.withStyle(ChatFormatting.GOLD), true);
         level.playSound(null, player.getX(), player.getY(), player.getZ(), ModSounds.CLOCK_TICK, SoundSource.PLAYERS, 0.6F, 1.0F);

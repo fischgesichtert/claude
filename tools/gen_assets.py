@@ -1194,7 +1194,7 @@ def tags():
     tag(f"{NS}/tags/items/modules.json", [t(n) for n in (
         "filter_animals", "filter_monsters", "filter_villagers", "filter_players", "filter_projectiles", "filter_items", "filter_vehicles",
         "filter_growth", "filter_environment", "filter_fluids", "filter_redstone", "filter_machines",
-        "radius_module", "duration_module", "strength_module", "efficiency_module")])
+        "radius_module", "duration_module", "strength_module", "efficiency_module", "damping_module")])
     tag("c/tags/items/brass_nuggets.json", [t("brass_nugget")])
     tag("c/tags/items/brass_blocks.json", [t("brass_block")])
     tag("c/tags/items/raw_chronite_ores.json", [t("raw_chronite")])
@@ -1343,6 +1343,8 @@ def main():
     lang()
     import gen_future  # noqa: E402 – die Zukunft (M8) hat ihren eigenen Generator
     gen_future.main()
+    import gen_creatures  # noqa: E402 – die Wesen der Zukunft (ab M8d) ebenso
+    gen_creatures.main()
     print("Assets erzeugt.")
 
 

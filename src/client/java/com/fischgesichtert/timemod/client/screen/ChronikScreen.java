@@ -41,6 +41,7 @@ public class ChronikScreen extends Screen {
         new Chapter("tier2", List.of(ModItems.DEEPSLATE_CHRONITE_ORE, ModItems.CHRONITE_SEED, ModItems.TIME_CONDENSER, ModItems.POCKET_TIME_CELL,
             ModItems.TIME_ACCELERATOR, ModItems.TIME_FIELD_PROJECTOR)),
         new Chapter("tier2_tools", List.of(ModItems.STASIS_WATCH, ModItems.SLOW_PENDULUM, ModItems.REWIND_SPOOL, ModItems.CHRONO_KNIFE)),
+        new Chapter("wardens", List.of(ModItems.POCKET_WATCH, ModItems.TIME_SEAL, ModItems.CLOCK_HAND_BLADE, ModItems.DAMPING_MODULE)),
         new Chapter("tier3", List.of(ModItems.TEMPORAL_WORKBENCH, ModItems.CHRONO_PILLAR, ModItems.BLANK_MODULE, ModItems.FILTER_GROWTH,
             ModItems.RADIUS_MODULE, ModItems.STRENGTH_MODULE)),
         new Chapter("tier3_gear", List.of(ModItems.CHRONO_UPGRADE_TEMPLATE, ModItems.CHRONITE_PLATE, ModItems.CHRONO_HELMET,

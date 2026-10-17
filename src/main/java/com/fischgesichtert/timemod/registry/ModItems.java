@@ -9,6 +9,7 @@ import com.fischgesichtert.timemod.item.BrakeSpringItem;
 import com.fischgesichtert.timemod.item.ChronikItem;
 import com.fischgesichtert.timemod.item.ChronoDebugWandItem;
 import com.fischgesichtert.timemod.item.ChronoKnifeItem;
+import com.fischgesichtert.timemod.item.ClockHandBladeItem;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.item.EraFocusItem;
 import com.fischgesichtert.timemod.item.TimeSeedItem;
@@ -21,6 +22,7 @@ import com.fischgesichtert.timemod.item.SlowPendulumItem;
 import com.fischgesichtert.timemod.item.StasisWatchItem;
 import com.fischgesichtert.timemod.item.TimeAcceleratorItem;
 import com.fischgesichtert.timemod.item.TimeLoopItem;
+import com.fischgesichtert.timemod.item.TimeSealItem;
 import com.fischgesichtert.timemod.module.ModuleItem;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import java.util.ArrayList;
@@ -116,6 +118,7 @@ public final class ModItems {
     public static final Item DURATION_MODULE = module("duration_module", ModuleItem.Kind.DURATION, 0);
     public static final Item STRENGTH_MODULE = module("strength_module", ModuleItem.Kind.STRENGTH, 0);
     public static final Item EFFICIENCY_MODULE = module("efficiency_module", ModuleItem.Kind.EFFICIENCY, 0);
+    public static final Item DAMPING_MODULE = module("damping_module", ModuleItem.Kind.DAMPING, 0);
 
     // Stufe IV: Herr der Zeit
     public static final Item PARADOX_ALTAR = block(ModBlocks.PARADOX_ALTAR);
@@ -149,6 +152,12 @@ public final class ModItems {
     public static final Item BONE_PILE = block(ModBlocks.BONE_PILE);
     public static final Item MESOZOIC_FOCUS = register("mesozoic_focus", new EraFocusItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
         EnumSet.of(Era.Age.STONE_AGE, Era.Age.ICE_AGE, Era.Age.CENOZOIC, Era.Age.MESOZOIC)));
+
+    // Die Zukunft: Paradox-Druck und Zeitwächter
+    public static final Item TIME_SEAL = register("time_seal", new TimeSealItem(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
+    public static final Item CLOCK_HAND_BLADE = register("clock_hand_blade", new ClockHandBladeItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final Item TIME_WARDEN_SPAWN_EGG = register("time_warden_spawn_egg", new SpawnEggItem(ModEntities.TIME_WARDEN, 0x1C2340, 0x9FF3FF,
+        new Item.Properties()));
 
     // Entwicklung
     public static final Item CHRONO_DEBUG_WAND = register("chrono_debug_wand", new ChronoDebugWandItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));

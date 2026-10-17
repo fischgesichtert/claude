@@ -33,6 +33,17 @@ public final class ModSounds {
     public static final SoundEvent GATE_ARRIVE = register("gate_arrive");
     public static final SoundEvent CONSOLE_CLICK = register("console_click");
     public static final SoundEvent TIME_STREAM = register("time_stream");
+    public static final SoundEvent PARADOX_WARNING = register("paradox_warning");
+    public static final SoundEvent WARDEN_APPEAR = register("warden_appear");
+    public static final SoundEvent WARDEN_VANISH = register("warden_vanish");
+    public static final SoundEvent WARDEN_BLINK = register("warden_blink");
+    public static final SoundEvent WARDEN_AMBIENT = register("warden_ambient");
+    public static final SoundEvent WARDEN_HURT = register("warden_hurt");
+    public static final SoundEvent WARDEN_DEATH = register("warden_death");
+    public static final SoundEvent WARDEN_ARREST = register("warden_arrest");
+    public static final SoundEvent WARDEN_BOLT = register("warden_bolt");
+    public static final SoundEvent WARDEN_BOLT_HIT = register("warden_bolt_hit");
+    public static final SoundEvent SEAL_STAMP = register("seal_stamp");
 
     private ModSounds() {
     }

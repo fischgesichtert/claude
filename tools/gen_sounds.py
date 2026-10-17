@@ -524,6 +524,143 @@ def time_stream():
         place(total, normalize(ring, -20 - 2 * i), when - 0.9)
     return normalize(fade(total, 0.3, 1.2), -2)
 
+
+# ---------------------------------------------------------------------------------------------
+# M8d: Paradox-Druck und Zeitwächter
+# ---------------------------------------------------------------------------------------------
+
+def paradox_warning():
+    """Die Zeit wird unruhig: ein verstimmter Glockencluster, rückwärts, darüber stolperndes Ticken."""
+    total = silence(2.2)
+    cluster = mix(bell(1046.5, 1.4), bell(1108.7, 1.3) * 0.8, bell(1567.9, 1.1) * 0.5)
+    swell = reverb(cluster, 1.2, 0.7, brightness=7000)[::-1]
+    swell = swell[-int(1.3 * SR):] * np.linspace(0.0, 1.0, int(1.3 * SR)) ** 1.5
+    place(total, normalize(swell, -6), 0.0)
+    at = 1.25
+    for i, gap in enumerate((0.11, 0.07, 0.19, 0.05, 0.23)):
+        place(total, tick(2600 + 300 * i, 700, level=0.8), at)
+        at += gap
+    low = np.sin(2 * np.pi * 55 * t(2.2)) * env_ad(int(2.2 * SR), 0.6, 1.2, curve=2.0) * 0.4
+    return normalize(fade(mix(total, low), 0.01, 0.2), -2)
+
+
+def warden_appear():
+    """Ein Zeitwächter erscheint: Rückwärts-Sog, ein heller Riss, dann ein tiefer Gong mit Schimmer."""
+    total = silence(3.0)
+    src = mix(bell(523.25, 0.6), bell(784.0, 0.5) * 0.6)
+    swell = reverb(src, 1.4, 0.95, brightness=8000)[::-1][-int(0.9 * SR):]
+    swell *= np.linspace(0.05, 1.0, len(swell)) ** 2
+    place(total, normalize(swell, -5), 0.0)
+    crack = fft_filter(noise(0.12), high=3000) * np.exp(-t(0.12) / 0.02)
+    place(total, normalize(crack, -4), 0.9)
+    place(total, normalize(bell(98.0, 2.2), -4), 0.92)
+    shimmer = sum(np.sin(2 * np.pi * f * t(1.8)) for f in (2093.0, 2637.0, 3136.0)) * env_ad(int(1.8 * SR), 0.05, 1.5, curve=2.5)
+    shimmer *= 0.5 + 0.5 * np.sin(2 * np.pi * 9 * t(1.8))
+    place(total, normalize(shimmer, -16), 0.95)
+    return normalize(trim(reverb(total, 1.6, 0.3, brightness=6000)), -1)
+
+
+def warden_vanish():
+    """Fall erledigt: ein Wusch nach innen, eine kleine Glocke rückwärts – und Stille."""
+    w = svf_sweep(noise(0.9), 6000, 300, q=5.0) * env_ad(int(0.9 * SR), 0.15, 0.7, curve=2.5)
+    ping = bell(1568.0, 0.8)[::-1] * 0.7
+    out = silence(1.3)
+    place(out, normalize(w, -4), 0.0)
+    place(out, normalize(ping, -9), 0.4)
+    return normalize(fade(out, 0.01, 0.1), -1)
+
+
+def warden_blink():
+    """Kurzer Zeitsprung: ein heller Wusch nach oben mit Klick."""
+    w = svf_sweep(noise(0.3), 900, 9000, q=5.0) * env_ad(int(0.3 * SR), 0.01, 0.2, curve=3.5)
+    out = silence(0.4)
+    place(out, normalize(w, -3), 0.0)
+    place(out, tick(4200, 1200, level=0.6), 0.22)
+    return normalize(fade(out, 0.003, 0.06), -1)
+
+
+def warden_ambient():
+    """Leises Ticken eines Wächters, unregelmäßig, über einem tiefen, hohlen Ton."""
+    total = silence(2.0)
+    at = 0.05
+    for i, gap in enumerate((0.37, 0.41, 0.29, 0.44)):
+        place(total, tick(2000, 600, level=0.5 - 0.06 * i), at)
+        at += gap
+    x = t(2.0)
+    hum = (np.sin(2 * np.pi * 82.4 * x) + 0.5 * np.sin(2 * np.pi * 123.5 * x)) * env_ad(len(x), 0.4, 1.4, curve=2.0)
+    air = svf_sweep(noise(2.0), 700, 1500, q=8.0) * env_ad(len(x), 0.6, 1.2, curve=2.0)
+    return normalize(fade(mix(total, normalize(hum, -14), normalize(air, -20)), 0.05, 0.3), -4)
+
+
+def warden_hurt():
+    """Getroffen: ein gläserner Glockenton mit einem Knacks."""
+    out = silence(0.6)
+    place(out, normalize(bell(1975.5, 0.5), -4), 0.0)
+    place(out, normalize(bell(2349.3, 0.4), -10), 0.01)
+    crack = fft_filter(noise(0.06), high=2500) * np.exp(-t(0.06) / 0.01)
+    place(out, normalize(crack, -5), 0.0)
+    return normalize(fade(out, 0.002, 0.08), -1)
+
+
+def warden_death():
+    """Ein Wächter zerspringt: fallende Glockensplitter, ein Gong, ein Sog zurück in die Zeit."""
+    total = silence(2.6)
+    for i in range(12):
+        f = 2400 * (0.86 ** i) * RNG.uniform(0.95, 1.05)
+        place(total, bell(f, 0.5) * (0.9 - 0.05 * i), 0.03 + i * 0.06)
+    place(total, normalize(bell(130.8, 2.0), -6), 0.0)
+    w = svf_sweep(noise(1.2), 5000, 200, q=4.0) * env_ad(int(1.2 * SR), 0.3, 0.9, curve=2.0)
+    place(total, normalize(w, -8), 0.6)
+    return normalize(trim(reverb(total, 1.8, 0.3)), -1)
+
+
+def warden_arrest():
+    """Zeitarrest: ein schwerer Uhrschlag, ein mechanisches Einrasten, ein frostiges Schimmern."""
+    total = silence(1.5)
+    place(total, normalize(bell(110.0, 1.4), -3), 0.0)
+    clunk = tick(900, 180, length=0.12, level=1.6)
+    place(total, normalize(clunk, -2), 0.0)
+    place(total, normalize(tick(1400, 320, length=0.08, level=1.2), -6), 0.09)
+    frost = fft_filter(noise(1.0), high=6000) * env_ad(int(1.0 * SR), 0.05, 0.8, curve=2.5)
+    place(total, normalize(frost, -18), 0.1)
+    return normalize(trim(reverb(total, 1.0, 0.25)), -1)
+
+
+def warden_bolt():
+    """Stasis-Zeiger fliegt los: ein Wusch mit rasend schnellem Ticken."""
+    length = 0.7
+    w = svf_sweep(noise(length), 3000, 800, q=4.0) * env_ad(int(length * SR), 0.02, 0.5, curve=2.5)
+    ticks = silence(length)
+    at = 0.0
+    gap = 0.05
+    while at < length - 0.05:
+        place(ticks, tick(3600, 900, length=0.03, level=0.5), at)
+        at += gap
+        gap = max(0.018, gap * 0.92)
+    return normalize(fade(mix(normalize(w, -3), normalize(ticks, -8)), 0.003, 0.1), -1)
+
+
+def warden_bolt_hit():
+    """Einschlag des Stasis-Zeigers: heller Metallklang, kurzes rückwärts gezogenes Schimmern."""
+    out = silence(0.5)
+    place(out, normalize(bell(2793.8, 0.3), -4), 0.0)
+    place(out, normalize(tick(5000, 1500, level=1.0), -3), 0.0)
+    place(out, normalize(bell(1396.9, 0.3)[::-1], -14), 0.12)
+    return normalize(fade(out, 0.002, 0.06), -1)
+
+
+def seal_stamp():
+    """Ein Siegel wird aufgedrückt: dumpfer Stempel, Wachs knistert, eine kleine Glocke."""
+    out = silence(1.0)
+    x = t(0.2)
+    thud = np.sin(2 * np.pi * 85 * x * (1 - 0.3 * x / 0.2)) * env_ad(len(x), 0.004, 0.12, curve=3.0)
+    place(out, normalize(fft_filter(thud + 0.3 * noise(0.2) * np.exp(-x / 0.01), low=900), -2), 0.0)
+    crackle = fft_filter(noise(0.3), high=1800, low=6000) * (RNG.random(int(0.3 * SR)) < 0.004) * 8
+    place(out, normalize(crackle, -16), 0.05)
+    place(out, normalize(bell(1760.0, 0.6), -12), 0.18)
+    return normalize(fade(reverb(out, 0.6, 0.2), 0.002, 0.1), -1)
+
+
 SOUNDS = {
     "time_stop": time_stop,
     "time_resume": time_resume,
@@ -551,6 +688,17 @@ SOUNDS = {
     "gate_arrive": gate_arrive,
     "console_click": console_click,
     "time_stream": time_stream,
+    "paradox_warning": paradox_warning,
+    "warden_appear": warden_appear,
+    "warden_vanish": warden_vanish,
+    "warden_blink": warden_blink,
+    "warden_ambient": warden_ambient,
+    "warden_hurt": warden_hurt,
+    "warden_death": warden_death,
+    "warden_arrest": warden_arrest,
+    "warden_bolt": warden_bolt,
+    "warden_bolt_hit": warden_bolt_hit,
+    "seal_stamp": seal_stamp,
 }
 
 

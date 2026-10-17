@@ -11,9 +11,11 @@ import com.fischgesichtert.timemod.gate.TimeStream;
 import com.fischgesichtert.timemod.item.TimeLoopItem;
 import com.fischgesichtert.timemod.network.ChronosNetworking;
 import com.fischgesichtert.timemod.network.TimeNetworking;
+import com.fischgesichtert.timemod.paradox.ParadoxPressure;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModEntities;
+import com.fischgesichtert.timemod.registry.ModGameRules;
 import com.fischgesichtert.timemod.registry.ModItems;
 import com.fischgesichtert.timemod.registry.ModLoot;
 import com.fischgesichtert.timemod.registry.ModMenus;
@@ -53,6 +55,7 @@ public class TimeMod implements ModInitializer {
         ModRecipes.init();
         ModLoot.init();
         ModWorldgen.init();
+        ModGameRules.init();
         ModStructures.init();
         RemappedBiomeSource.init();
         FutureBiomeSource.init();
@@ -69,6 +72,7 @@ public class TimeMod implements ModInitializer {
         WeatheringRules.init();
         ChangeTracking.init();
         FutureDerivation.init();
+        ParadoxPressure.init();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ChronoCommand.register(dispatcher));
         LOGGER.info("TIME geladen – die Zeit gehört dir.");
     }

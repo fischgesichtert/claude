@@ -4,6 +4,7 @@ import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
 import com.fischgesichtert.timemod.future.FutureDerivation;
+import com.fischgesichtert.timemod.paradox.ParadoxPressure;
 import com.fischgesichtert.timemod.registry.ModAdvancements;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import io.netty.buffer.Unpooled;
@@ -127,6 +128,7 @@ public final class TimeStream {
         Journey journey = new Journey(target, near, player.level().dimension(), returnPos.immutable(), anchor && !target.isPresent(), duration, hold,
             new int[1]);
         JOURNEYS.put(player.getUUID(), journey);
+        ParadoxPressure.onTravel(player, from, target);
         player.setPortalCooldown();
         player.addTag(TAG);
         // Erst ankündigen, dann die Welt wechseln: So zeigt der Client den Zeitstrom statt „Landschaft wird geladen“

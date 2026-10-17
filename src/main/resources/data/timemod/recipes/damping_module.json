@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    " S ",
+    "WMW",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "item": "timemod:time_seal"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "M": {
+      "item": "timemod:blank_module"
+    }
+  },
+  "result": {
+    "item": "timemod:damping_module",
+    "count": 1
+  }
+}

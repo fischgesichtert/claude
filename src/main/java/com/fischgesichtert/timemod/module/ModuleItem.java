@@ -11,12 +11,12 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Ein Modul für Zeitwerkzeuge (ab Stufe III). Filtermodule legen fest, <em>was</em> ein Werkzeug
- * beeinflusst, Verstärker verändern Radius, Dauer, Stärke und Verbrauch. Eingebaut wird an der
- * Temporal-Werkbank.
+ * beeinflusst, Verstärker verändern Radius, Dauer, Stärke und Verbrauch, Dämpfer den Paradox-Druck.
+ * Eingebaut wird an der Temporal-Werkbank.
  */
 public class ModuleItem extends Item {
     public enum Kind {
-        BLANK, FILTER, RADIUS, DURATION, STRENGTH, EFFICIENCY;
+        BLANK, FILTER, RADIUS, DURATION, STRENGTH, EFFICIENCY, DAMPING;
 
         public boolean isAmplifier() {
             return this != BLANK && this != FILTER;

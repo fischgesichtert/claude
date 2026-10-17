@@ -123,6 +123,7 @@ public final class Modules {
         int duration = 0;
         int strength = 0;
         int efficiency = 0;
+        int damping = 0;
         for (ModuleItem module : installed(tool)) {
             switch (module.kind()) {
                 case FILTER -> filter |= module.mask();
@@ -130,16 +131,17 @@ public final class Modules {
                 case DURATION -> duration++;
                 case STRENGTH -> strength++;
                 case EFFICIENCY -> efficiency++;
+                case DAMPING -> damping++;
                 default -> {
                 }
             }
         }
-        return new Effects(filter, radius, duration, strength, efficiency);
+        return new Effects(filter, radius, duration, strength, efficiency, damping);
     }
 
     /** Zusammengefasste Wirkung aller eingebauten Module. */
-    public record Effects(int filter, int radius, int duration, int strength, int efficiency) {
-        public static final Effects NONE = new Effects(0, 0, 0, 0, 0);
+    public record Effects(int filter, int radius, int duration, int strength, int efficiency, int damping) {
+        public static final Effects NONE = new Effects(0, 0, 0, 0, 0, 0);
 
         /** Ohne Filtermodul wirkt das Werkzeug auf seine Standard-Kategorien. */
         public int mask(int fallback) {

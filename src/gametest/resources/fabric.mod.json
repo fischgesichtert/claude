@@ -21,7 +21,8 @@
       "com.fischgesichtert.timemod.gametest.LetterTests",
       "com.fischgesichtert.timemod.gametest.FutureTests",
       "com.fischgesichtert.timemod.gametest.ClimateTests",
-      "com.fischgesichtert.timemod.gametest.TownTests"
+      "com.fischgesichtert.timemod.gametest.TownTests",
+      "com.fischgesichtert.timemod.gametest.ParadoxTests"
     ]
   },
   "mixins": [

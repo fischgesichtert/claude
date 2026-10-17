@@ -3,6 +3,8 @@ package com.fischgesichtert.timemod.command;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
 import com.fischgesichtert.timemod.gate.TimeStream;
+import com.fischgesichtert.timemod.paradox.ParadoxPressure;
+import com.fischgesichtert.timemod.paradox.TimeWardens;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
@@ -10,6 +12,7 @@ import com.fischgesichtert.timemod.time.TimeZone;
 import com.fischgesichtert.timemod.time.ZoneShape;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -18,6 +21,7 @@ import java.util.Locale;
 import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -34,6 +38,7 @@ import net.minecraft.world.phys.AABB;
  * /chrono daytime|weather &lt;faktor&gt; [sekunden]
  * /chrono clear | list
  * /chrono travel &lt;jahre&gt;   (durch den Zeitstrom, ohne Tor; 0 = Gegenwart)
+ * /chrono paradox [set &lt;prozent&gt; [spieler]] | paradox warden
  * </pre>
  */
 public final class ChronoCommand {
@@ -102,7 +107,38 @@ public final class ChronoCommand {
             }))
             .then(Commands.literal("list").executes(ChronoCommand::list))
             .then(Commands.literal("travel")
-                .then(Commands.argument("years", IntegerArgumentType.integer()).executes(ChronoCommand::travel))));
+                .then(Commands.argument("years", IntegerArgumentType.integer()).executes(ChronoCommand::travel)))
+            .then(Commands.literal("paradox")
+                .executes(ctx -> paradox(ctx, ctx.getSource().getPlayerOrException()))
+                .then(Commands.literal("set")
+                    .then(Commands.argument("percent", FloatArgumentType.floatArg(0, ParadoxPressure.MAX))
+                        .executes(ctx -> setParadox(ctx, ctx.getSource().getPlayerOrException()))
+                        .then(Commands.argument("player", EntityArgument.player())
+                            .executes(ctx -> setParadox(ctx, EntityArgument.getPlayer(ctx, "player"))))))
+                .then(Commands.literal("warden").executes(ctx -> {
+                    ServerPlayer player = ctx.getSource().getPlayerOrException();
+                    if (TimeWardens.summon(player) == null) {
+                        ctx.getSource().sendFailure(Component.translatable("commands.timemod.paradox.warden.failed"));
+                        return 0;
+                    }
+                    return 1;
+                }))));
+    }
+
+    /** Zeigt den Paradox-Druck eines Spielers. */
+    private static int paradox(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
+        float value = ParadoxPressure.of(player);
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.timemod.paradox.get", player.getDisplayName(),
+            String.format(Locale.ROOT, "%.1f", value), TimeWardens.allowed(value)), false);
+        return Math.round(value);
+    }
+
+    private static int setParadox(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
+        float value = FloatArgumentType.getFloat(ctx, "percent");
+        ParadoxPressure.set(player, value);
+        ctx.getSource().sendSuccess(() -> Component.translatable("commands.timemod.paradox.set", player.getDisplayName(),
+            String.format(Locale.ROOT, "%.1f", value)), true);
+        return 1;
     }
 
     @FunctionalInterface

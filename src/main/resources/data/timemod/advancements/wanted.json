@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:pocket_watch"
+    },
+    "title": {
+      "translate": "advancements.timemod.wanted.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.wanted.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "timemod:stasis"
+}

@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.energy;
 
 import com.fischgesichtert.timemod.armor.ChronoArmorItem;
+import com.fischgesichtert.timemod.paradox.ParadoxPressure;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -60,6 +61,7 @@ public final class Chronon {
         if (player.getAbilities().instabuild) {
             return true;
         }
+        int effect = cost;
         cost = discounted(player, cost);
         int available = stored(tool);
         for (ItemStack stack : player.getInventory().items) {
@@ -79,6 +81,8 @@ public final class Chronon {
                 remaining -= extract(stack, remaining);
             }
         }
+        // Was die Zeit verbiegt, hinterlässt Spuren: der Paradox-Druck richtet sich nach der Wirkung, nicht nach dem Rabatt
+        ParadoxPressure.onChrononSpent(player, tool, effect);
         return true;
     }
 

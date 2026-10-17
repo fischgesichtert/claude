@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:clock_hand_blade"
+    },
+    "title": {
+      "translate": "advancements.timemod.clock_hand.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.clock_hand.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:clock_hand_blade"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:time_police"
+}

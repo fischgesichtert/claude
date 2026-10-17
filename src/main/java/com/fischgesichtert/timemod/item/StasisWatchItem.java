@@ -51,7 +51,8 @@ public class StasisWatchItem extends ChrononToolItem implements ModularTool {
 
     @Override
     public boolean accepts(ModuleItem.Kind kind) {
-        return kind == ModuleItem.Kind.FILTER || kind == ModuleItem.Kind.RADIUS || kind == ModuleItem.Kind.DURATION || kind == ModuleItem.Kind.EFFICIENCY;
+        return kind == ModuleItem.Kind.FILTER || kind == ModuleItem.Kind.RADIUS || kind == ModuleItem.Kind.DURATION || kind == ModuleItem.Kind.EFFICIENCY
+            || kind == ModuleItem.Kind.DAMPING;
     }
 
     @Override

@@ -222,5 +222,104 @@
         "attenuation_distance": 16
       }
     ]
+  },
+  "paradox_warning": {
+    "subtitle": "subtitles.timemod.paradox_warning",
+    "sounds": [
+      {
+        "name": "timemod:paradox_warning",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "warden_appear": {
+    "subtitle": "subtitles.timemod.warden_appear",
+    "sounds": [
+      {
+        "name": "timemod:warden_appear",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "warden_vanish": {
+    "subtitle": "subtitles.timemod.warden_vanish",
+    "sounds": [
+      {
+        "name": "timemod:warden_vanish",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "warden_blink": {
+    "subtitle": "subtitles.timemod.warden_blink",
+    "sounds": [
+      {
+        "name": "timemod:warden_blink",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "warden_ambient": {
+    "subtitle": "subtitles.timemod.warden_ambient",
+    "sounds": [
+      {
+        "name": "timemod:warden_ambient",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "warden_hurt": {
+    "subtitle": "subtitles.timemod.warden_hurt",
+    "sounds": [
+      {
+        "name": "timemod:warden_hurt",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "warden_death": {
+    "subtitle": "subtitles.timemod.warden_death",
+    "sounds": [
+      {
+        "name": "timemod:warden_death",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "warden_arrest": {
+    "subtitle": "subtitles.timemod.warden_arrest",
+    "sounds": [
+      {
+        "name": "timemod:warden_arrest",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "warden_bolt": {
+    "subtitle": "subtitles.timemod.warden_bolt",
+    "sounds": [
+      {
+        "name": "timemod:warden_bolt",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "warden_bolt_hit": {
+    "subtitle": "subtitles.timemod.warden_bolt_hit",
+    "sounds": [
+      {
+        "name": "timemod:warden_bolt_hit",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "seal_stamp": {
+    "subtitle": "subtitles.timemod.seal_stamp",
+    "sounds": [
+      {
+        "name": "timemod:seal_stamp",
+        "attenuation_distance": 16
+      }
+    ]
   }
 }

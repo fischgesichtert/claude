@@ -17,6 +17,7 @@ import com.fischgesichtert.timemod.item.RewindSpoolItem;
 import com.fischgesichtert.timemod.item.SlowPendulumItem;
 import com.fischgesichtert.timemod.item.StasisWatchItem;
 import com.fischgesichtert.timemod.item.TimeAcceleratorItem;
+import com.fischgesichtert.timemod.item.TimeLoopItem;
 import com.fischgesichtert.timemod.module.ModuleItem;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import java.util.ArrayList;
@@ -115,6 +116,9 @@ public final class ModItems {
     public static final Item PARADOX_SPAWN_EGG = register("paradox_spawn_egg", new SpawnEggItem(ModEntities.PARADOX, 0x2A1446, 0x6FE3FF, new Item.Properties()));
     public static final Item HEART_OF_TIME = register("heart_of_time", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant()));
     public static final Item CHRONOS_WATCH = register("chronos_watch", new ChronosWatchItem(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item TIME_LOOP = register("time_loop", new TimeLoopItem(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item INFINITY_TIME_CELL = register("infinity_time_cell", new ChrononCellItem(1_000_000,
+        new Item.Properties().stacksTo(1).rarity(Rarity.EPIC).fireResistant()));
 
     // Entwicklung
     public static final Item CHRONO_DEBUG_WAND = register("chrono_debug_wand", new ChronoDebugWandItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));

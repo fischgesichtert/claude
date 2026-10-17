@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:infinity_time_cell"
+    },
+    "title": {
+      "translate": "advancements.timemod.infinity.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.infinity.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:infinity_time_cell"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:chronos"
+}

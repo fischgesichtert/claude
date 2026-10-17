@@ -122,6 +122,9 @@ ITEMS = [
      "Schlägt im Takt aller Uhren der Welt.", "It beats in time with every clock in the world."),
     ("chronos_watch", "generated", "Chronos-Uhr", "Chronos Watch", None, None),
     ("paradox_spawn_egg", "spawn_egg", "Paradox-Spawn-Ei", "Paradox Spawn Egg", None, None),
+    ("time_loop", "generated", "Zeitschleife", "Time Loop",
+     "Stirbst du, spult die Welt um dich 10 Sekunden zurück – mit dir.", "If you die, the world around you rewinds 10 seconds – with you."),
+    ("infinity_time_cell", "generated", "Unendlichkeits-Zeitzelle", "Infinity Time Cell", None, None),
 ]
 
 # Chronos-Uhr: Modi, Meisterschaft, Radialmenü und HUD
@@ -184,6 +187,11 @@ LANG_CHRONOS = {
         "subtitles.timemod.paradox_voice": "Paradox spricht",
         "subtitles.timemod.paradox_blink": "Paradox springt durch die Zeit",
         "subtitles.timemod.echo_shatter": "Ein Echo zerspringt",
+        "tooltip.timemod.loop.cost": "Rettet dich für %s Chronon",
+        "tooltip.timemod.loop.ready": "Bereit",
+        "tooltip.timemod.loop.cooldown": "Lädt nach: noch %s min",
+        "message.timemod.loop.title": "Nicht heute.",
+        "message.timemod.loop.subtitle": "Die Zeitschleife verweigert deinen Tod",
     },
     "en_us": {
         "chronos.timemod.mode.stop": "Time stop",
@@ -243,6 +251,11 @@ LANG_CHRONOS = {
         "subtitles.timemod.paradox_voice": "Paradox speaks",
         "subtitles.timemod.paradox_blink": "Paradox blinks through time",
         "subtitles.timemod.echo_shatter": "An echo shatters",
+        "tooltip.timemod.loop.cost": "Saves you for %s chronon",
+        "tooltip.timemod.loop.ready": "Ready",
+        "tooltip.timemod.loop.cooldown": "Recharging: %s min left",
+        "message.timemod.loop.title": "Not today.",
+        "message.timemod.loop.subtitle": "The time loop refuses your death",
     },
 }
 
@@ -864,6 +877,10 @@ def recipes():
     clockmaker("paradox_time_cell", ["PEP", "CXC", "PEP"], {"P": t("chronite_plate"), "E": "minecraft:echo_shard", "C": t("chronite_crystal"),
                                                             "X": t("chronite_time_cell")}, t("paradox_time_cell"))
     # Stufe IV
+    clockmaker("time_loop", ["ETE", "RXS", "ECE"], {"E": "minecraft:echo_shard", "T": "minecraft:totem_of_undying", "R": t("recall_watch"),
+                                                 "X": t("heart_of_time"), "S": t("rewind_spool"), "C": t("paradox_time_cell")}, t("time_loop"))
+    clockmaker("infinity_time_cell", ["PNP", "CXC", "PNP"], {"P": t("paradox_time_cell"), "N": "minecraft:nether_star", "C": t("chronite_plate"),
+                                                          "X": t("heart_of_time")}, t("infinity_time_cell"))
     clockmaker("chronos_watch", ["WNT", "KHF", "PMR"], {"W": t("stasis_watch"), "N": "minecraft:nether_star", "T": t("time_accelerator"),
                                                      "K": t("clockwork_core"), "H": t("heart_of_time"), "F": t("phage_heart"),
                                                      "P": t("slow_pendulum"), "M": t("strength_module"), "R": t("rewind_spool")}, t("chronos_watch"))
@@ -978,6 +995,8 @@ def advancements():
         elif kind == "structure":
             trigger = {"trigger": "minecraft:location", "conditions": {"player": [
                 {"condition": "minecraft:entity_properties", "entity": "this", "predicate": {"location": {"structure": value}}}]}}
+        elif kind == "impossible":
+            trigger = {"trigger": "minecraft:impossible"}
         else:
             trigger = {"trigger": "minecraft:player_killed_entity", "conditions": {"entity": [
                 {"condition": "minecraft:entity_properties", "entity": "this", "predicate": {"type": value}}]}}

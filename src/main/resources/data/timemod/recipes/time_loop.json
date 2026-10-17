@@ -1,0 +1,32 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "ETE",
+    "RXS",
+    "ECE"
+  ],
+  "key": {
+    "E": {
+      "item": "minecraft:echo_shard"
+    },
+    "T": {
+      "item": "minecraft:totem_of_undying"
+    },
+    "R": {
+      "item": "timemod:recall_watch"
+    },
+    "X": {
+      "item": "timemod:heart_of_time"
+    },
+    "S": {
+      "item": "timemod:rewind_spool"
+    },
+    "C": {
+      "item": "timemod:paradox_time_cell"
+    }
+  },
+  "result": {
+    "item": "timemod:time_loop",
+    "count": 1
+  }
+}

@@ -1,5 +1,7 @@
 package com.fischgesichtert.timemod.menu;
 
+import com.fischgesichtert.timemod.module.ModuleItem;
+import com.fischgesichtert.timemod.module.Modules;
 import com.fischgesichtert.timemod.recipe.ClockmakerRecipe;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModMenus;
@@ -154,6 +156,12 @@ public class ClockmakerMenu extends AbstractContainerMenu {
         @Override
         public void onTake(Player player, ItemStack stack) {
             stack.onCraftedBy(player.level(), player, stack.getCount());
+            // Eingebaute Module der verarbeiteten Werkzeuge kommen zurück ins Inventar
+            for (int i = 0; i < craftSlots.getContainerSize(); i++) {
+                for (ModuleItem module : Modules.installed(craftSlots.getItem(i))) {
+                    this.player.getInventory().placeItemBackInInventory(new ItemStack(module));
+                }
+            }
             NonNullList<ItemStack> remaining = player.level().getRecipeManager().getRemainingItemsFor(ModRecipes.CLOCKMAKER, craftSlots, player.level());
             for (int i = 0; i < remaining.size(); i++) {
                 ItemStack current = craftSlots.getItem(i);

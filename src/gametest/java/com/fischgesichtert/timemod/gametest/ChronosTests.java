@@ -3,7 +3,9 @@ package com.fischgesichtert.timemod.gametest;
 import com.fischgesichtert.timemod.chronos.ChronosSettings;
 import com.fischgesichtert.timemod.chronos.ChronosWatchItem;
 import com.fischgesichtert.timemod.energy.Chronon;
+import com.fischgesichtert.timemod.item.TimeLoopItem;
 import com.fischgesichtert.timemod.registry.ModItems;
+import com.fischgesichtert.timemod.registry.ModRecipes;
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
@@ -17,6 +19,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -364,5 +370,103 @@ public class ChronosTests implements FabricGameTest {
             helper.getLevel().getEntitiesOfClass(ItemEntity.class, area).forEach(ItemEntity::discard);
             helper.succeed();
         });
+    }
+    /**
+     * Die Zeitschleife fängt den Tod ab: Die Welt (und der Spieler) springen zurück, die Schleife
+     * kostet 100k Chronon und lädt dann 30 Minuten nach – auch über das Zurückspulen hinweg.
+     */
+    @GameTest(template = ARENA, timeoutTicks = 140, setupTicks = 20, batch = "timemod_loop")
+    public void timeLoopRefusesDeath(GameTestHelper helper) {
+        ServerPlayer player = player(helper, new BlockPos(4, 2, 4));
+        // Testspieler ticken nicht – ohne das bliebe ihr Spawnschutz für immer bestehen
+        player.spawnInvulnerableTime = 0;
+        Vec3 start = player.position();
+        ItemStack loop = new ItemStack(ModItems.TIME_LOOP);
+        Chronon.set(loop, 150_000);
+        player.getInventory().setItem(2, loop);
+        ChronoJournal journal = record(helper);
+        StringBuilder problems = new StringBuilder();
+        helper.runAtTickTime(30, () -> {
+            player.teleportTo(start.x + 12, start.y, start.z + 12);
+            player.hurt(helper.getLevel().damageSources().generic(), 1000.0F);
+            if (player.isDeadOrDying()) {
+                problems.append("Die Zeitschleife muss den Tod verhindern. ");
+            }
+        });
+        helper.runAtTickTime(90, () -> {
+            ItemStack after = player.getInventory().getItem(2);
+            if (journal.session() != null) {
+                problems.append("Das Zurückspulen hätte fertig sein müssen. ");
+            }
+            if (player.position().distanceTo(start) > 1.0) {
+                problems.append("Der Spieler muss an seinen alten Ort zurück, ist bei ").append(player.position()).append(". ");
+            }
+            if (player.getHealth() < player.getMaxHealth() - 0.01F) {
+                problems.append("Das alte Leben muss zurückkehren, ist ").append(player.getHealth()).append(". ");
+            }
+            if (!after.is(ModItems.TIME_LOOP) || TimeLoopItem.isReady(after, helper.getLevel().getGameTime())) {
+                problems.append("Die Schleife muss nach dem Einsatz nachladen (Abklingzeit übersteht das Zurückspulen). ");
+            }
+            if (Chronon.stored(after) != 150_000 - TimeLoopItem.COST) {
+                problems.append("Die Schleife kostet ").append(TimeLoopItem.COST).append(" Chronon, übrig: ").append(Chronon.stored(after)).append(". ");
+            }
+            // Ein zweiter Tod während der Abklingzeit ist endgültig
+            player.hurt(helper.getLevel().damageSources().generic(), 1000.0F);
+            if (!player.isDeadOrDying()) {
+                problems.append("Während der Abklingzeit rettet die Schleife nicht. ");
+            }
+            stopRecording(journal);
+            player.discard();
+            if (problems.length() > 0) {
+                helper.fail(problems.toString());
+            }
+            helper.succeed();
+        });
+    }
+
+    /** Die Unendlichkeits-Zelle fasst eine Million – und übernimmt das Chronon der Zellen, aus denen sie entsteht. */
+    @GameTest(template = EMPTY_STRUCTURE)
+    public void infinityCellKeepsIngredientChronon(GameTestHelper helper) {
+        AbstractContainerMenu dummy = new AbstractContainerMenu(null, 0) {
+            @Override
+            public ItemStack quickMoveStack(Player player, int index) {
+                return ItemStack.EMPTY;
+            }
+
+            @Override
+            public boolean stillValid(Player player) {
+                return true;
+            }
+        };
+        CraftingContainer grid = new TransientCraftingContainer(dummy, 3, 3);
+        String[] pattern = {"PNP", "CXC", "PNP"};
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                ItemStack stack = switch (pattern[row].charAt(col)) {
+                    case 'P' -> {
+                        ItemStack cell = new ItemStack(ModItems.PARADOX_TIME_CELL);
+                        Chronon.set(cell, 60_000);
+                        yield cell;
+                    }
+                    case 'N' -> new ItemStack(Items.NETHER_STAR);
+                    case 'C' -> new ItemStack(ModItems.CHRONITE_PLATE);
+                    default -> new ItemStack(ModItems.HEART_OF_TIME);
+                };
+                grid.setItem(row * 3 + col, stack);
+            }
+        }
+        var recipe = helper.getLevel().getRecipeManager().getRecipeFor(ModRecipes.CLOCKMAKER, grid, helper.getLevel());
+        if (recipe.isEmpty()) {
+            helper.fail("Kein Rezept für die Unendlichkeits-Zelle gefunden");
+            return;
+        }
+        ItemStack result = recipe.get().assemble(grid, helper.getLevel().registryAccess());
+        if (!result.is(ModItems.INFINITY_TIME_CELL) || Chronon.capacity(result) != 1_000_000) {
+            helper.fail("Ergebnis muss die Unendlichkeits-Zelle mit 1M Kapazität sein, ist " + result);
+        }
+        if (Chronon.stored(result) != 4 * 60_000) {
+            helper.fail("Das Chronon der vier Paradox-Zellen muss übergehen: erwartet 240000, ist " + Chronon.stored(result));
+        }
+        helper.succeed();
     }
 }

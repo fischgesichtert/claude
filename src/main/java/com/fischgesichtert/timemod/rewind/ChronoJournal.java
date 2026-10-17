@@ -68,6 +68,9 @@ public final class ChronoJournal {
 
     @Nullable
     private RewindSession session;
+    /** Angefordert, beginnt am Anfang des nächsten Ticks. */
+    @Nullable
+    private RewindSession pending;
 
     private record Anchor(Vec3 center, double radius) {
     }
@@ -140,9 +143,18 @@ public final class ChronoJournal {
         return replaying > 0;
     }
 
-    /** Die laufende Rückspul-Wiedergabe (eine schon beendete zählt nicht mehr). */
+    /** Die laufende oder schon angeforderte Rückspul-Wiedergabe (eine beendete zählt nicht mehr). */
     @Nullable
     public RewindSession session() {
+        RewindSession running = runningSession();
+        if (pending != null && pending.isFinished()) {
+            pending = null;
+        }
+        return running != null ? running : pending;
+    }
+
+    @Nullable
+    private RewindSession runningSession() {
         if (session != null && session.isFinished()) {
             session = null;
         }
@@ -155,6 +167,12 @@ public final class ChronoJournal {
     }
 
     private void clear() {
+        if (pending != null) {
+            // Ohne Aufzeichnung gibt es nichts mehr zurückzuspulen
+            RewindSession cancelled = pending;
+            pending = null;
+            cancelled.stop();
+        }
         frames.clear();
         open = null;
         blockEntityBaseline.clear();
@@ -271,6 +289,9 @@ public final class ChronoJournal {
 
     /** Am Anfang eines echten Ticks: laufende Rückspul-Wiedergabe fortsetzen. */
     public void beginRealTick() {
+        if (pending != null && !pending.isFinished() && open != null && runningSession() == null) {
+            begin(pending);
+        }
         if (session != null) {
             session.tick();
             if (session.isFinished()) {
@@ -281,7 +302,7 @@ public final class ChronoJournal {
 
     /** Am Ende eines echten Ticks: Zustand festhalten und den Frame abschließen. */
     public void endRealTick() {
-        if (!recording || session() != null || open == null) {
+        if (!recording || runningSession() != null || open == null) {
             return;
         }
         Frame frame = open;
@@ -423,22 +444,43 @@ public final class ChronoJournal {
         return rewind(ticks, speed, region, owner, mask, false);
     }
 
-    /** Wie oben; mit {@code ownerFree} bleibt der Auslöser stehen und kann das Zurückspulen jederzeit beenden. */
+    /**
+     * Wie oben; mit {@code ownerFree} bleibt der Auslöser stehen und kann das Zurückspulen jederzeit
+     * beenden. Sichtbares Zurückspulen beginnt erst am Anfang des nächsten Ticks: Was im laufenden
+     * Tick noch geschieht (etwa die Blöcke einer Explosion, die gerade jemanden getötet hat), wird so
+     * noch aufgezeichnet und mit zurückgespult.
+     */
     public RewindSession rewind(int ticks, int speed, @Nullable RewindSession.Region region, @Nullable UUID owner, int mask, boolean ownerFree) {
         if (!recording || session() != null || open == null) {
             return null;
         }
+        RewindSession created = new RewindSession(this, level, ticks, speed, region, owner, mask, ownerFree);
+        if (speed <= 0) {
+            begin(created);
+            created.runToEnd();
+            session = null;
+            return created;
+        }
+        pending = created;
+        return created;
+    }
+
+    /** Schließt den laufenden Tick ab und lässt die Wiedergabe beginnen. */
+    private void begin(RewindSession starting) {
         // Der laufende (unvollständige) Tick wird immer zuerst rückgängig gemacht
         captureState(open);
         frames.addLast(open);
         open = null;
-        int count = Math.min(ticks, frames.size() - 1);
-        session = new RewindSession(this, level, count + 1, speed, region, owner, mask, ownerFree);
-        if (speed <= 0) {
-            session.runToEnd();
-            session = null;
+        pending = null;
+        session = starting;
+        starting.start(Math.min(starting.requestedTicks(), frames.size() - 1) + 1);
+    }
+
+    /** Eine noch nicht begonnene Wiedergabe wurde abgebrochen. */
+    void cancelPending(RewindSession cancelled) {
+        if (pending == cancelled) {
+            pending = null;
         }
-        return session;
     }
 
     ArrayDeque<Frame> frames() {

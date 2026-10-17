@@ -1,0 +1,26 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "PNP",
+    "CXC",
+    "PNP"
+  ],
+  "key": {
+    "P": {
+      "item": "timemod:paradox_time_cell"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    },
+    "C": {
+      "item": "timemod:chronite_plate"
+    },
+    "X": {
+      "item": "timemod:heart_of_time"
+    }
+  },
+  "result": {
+    "item": "timemod:infinity_time_cell",
+    "count": 1
+  }
+}

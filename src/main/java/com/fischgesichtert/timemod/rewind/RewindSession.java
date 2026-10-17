@@ -67,7 +67,9 @@ public final class RewindSession {
 
     private final ChronoJournal journal;
     private final ServerLevel level;
-    private final int totalSteps;
+    private final int requestedTicks;
+    private int totalSteps;
+    private boolean started;
     private final int speed;
     @Nullable
     private final Region region;
@@ -104,11 +106,11 @@ public final class RewindSession {
         }
     }
 
-    RewindSession(ChronoJournal journal, ServerLevel level, int steps, int speed, @Nullable Region region, @Nullable UUID owner, int mask,
+    RewindSession(ChronoJournal journal, ServerLevel level, int requestedTicks, int speed, @Nullable Region region, @Nullable UUID owner, int mask,
                   boolean ownerFree) {
         this.journal = journal;
         this.level = level;
-        this.totalSteps = steps;
+        this.requestedTicks = requestedTicks;
         this.speed = speed;
         this.region = region;
         this.mask = effectiveMask(mask);
@@ -153,6 +155,16 @@ public final class RewindSession {
     /** Schon jetzt anhalten (Loslassen beim Scrubbing): die Welt bleibt bei diesem Stand. */
     public void stop() {
         finish();
+    }
+
+    int requestedTicks() {
+        return requestedTicks;
+    }
+
+    /** Vom Journal: Jetzt geht es los, {@code steps} Schritte stehen zur Verfügung. */
+    void start(int steps) {
+        totalSteps = steps;
+        started = true;
     }
 
     /** Wie viele Ticks schon zurückgespult sind. */
@@ -233,6 +245,9 @@ public final class RewindSession {
     }
 
     void tick() {
+        if (!started) {
+            return;
+        }
         if (whileHeld != null && owner != null
             && !(level.getPlayerByUUID(owner) instanceof ServerPlayer player && whileHeld.test(player))) {
             finish();
@@ -543,6 +558,16 @@ public final class RewindSession {
             return;
         }
         finished = true;
+        if (!started) {
+            // Abgebrochen, bevor es losging: nichts zurückgespult
+            journal.cancelPending(this);
+            if (zone != null) {
+                ServerTimeEngine.of(level).removeZone(zone.id());
+            }
+            onFinish.forEach(Runnable::run);
+            onFinish.clear();
+            return;
+        }
         journal.beginReplay();
         try {
             Frame target = journal.frames().peekLast();

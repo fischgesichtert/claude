@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:time_loop"
+    },
+    "title": {
+      "translate": "advancements.timemod.loop.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.loop.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "timemod:chronos"
+}

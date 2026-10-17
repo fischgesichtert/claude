@@ -1,11 +1,14 @@
 package com.fischgesichtert.timemod.recipe;
 
+import com.fischgesichtert.timemod.energy.Chronon;
+import com.fischgesichtert.timemod.energy.ChrononHolder;
 import com.fischgesichtert.timemod.registry.ModRecipes;
 import com.google.gson.JsonObject;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -26,6 +29,25 @@ public class ClockmakerRecipe extends ShapedRecipe {
     static ClockmakerRecipe of(ShapedRecipe shaped) {
         return new ClockmakerRecipe(shaped.getId(), shaped.getGroup(), shaped.category(), shaped.getWidth(), shaped.getHeight(),
             shaped.getIngredients(), shaped.getResultItem(RegistryAccess.EMPTY), shaped.showNotification());
+    }
+
+    /** Chronon der Zutaten (Zellen, Werkzeuge) geht ins Ergebnis über, soweit es dort Platz hat. */
+    @Override
+    public ItemStack assemble(CraftingContainer container, RegistryAccess access) {
+        ItemStack result = super.assemble(container, access);
+        if (result.getItem() instanceof ChrononHolder) {
+            long sum = 0;
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                ItemStack ingredient = container.getItem(i);
+                if (ingredient.getItem() instanceof ChrononHolder) {
+                    sum += Chronon.stored(ingredient);
+                }
+            }
+            if (sum > 0) {
+                Chronon.insert(result, (int) Math.min(Integer.MAX_VALUE, sum));
+            }
+        }
+        return result;
     }
 
     /** Nicht im Rezeptbuch der normalen Werkbank anzeigen (es ist ja ein Werkbank-Rezept im Herzen). */

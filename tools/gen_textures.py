@@ -837,6 +837,37 @@ def chronos_ring():
     return s
 
 
+def time_loop():
+    """Zeitschleife: ein goldenes Unendlichkeitsband um einen kleinen Zifferblatt-Stein, violettes Leuchten."""
+    s = Sprite()
+    for i in range(160):
+        t = i / 160 * 2 * math.pi
+        x = 7.5 + 6.2 * math.sin(t)
+        y = 8.0 + 3.6 * math.sin(t) * math.cos(t) * 1.6
+        s.set(int(round(x)), int(round(y)), GOLD[2] if math.cos(t) > 0 else GOLD[1])
+        s.set(int(round(x)), int(round(y)) - 1, GOLD[3] if math.cos(t) > 0 else GOLD[2])
+    clock_face(s, 7.5, 7.6, 2.6, face=[(28, 16, 50, 255), (60, 36, 100, 255)], rim=GOLD, hands=((0.0, -0.9), (0.7, 0.2)), glow=GLOW[2])
+    for x, y in ((1, 7), (14, 8), (2, 10), (13, 5)):
+        s.set(x, y, CHRON[3])
+    s.rect(7, 1, 8, 2, GOLD[3])
+    s.set(7, 3, GOLD[1])
+    s.outline()
+    return s
+
+
+def infinity_time_cell():
+    s = cell([GOLD[1], GOLD[3], GOLD[4]], [CHRON[0], CHRON[1], GOLD[2], GOLD[3], GOLD[4]], big=True)
+    # Ein ∞ aus Licht
+    sign = [".##.##.", "#..#..#", ".##.##."]
+    for row, line in enumerate(sign):
+        for col, ch in enumerate(line):
+            if ch == "#":
+                s.set(4 + col, 7 + row, CHRON[1] if (row + col) % 2 else CHRON[0])
+    s.set(4, 8, CHRON[0])
+    s.set(10, 8, CHRON[0])
+    return s
+
+
 def workbench_side(formed):
     s = Sprite()
     noise_fill(s, [(34, 26, 52, 255), (44, 34, 66, 255), (56, 44, 82, 255)], 71, weights=[2, 3, 1])
@@ -1618,7 +1649,7 @@ ITEMS = {
     "clockwork_core": clockwork_core, "phage_heart": phage_heart,
     "chrono_helmet": chrono_helmet, "chrono_chestplate": chrono_chestplate, "chrono_leggings": chrono_leggings, "chrono_boots": chrono_boots,
     "chronite_plate": chronite_plate, "time_core_fragment": time_core_fragment, "chronik": chronik_item, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
-    "chronos_watch": chronos_watch, "heart_of_time": heart_of_time,
+    "chronos_watch": chronos_watch, "heart_of_time": heart_of_time, "time_loop": time_loop, "infinity_time_cell": infinity_time_cell,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},

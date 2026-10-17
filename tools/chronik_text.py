@@ -163,6 +163,20 @@ CHAPTERS = {
         "Your inventory follows the world, and spent Chronon never returns. The timeline shows how far the world remembers; a ghost path shows where you have been.\n\n"
         "Every use brings mastery: longer stops, larger radii, deeper rewinds and lower costs. From \"Time Walker\" on, the watch affects the whole world.",
     ),
+    "endgame": (
+        "Schleife und Unendlichkeit",
+        "Zwei Dinge fehlen noch zur vollen Herrschaft über die Zeit.\n\n"
+        "• Die Zeitschleife: Trägst du sie und stirbst, spult die Welt um dich herum 10 Sekunden zurück, und du mit ihr. Das kostet 100k Chronon, danach braucht sie 30 Minuten. "
+        "Ein Totem in der Hand hat Vorrang, und gegen /kill hilft nichts.\n\n"
+        "• Die Unendlichkeits-Zeitzelle fasst eine Million Chronon. Riesig, aber nicht unendlich.\n\n"
+        "Gut zu wissen: An der Uhrmacher-Werkbank geht das Chronon der Zutaten ins Ergebnis über, und eingebaute Module bekommst du zurück.",
+        "Loop and Infinity",
+        "Two things remain for full mastery over time.\n\n"
+        "• The Time Loop: if you die while carrying it, the world around you rewinds 10 seconds, and you with it. It costs 100k chronon, then it needs 30 minutes. "
+        "A totem in your hand takes precedence, and nothing helps against /kill.\n\n"
+        "• The Infinity Time Cell holds a million chronon. Huge, but not infinite.\n\n"
+        "Good to know: at the Clockmaker's Bench the chronon of the ingredients passes into the result, and installed modules are returned to you.",
+    ),
     "future": (
         "Was noch kommt",
         "Die Chronos-Uhr gehört dir, doch die Zeit hat noch Türen.\n\n"
@@ -226,4 +240,8 @@ ADVANCEMENTS = [
      "Ich bin du", "Besiege Paradox, dein eigenes Echo", "I Am You", "Defeat Paradox, your own echo"),
     ("chronos", "paradox", "timemod:chronos_watch", "challenge", ("item", "timemod:chronos_watch"),
      "Herr der Zeit", "Baue die Chronos-Uhr", "Lord of Time", "Build the Chronos Watch"),
+    ("loop", "chronos", "timemod:time_loop", "challenge", ("impossible", None),
+     "Nicht heute", "Lass dich von der Zeitschleife vor dem Tod bewahren", "Not Today", "Let the Time Loop save you from death"),
+    ("infinity", "chronos", "timemod:infinity_time_cell", "goal", ("item", "timemod:infinity_time_cell"),
+     "Fast unendlich", "Stelle die Unendlichkeits-Zeitzelle her", "Almost Infinite", "Make the Infinity Time Cell"),
 ]

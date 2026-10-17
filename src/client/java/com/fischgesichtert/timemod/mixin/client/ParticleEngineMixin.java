@@ -19,6 +19,9 @@ import org.spongepowered.asm.mixin.injection.At;
 /** Partikel laufen im Tempo ihrer Zone: Funken rasen, Rauch schwebt, im Stopp hängt alles in der Luft. */
 @Mixin(ParticleEngine.class)
 public abstract class ParticleEngineMixin {
+    @Unique
+    private static final int REWIND_PARTICLE_STEPS = 4;
+
     @Shadow
     protected ClientLevel level;
 
@@ -44,6 +47,14 @@ public abstract class ParticleEngineMixin {
         if (zone == null) {
             render.timemod$setRenderTime(1.0F, 0.0F);
             original.call(self, particle);
+            return;
+        }
+        if (zone.isRewind()) {
+            // Was zurückgespult wird, hat es nie gegeben: Partikel vergehen rasch, statt hängen zu bleiben
+            render.timemod$setRenderTime(1.0F, 0.0F);
+            for (int i = 0; i < REWIND_PARTICLE_STEPS && particle.isAlive(); i++) {
+                original.call(self, particle);
+            }
             return;
         }
         render.timemod$setRenderTime((float) engine.effectiveFactor(zone), (float) zone.phase());

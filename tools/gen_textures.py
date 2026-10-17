@@ -1021,6 +1021,72 @@ def armor_layer(layer):
 
 
 # ------------------------------------------------------------------------------------------
+# Strukturen: Boss-Altäre, Zeitkern-Fragment
+# ------------------------------------------------------------------------------------------
+
+BLACKSTONE = [(24, 20, 26, 255), (36, 30, 40, 255), (50, 42, 54, 255)]
+SCULK = [(8, 30, 40, 255), (14, 52, 64, 255), (40, 140, 150, 255)]
+
+
+def time_core_fragment():
+    s = Sprite()
+    shard = [(4, 3), (11, 2), (13, 8), (8, 14), (3, 9)]
+    for y in range(16):
+        for x in range(16):
+            if inside(shard, x + 0.5, y + 0.5):
+                d = math.hypot(x - 8, y - 7)
+                s.set(x, y, GLOW[2] if d < 2 else (GLOW[1] if d < 3.5 else CHRON[2] if (x + y) % 3 else CHRON[1]))
+    for (x0, y0), (x1, y1) in zip(shard, shard[1:] + shard[:1]):
+        s.line(x0, y0, x1, y1, BRASS[2])
+    s.set(8, 7, (255, 255, 255, 255))
+    s.outline()
+    return s
+
+
+def altar_side(kind):
+    s = Sprite()
+    if kind == "clockmaker":
+        noise_fill(s, BLACKSTONE, 101, weights=[2, 3, 1])
+        s.rect(0, 0, 15, 1, BRASS[3])
+        s.rect(0, 14, 15, 15, BRASS[1])
+        gear(s, 7.5, 8, 4.2, BRASS, teeth=8, hole=1.4)
+        s.set(7, 8, GLOW[2])
+    else:
+        noise_fill(s, DEEP, 103, weights=[2, 3, 2, 1])
+        for y in range(16):
+            for x in range(16):
+                if (x * 7 + y * 3) % 11 == 0 or (y > 10 and (x + y) % 4 == 0):
+                    s.set(x, y, SCULK[1])
+        s.rect(0, 0, 15, 1, SCULK[0])
+        s.line(7, 3, 7, 12, SCULK[2])
+        s.line(8, 3, 8, 12, CHRON[2])
+        s.set(7, 7, GLOW[2])
+    return s
+
+
+def altar_top(kind):
+    s = Sprite()
+    if kind == "clockmaker":
+        noise_fill(s, BLACKSTONE, 105)
+        clock_face(s, 7.5, 7.5, 6.0, face=[(200, 196, 180, 255), (232, 226, 210, 255)], hands=((0, -0.9), (-0.55, -0.45)), glow=OUT)
+    else:
+        noise_fill(s, SCULK[:2] + [DEEP[1]], 107, weights=[2, 2, 1])
+        for x, y in ((3, 3), (12, 3), (3, 12), (12, 12)):
+            s.rect(x - 1, y - 1, x + 1, y + 1, (10, 10, 14, 255))
+            s.set(x, y, CHRON[1])
+        s.disc(7.5, 7.5, 2.4, (10, 10, 14, 255))
+        s.disc(7.5, 7.5, 1.3, MAGENTA[1])
+        s.set(7, 7, GLOW[2])
+    return s
+
+
+def altar_bottom(kind):
+    s = Sprite()
+    noise_fill(s, BLACKSTONE if kind == "clockmaker" else DEEP, 109)
+    return s
+
+
+# ------------------------------------------------------------------------------------------
 # Oberfläche
 # ------------------------------------------------------------------------------------------
 
@@ -1170,7 +1236,7 @@ ITEMS = {
     "pocket_time_cell": pocket_time_cell, "chronite_time_cell": chronite_time_cell,
     "clockwork_core": clockwork_core, "phage_heart": phage_heart,
     "chrono_helmet": chrono_helmet, "chrono_chestplate": chrono_chestplate, "chrono_leggings": chrono_leggings, "chrono_boots": chrono_boots,
-    "chronite_plate": chronite_plate, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
+    "chronite_plate": chronite_plate, "time_core_fragment": time_core_fragment, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
@@ -1192,6 +1258,8 @@ BLOCKS = {
     "chrono_pillar_side": pillar_side, "chrono_pillar_top": pillar_top, "chrono_pillar_core": pillar_core,
     "lifetime_extractor_side": extractor_side, "lifetime_extractor_top": lambda: extractor_top(False),
     "lifetime_extractor_top_active": lambda: extractor_top(True), "lifetime_extractor_bottom": extractor_bottom,
+    **{f"{k}_altar_{part}": (lambda k=k, f=f: f(k)) for k in ("clockmaker", "phage")
+       for part, f in (("side", altar_side), ("top", altar_top), ("bottom", altar_bottom))},
 }
 
 

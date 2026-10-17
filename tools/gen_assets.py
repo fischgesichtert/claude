@@ -66,6 +66,8 @@ ITEMS = [
      "Das tickende Herz des Uhrmachers. Es schlägt noch.", "The ticking heart of the Clockmaker. It still beats."),
     ("phage_heart", "generated", "Phagenherz", "Phage Heart",
      "Hat unzählige Sekunden gefressen – und gibt sie nur widerwillig her.", "It devoured countless seconds – and gives them back only grudgingly."),
+    ("time_core_fragment", "generated", "Zeitkern-Fragment", "Time Core Fragment",
+     "Ein Splitter aus dem Herzen der Zeit. Vier davon wecken etwas in den Chrono-Ruinen.", "A shard from the heart of time. Four of them wake something in the Chrono Ruins."),
     ("chronite_plate", "generated", "Chronit-Platte", "Chronite Plate",
      "Gepresstes Chronit mit Netherit-Kern – Rohstoff der Chrono-Rüstung.", "Pressed chronite around a netherite core – base of Chrono armor."),
     ("chrono_upgrade_template", "generated", "Schmiedevorlage", "Smithing Template", None, None),
@@ -122,6 +124,8 @@ BLOCKS = {
     "temporal_workbench": ("Temporal-Werkbank", "Temporal Workbench"),
     "chrono_pillar": ("Chrono-Säule", "Chrono Pillar"),
     "lifetime_extractor": ("Lebenszeit-Extraktor", "Lifetime Extractor"),
+    "clockmaker_altar": ("Uhrwerk-Altar", "Clockwork Altar"),
+    "phage_altar": ("Phagen-Altar", "Phage Altar"),
 }
 
 LANG_EXTRA = {
@@ -184,6 +188,15 @@ LANG_EXTRA = {
         "message.timemod.extractor.status": "Extraktor: %s / %s Chronon",
         "death.attack.timemod.old_age": "%1$s ist an Altersschwäche gestorben",
         "death.attack.timemod.old_age.player": "%1$s ist an Altersschwäche gestorben, während %2$s zusah",
+        "message.timemod.altar.clockmaker": "Der Altar ruht. Ein Uhrwerk könnte ihn wecken …",
+        "message.timemod.altar.phage": "Vier leere Sockel. Es fehlen Zeitkern-Fragmente …",
+        "item.timemod.workshop_map": "Karte zur Zeitlosen Werkstatt",
+        "book.timemod.astronomer.title": "Notizen des Astronomen",
+        "book.timemod.astronomer.page1": "Seit Jahren beobachte ich den Himmel. Doch nicht immer ist es der Himmel von heute. Manchmal leuchten Sterne, die längst erloschen sind – oder solche, die erst noch entstehen werden.",
+        "book.timemod.astronomer.page2": "Tief unter der Erde, wo der Wächter schläft, hat jemand die Zeit selbst angezapft. Die Ruinen dort summen noch. Vier Splitter, sagt man, wecken ihren Hunger.",
+        "book.timemod.astronomer.page3": "Der Uhrmacher baute sich eine Werkstatt ohne Tür. Er wollte nie wieder gestört werden. Doch sein Werk tickt noch – und wer ihm ein Uhrwerk bringt, bekommt eine Antwort.",
+        "book.timemod.astronomer.page4": "Es gibt Tore: Ringe aus Chronit, die sich drehen, bis das Jahr nachgibt. Ich sah Wälder, die es noch nicht gibt, Städte aus Glas – und Echsen, so groß wie Türme.",
+        "book.timemod.astronomer.page5": "Wenn du dies liest: Zieh deine Uhr auf. Und traue nie einer Zeit, die zu still ist.",
     },
     "en_us": {
         "itemGroup.timemod.time": "TIME",
@@ -244,6 +257,15 @@ LANG_EXTRA = {
         "message.timemod.extractor.status": "Extractor: %s / %s Chronon",
         "death.attack.timemod.old_age": "%1$s died of old age",
         "death.attack.timemod.old_age.player": "%1$s died of old age while %2$s watched",
+        "message.timemod.altar.clockmaker": "The altar rests. A clockwork might wake it …",
+        "message.timemod.altar.phage": "Four empty sockets. Time core fragments are missing …",
+        "item.timemod.workshop_map": "Map to the Timeless Workshop",
+        "book.timemod.astronomer.title": "The Astronomer's Notes",
+        "book.timemod.astronomer.page1": "For years I have watched the sky. But it is not always today's sky. Sometimes stars shine that died long ago – or ones that are yet to be born.",
+        "book.timemod.astronomer.page2": "Deep below, where the Warden sleeps, someone tapped into time itself. The ruins still hum. Four shards, they say, wake its hunger.",
+        "book.timemod.astronomer.page3": "The Clockmaker built himself a workshop without a door. He never wanted to be disturbed again. Yet his work still ticks – bring it a clockwork, and it will answer.",
+        "book.timemod.astronomer.page4": "There are gates: rings of chronite that turn until the year gives way. I saw forests that do not exist yet, cities of glass – and lizards as tall as towers.",
+        "book.timemod.astronomer.page5": "If you read this: wind your watch. And never trust a time that is too quiet.",
     },
 }
 
@@ -400,6 +422,19 @@ def block_models():
                     "north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}}},
             ],
         })
+    for altar in ("clockmaker_altar", "phage_altar"):
+        sides = {"north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}}
+        write(ASSETS / f"models/block/{altar}.json", {
+            "parent": "minecraft:block/block",
+            "textures": {"particle": t(f"block/{altar}_side"), "side": t(f"block/{altar}_side"), "top": t(f"block/{altar}_top"),
+                         "bottom": t(f"block/{altar}_bottom")},
+            "elements": [
+                {"from": [1, 0, 1], "to": [15, 4, 15], "faces": {"down": {"texture": "#bottom"}, "up": {"texture": "#bottom"}, **sides}},
+                {"from": [3, 4, 3], "to": [13, 12, 13], "faces": sides},
+                {"from": [2, 12, 2], "to": [14, 14, 14], "faces": {"down": {"texture": "#bottom"}, "up": {"texture": "#top"}, **sides}},
+            ],
+        })
+        simple_state(altar)
     write(ASSETS / "blockstates/lifetime_extractor.json", {"variants": {
         "active=false": {"model": t("block/lifetime_extractor")},
         "active=true": {"model": t("block/lifetime_extractor_active")},
@@ -424,7 +459,73 @@ def self_drop(name):
 SILK = {"condition": "minecraft:match_tool", "predicate": {"enchantments": [{"enchantment": "minecraft:silk_touch", "levels": {"min": 1}}]}}
 
 
+def chest_loot(name, pools):
+    write(DATA / f"{NS}/loot_tables/chests/{name}.json", {"type": "minecraft:chest", "pools": pools})
+
+
+def entry(item, weight=1, lo=1, hi=1, extra=None):
+    e = {"type": "minecraft:item", "name": item, "weight": weight}
+    functions = []
+    if lo != 1 or hi != 1:
+        functions.append({"function": "minecraft:set_count", "count": {"type": "minecraft:uniform", "min": lo, "max": hi}})
+    functions.extend(extra or [])
+    if functions:
+        e["functions"] = functions
+    return e
+
+
+def workshop_map(weight):
+    return {"type": "minecraft:item", "name": "minecraft:map", "weight": weight, "functions": [
+        {"function": "minecraft:exploration_map", "destination": t("on_workshop_maps"), "decoration": "target_x",
+         "zoom": 2, "search_radius": 64, "skip_existing_chunks": False},
+        {"function": "minecraft:set_name", "name": {"translate": "item.timemod.workshop_map", "italic": False}},
+    ]}
+
+
+def structure_loot():
+    chest_loot("clock_tower", [
+        {"rolls": {"type": "minecraft:uniform", "min": 4, "max": 7}, "entries": [
+            entry(t("brass_ingot"), 10, 1, 4), entry(t("brass_nugget"), 12, 3, 9), entry(t("brass_gear"), 6, 1, 3),
+            entry(t("mainspring"), 3), entry(t("balance_wheel"), 3), entry(t("time_sand"), 6, 2, 6), entry("minecraft:iron_ingot", 6, 1, 3),
+            entry("minecraft:bread", 6, 1, 3), entry("minecraft:clock", 2), entry(t("chronite_seed"), 1), entry("minecraft:string", 5, 2, 5),
+        ]},
+    ])
+    chest_loot("clock_tower_top", [
+        {"rolls": 1, "entries": [workshop_map(1)]},
+        {"rolls": {"type": "minecraft:uniform", "min": 2, "max": 4}, "entries": [
+            entry(t("clockwork"), 5), entry(t("pocket_watch"), 2), entry(t("brass_block"), 2), entry(t("time_dust"), 6, 1, 4),
+            entry(t("brass_gear"), 8, 2, 4), entry("minecraft:golden_apple", 1), entry("minecraft:amethyst_shard", 5, 1, 4),
+        ]},
+    ])
+    chest_loot("observatory", [
+        {"rolls": 1, "entries": [entry("minecraft:spyglass", 3), workshop_map(1), entry("minecraft:compass", 2)]},
+        {"rolls": {"type": "minecraft:uniform", "min": 3, "max": 6}, "entries": [
+            entry(t("chronite_crystal"), 5, 1, 3), entry("minecraft:ender_pearl", 5, 1, 2), entry(t("time_dust"), 8, 2, 5),
+            entry("minecraft:book", 8, 1, 3), entry("minecraft:paper", 8, 2, 6), entry("minecraft:amethyst_shard", 6, 2, 5),
+            entry("minecraft:lapis_lazuli", 6, 3, 8), entry(t("raw_chronite"), 4, 1, 3), entry("minecraft:diamond", 1),
+        ]},
+    ])
+    chest_loot("chrono_ruins", [
+        {"rolls": 1, "entries": [entry(t("time_core_fragment"), 1, 2, 2)]},
+        {"rolls": {"type": "minecraft:uniform", "min": 3, "max": 6}, "entries": [
+            entry("minecraft:echo_shard", 6, 1, 3), entry(t("chronite_crystal"), 8, 2, 5), entry(t("raw_chronite"), 8, 2, 6),
+            entry("minecraft:sculk_catalyst", 3), entry("minecraft:diamond", 3, 1, 2), entry("minecraft:netherite_scrap", 1),
+            entry(t("blank_module"), 2), entry(t("time_dust"), 6, 2, 6),
+            entry("minecraft:book", 3, 1, 1, [{"function": "minecraft:enchant_randomly", "enchantments": ["minecraft:swift_sneak"]}]),
+        ]},
+    ])
+    chest_loot("timeless_workshop", [
+        {"rolls": {"type": "minecraft:uniform", "min": 4, "max": 7}, "entries": [
+            entry(t("clockwork"), 8, 1, 2), entry(t("brass_block"), 4, 1, 2), entry(t("chronite_crystal"), 6, 1, 4),
+            entry(t("mainspring"), 6, 1, 3), entry(t("balance_wheel"), 6, 1, 3), entry(t("pocket_time_cell"), 3),
+            entry(t("time_dust"), 8, 2, 6), entry(t("blank_module"), 2), entry("minecraft:diamond", 2, 1, 2),
+            entry("minecraft:netherite_scrap", 1),
+        ]},
+    ])
+
+
 def loot_tables():
+    structure_loot()
     for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar",
                  "lifetime_extractor"):
         self_drop(name)
@@ -615,6 +716,29 @@ def worldgen():
     placed("chronite_ore", "chronite_ore", 2, {"absolute": -64}, {"absolute": -12})
     placed("chronite_ore_deep_dark", "chronite_ore", 6, {"absolute": -64}, {"absolute": -20})
     placed("time_sand", "time_sand", 3, {"absolute": 40}, {"absolute": 62})
+
+    # Strukturen der Stufe III
+    def structure(name, step, adaptation, biomes, spacing, separation, salt):
+        write(base / f"structure/{name}.json", {
+            "type": t(name), "biomes": f"#{NS}:has_structure/{name}", "spawn_overrides": {},
+            "step": step, "terrain_adaptation": adaptation,
+        })
+        write(base / f"structure_set/{name}.json", {
+            "structures": [{"structure": t(name), "weight": 1}],
+            "placement": {"type": "minecraft:random_spread", "salt": salt, "spacing": spacing, "separation": separation},
+        })
+        write(DATA / f"{NS}/tags/worldgen/biome/has_structure/{name}.json", {"replace": False, "values": biomes})
+    structure("clock_tower", "surface_structures", "beard_thin",
+              ["minecraft:plains", "minecraft:sunflower_plains", "minecraft:meadow", "minecraft:forest", "minecraft:birch_forest",
+               "minecraft:flower_forest", "minecraft:old_growth_birch_forest", "minecraft:savanna", "minecraft:taiga",
+               "minecraft:dark_forest", "minecraft:cherry_grove"], 36, 12, 1017001)
+    structure("observatory", "surface_structures", "beard_thin",
+              ["minecraft:jagged_peaks", "minecraft:frozen_peaks", "minecraft:stony_peaks", "minecraft:snowy_slopes", "minecraft:grove",
+               "minecraft:meadow", "minecraft:cherry_grove", "minecraft:windswept_hills", "minecraft:windswept_gravelly_hills",
+               "minecraft:windswept_forest"], 24, 8, 1017002)
+    structure("chrono_ruins", "underground_structures", "none", ["minecraft:deep_dark"], 20, 6, 1017003)
+    structure("timeless_workshop", "underground_structures", "none", ["#minecraft:is_overworld"], 40, 14, 1017004)
+    write(DATA / f"{NS}/tags/worldgen/structure/on_workshop_maps.json", {"replace": False, "values": [t("timeless_workshop")]})
 
 
 # ------------------------------------------------------------------------------------------

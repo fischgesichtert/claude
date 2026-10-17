@@ -1,0 +1,7 @@
+{
+  "type": "timemod:observatory",
+  "biomes": "#timemod:has_structure/observatory",
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin"
+}

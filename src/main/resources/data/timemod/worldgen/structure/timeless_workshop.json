@@ -1,0 +1,7 @@
+{
+  "type": "timemod:timeless_workshop",
+  "biomes": "#timemod:has_structure/timeless_workshop",
+  "spawn_overrides": {},
+  "step": "underground_structures",
+  "terrain_adaptation": "none"
+}

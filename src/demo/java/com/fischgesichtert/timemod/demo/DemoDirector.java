@@ -50,6 +50,7 @@ public class DemoDirector implements ClientModInitializer {
         switch (System.getProperty("timemod.demo.script", "time")) {
             case "items" -> ItemShowcase.write(this);
             case "tier3" -> TierThreeShowcase.write(this);
+            case "structures" -> StructureShowcase.write(this);
             default -> DemoScript.write(this);
         }
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
@@ -149,7 +150,7 @@ public class DemoDirector implements ClientModInitializer {
         String name = "TimeDemo-" + System.currentTimeMillis();
         LOGGER.info("Erzeuge Demo-Welt {}", name);
         LevelSettings settings = new LevelSettings(name, GameType.CREATIVE, false, Difficulty.PEACEFUL, true, new GameRules(), WorldDataConfiguration.DEFAULT);
-        mc.createWorldOpenFlows().createFreshLevel(name, settings, new WorldOptions(20261017L, false, false), WorldPresets::createNormalWorldDimensions);
+        mc.createWorldOpenFlows().createFreshLevel(name, settings, new WorldOptions(20261017L, true, false), WorldPresets::createNormalWorldDimensions);
     }
 
     private static void runCommand(String command) {

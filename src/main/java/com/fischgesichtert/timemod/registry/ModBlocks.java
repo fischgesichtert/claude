@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.registry;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.block.BossAltarBlock;
 import com.fischgesichtert.timemod.block.ChronoPillarBlock;
 import com.fischgesichtert.timemod.block.ChroniteOreBlock;
 import com.fischgesichtert.timemod.block.ChroniteSproutBlock;
@@ -48,6 +49,12 @@ public final class ModBlocks {
     public static final Block LIFETIME_EXTRACTOR = register("lifetime_extractor", new LifetimeExtractorBlock(BlockBehaviour.Properties.of()
         .mapColor(MapColor.COLOR_BLACK).requiresCorrectToolForDrops().strength(6.0F, 12.0F).sound(SoundType.NETHERITE_BLOCK)
         .lightLevel(s -> s.getValue(LifetimeExtractorBlock.ACTIVE) ? 9 : 2).noOcclusion()));
+    public static final Block CLOCKMAKER_ALTAR = register("clockmaker_altar", new BossAltarBlock("message.timemod.altar.clockmaker",
+        BlockBehaviour.Properties.of().mapColor(MapColor.GOLD).strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.NETHERITE_BLOCK)
+            .lightLevel(s -> 10).noOcclusion()));
+    public static final Block PHAGE_ALTAR = register("phage_altar", new BossAltarBlock("message.timemod.altar.phage",
+        BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.SCULK_CATALYST)
+            .lightLevel(s -> 8).noOcclusion()));
 
     private ModBlocks() {
     }

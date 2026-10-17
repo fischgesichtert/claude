@@ -1,0 +1,7 @@
+{
+  "type": "timemod:chrono_ruins",
+  "biomes": "#timemod:has_structure/chrono_ruins",
+  "spawn_overrides": {},
+  "step": "underground_structures",
+  "terrain_adaptation": "none"
+}

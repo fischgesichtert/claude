@@ -73,6 +73,9 @@ public final class ModItems {
     public static final Item CHRONO_PILLAR = block(ModBlocks.CHRONO_PILLAR);
     public static final Item CLOCKWORK_CORE = register("clockwork_core", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE).fireResistant()));
     public static final Item PHAGE_HEART = register("phage_heart", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE).fireResistant()));
+    public static final Item TIME_CORE_FRAGMENT = register("time_core_fragment", new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
+    public static final Item CLOCKMAKER_ALTAR = block(ModBlocks.CLOCKMAKER_ALTAR);
+    public static final Item PHAGE_ALTAR = block(ModBlocks.PHAGE_ALTAR);
     public static final Item CHRONITE_PLATE = register("chronite_plate", new Item(new Item.Properties().fireResistant()));
     public static final Item CHRONO_UPGRADE_TEMPLATE = register("chrono_upgrade_template", ChronoUpgradeTemplate.create());
     public static final Item CHRONO_HELMET = register("chrono_helmet", new ChronoArmorItem(ArmorItem.Type.HELMET, new Item.Properties().rarity(Rarity.EPIC)));

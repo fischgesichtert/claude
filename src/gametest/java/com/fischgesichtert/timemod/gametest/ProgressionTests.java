@@ -36,6 +36,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -292,6 +293,9 @@ public class ProgressionTests implements FabricGameTest {
         for (Block block : BuiltInRegistries.BLOCK) {
             ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
             if (!id.getNamespace().equals("timemod")) {
+                continue;
+            }
+            if (block.getLootTable().equals(BuiltInLootTables.EMPTY)) {
                 continue;
             }
             LootTable table = server.getLootData().getLootTable(block.getLootTable());

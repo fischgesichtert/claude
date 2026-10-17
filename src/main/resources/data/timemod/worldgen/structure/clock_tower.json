@@ -1,0 +1,7 @@
+{
+  "type": "timemod:clock_tower",
+  "biomes": "#timemod:has_structure/clock_tower",
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "terrain_adaptation": "beard_thin"
+}

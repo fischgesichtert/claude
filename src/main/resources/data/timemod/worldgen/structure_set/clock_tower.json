@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "timemod:clock_tower",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1017001,
+    "spacing": 36,
+    "separation": 12
+  }
+}

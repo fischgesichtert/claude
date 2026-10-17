@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.client;
 
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.client.chronos.ChronosClient;
+import com.fischgesichtert.timemod.client.era.EraEffects;
 import com.fischgesichtert.timemod.client.effect.RewindEffect;
 import com.fischgesichtert.timemod.client.effect.TimeStopEffect;
 import com.fischgesichtert.timemod.client.effect.ZoneSight;
@@ -90,6 +91,7 @@ public class TimeModClient implements ClientModInitializer {
         WorldRenderEvents.BEFORE_DEBUG_RENDER.register(ZoneSight::render);
         ClientAging.init();
         ChronosClient.init();
+        EraEffects.init();
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.LIFETIME_EXTRACTOR, RenderType.cutout());
         ClientTickEvents.END_CLIENT_TICK.register(client -> ClientClock.tick());
         ClientTickEvents.END_CLIENT_TICK.register(this::tickAmbience);

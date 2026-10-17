@@ -5,17 +5,21 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "BlockEntityMixin",
+    "ChunkGeneratorStructureStateMixin",
     "ChunkSerializerMixin",
     "EntityMixin",
     "LevelChunkMixin",
     "LevelMixin",
     "LevelTicksMixin",
     "LivingEntityMixin",
+    "NaturalSpawnerMixin",
+    "RegistryDataLoaderMixin",
     "ServerChunkCacheMixin",
     "ServerEntityMixin",
     "ServerGamePacketListenerImplMixin",
     "ServerLevelMixin",
-    "ServerPlayerMixin"
+    "ServerPlayerMixin",
+    "WorldDimensionsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

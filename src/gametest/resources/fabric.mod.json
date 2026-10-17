@@ -15,9 +15,13 @@
       "com.fischgesichtert.timemod.gametest.ArmorAndExtractorTests",
       "com.fischgesichtert.timemod.gametest.StructureTests",
       "com.fischgesichtert.timemod.gametest.BossTests",
-      "com.fischgesichtert.timemod.gametest.ChronosTests"
+      "com.fischgesichtert.timemod.gametest.ChronosTests",
+      "com.fischgesichtert.timemod.gametest.EraTests"
     ]
   },
+  "mixins": [
+    "timemod-gametest.mixins.json"
+  ],
   "depends": {
     "timemod": "*",
     "fabric-gametest-api-v1": "*"

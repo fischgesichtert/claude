@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.mixin;
 
+import com.fischgesichtert.timemod.era.Eras;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeLevel;
@@ -7,9 +8,11 @@ import com.fischgesichtert.timemod.time.TimeTicks;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.ticks.LevelTicks;
@@ -36,6 +40,16 @@ public abstract class ServerLevelMixin {
     @Unique
     private ServerTimeEngine timemod$engine() {
         return (ServerTimeEngine) ((TimeLevel) this).timemod$getEngine();
+    }
+
+    /**
+     * Die Epochen-Welten berechnen ihre Festungs-Positionen erst beim ersten Besuch – sonst rechnet der
+     * Serverstart für jede der 33 Epochen 128 Biomsuchen und braucht eine halbe Minute länger.
+     */
+    @WrapWithCondition(method = "<init>", at = @At(value = "INVOKE",
+        target = "Lnet/minecraft/world/level/chunk/ChunkGeneratorStructureState;ensureStructuresGenerated()V"))
+    private boolean timemod$lazyEraStructures(ChunkGeneratorStructureState state, @Local(argsOnly = true) ResourceKey<Level> dimension) {
+        return !Eras.isEraDimension(dimension.location());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))

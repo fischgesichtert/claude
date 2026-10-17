@@ -56,6 +56,7 @@ public class DemoDirector implements ClientModInitializer {
             case "chronos" -> ChronosShowcase.write(this);
             case "paradox" -> ParadoxShowcase.write(this);
             case "loop" -> LoopShowcase.write(this);
+            case "eras" -> EraShowcase.write(this);
             default -> DemoScript.write(this);
         }
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);

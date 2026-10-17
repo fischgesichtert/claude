@@ -1,0 +1,41 @@
+{
+  "type": "timemod:era_steppe",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "timemod:pleistocene",
+    "biome_source": {
+      "type": "timemod:remapped",
+      "base": {
+        "type": "minecraft:multi_noise",
+        "preset": "minecraft:overworld"
+      },
+      "remap": {
+        "minecraft:plains": "timemod:mammoth_steppe",
+        "minecraft:sunflower_plains": "timemod:mammoth_steppe",
+        "minecraft:meadow": "timemod:mammoth_steppe",
+        "minecraft:savanna": "timemod:mammoth_steppe",
+        "minecraft:savanna_plateau": "timemod:mammoth_steppe",
+        "minecraft:windswept_savanna": "timemod:mammoth_steppe",
+        "minecraft:desert": "timemod:mammoth_steppe",
+        "minecraft:badlands": "timemod:mammoth_steppe",
+        "minecraft:eroded_badlands": "timemod:mammoth_steppe",
+        "minecraft:wooded_badlands": "minecraft:taiga",
+        "minecraft:swamp": "timemod:mammoth_steppe",
+        "minecraft:mangrove_swamp": "timemod:mammoth_steppe",
+        "minecraft:forest": "minecraft:taiga",
+        "minecraft:flower_forest": "minecraft:taiga",
+        "minecraft:birch_forest": "minecraft:taiga",
+        "minecraft:dark_forest": "minecraft:old_growth_spruce_taiga",
+        "minecraft:old_growth_birch_forest": "minecraft:taiga",
+        "minecraft:jungle": "minecraft:old_growth_spruce_taiga",
+        "minecraft:sparse_jungle": "minecraft:taiga",
+        "minecraft:bamboo_jungle": "minecraft:taiga",
+        "minecraft:cherry_grove": "minecraft:grove",
+        "minecraft:mushroom_fields": "timemod:mammoth_steppe",
+        "minecraft:warm_ocean": "minecraft:cold_ocean",
+        "minecraft:lukewarm_ocean": "minecraft:cold_ocean",
+        "minecraft:deep_lukewarm_ocean": "minecraft:deep_cold_ocean"
+      }
+    }
+  }
+}

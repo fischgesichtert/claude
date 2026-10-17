@@ -1,0 +1,55 @@
+{
+  "type": "timemod:era_ice",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "timemod:pleistocene",
+    "biome_source": {
+      "type": "timemod:remapped",
+      "base": {
+        "type": "minecraft:multi_noise",
+        "preset": "minecraft:overworld"
+      },
+      "remap": {
+        "minecraft:plains": "minecraft:snowy_plains",
+        "minecraft:sunflower_plains": "minecraft:ice_spikes",
+        "minecraft:meadow": "minecraft:snowy_plains",
+        "minecraft:forest": "minecraft:snowy_taiga",
+        "minecraft:flower_forest": "minecraft:snowy_taiga",
+        "minecraft:birch_forest": "minecraft:snowy_taiga",
+        "minecraft:dark_forest": "minecraft:snowy_taiga",
+        "minecraft:old_growth_birch_forest": "minecraft:snowy_taiga",
+        "minecraft:taiga": "minecraft:snowy_taiga",
+        "minecraft:old_growth_pine_taiga": "minecraft:snowy_taiga",
+        "minecraft:old_growth_spruce_taiga": "minecraft:snowy_taiga",
+        "minecraft:swamp": "minecraft:snowy_plains",
+        "minecraft:mangrove_swamp": "minecraft:snowy_plains",
+        "minecraft:savanna": "minecraft:snowy_plains",
+        "minecraft:savanna_plateau": "minecraft:snowy_slopes",
+        "minecraft:windswept_savanna": "minecraft:snowy_slopes",
+        "minecraft:desert": "minecraft:snowy_plains",
+        "minecraft:badlands": "minecraft:snowy_slopes",
+        "minecraft:eroded_badlands": "minecraft:snowy_slopes",
+        "minecraft:wooded_badlands": "minecraft:snowy_taiga",
+        "minecraft:jungle": "minecraft:taiga",
+        "minecraft:sparse_jungle": "minecraft:taiga",
+        "minecraft:bamboo_jungle": "minecraft:taiga",
+        "minecraft:windswept_hills": "minecraft:snowy_slopes",
+        "minecraft:windswept_gravelly_hills": "minecraft:snowy_slopes",
+        "minecraft:windswept_forest": "minecraft:snowy_taiga",
+        "minecraft:cherry_grove": "minecraft:grove",
+        "minecraft:stony_peaks": "minecraft:frozen_peaks",
+        "minecraft:jagged_peaks": "minecraft:frozen_peaks",
+        "minecraft:river": "minecraft:frozen_river",
+        "minecraft:beach": "minecraft:snowy_beach",
+        "minecraft:ocean": "minecraft:frozen_ocean",
+        "minecraft:cold_ocean": "minecraft:frozen_ocean",
+        "minecraft:lukewarm_ocean": "minecraft:cold_ocean",
+        "minecraft:warm_ocean": "minecraft:cold_ocean",
+        "minecraft:deep_ocean": "minecraft:deep_frozen_ocean",
+        "minecraft:deep_cold_ocean": "minecraft:deep_frozen_ocean",
+        "minecraft:deep_lukewarm_ocean": "minecraft:deep_cold_ocean",
+        "minecraft:mushroom_fields": "minecraft:snowy_plains"
+      }
+    }
+  }
+}

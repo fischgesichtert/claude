@@ -1,0 +1,23 @@
+{
+  "type": "timemod:era_past",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "minecraft:overworld",
+    "biome_source": {
+      "type": "timemod:remapped",
+      "base": {
+        "type": "minecraft:multi_noise",
+        "preset": "minecraft:overworld"
+      },
+      "remap": {
+        "minecraft:plains": "minecraft:forest",
+        "minecraft:meadow": "minecraft:forest",
+        "minecraft:sunflower_plains": "minecraft:flower_forest",
+        "minecraft:birch_forest": "minecraft:old_growth_birch_forest",
+        "minecraft:taiga": "minecraft:old_growth_spruce_taiga",
+        "minecraft:forest": "minecraft:dark_forest",
+        "minecraft:windswept_forest": "minecraft:old_growth_pine_taiga"
+      }
+    }
+  }
+}

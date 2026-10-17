@@ -2001,6 +2001,79 @@ def anchor_stem():
     return s
 
 
+def capsule_side(stage):
+    """Zeitkapsel: Messingzylinder mit Chronit-Fenster; versiegelt mit leuchtenden Nähten; gefunden: Grünspan und Rost."""
+    s = Sprite()
+    if stage == "ancient":
+        ramp = [(70, 86, 60, 255), (96, 120, 80, 255), (120, 104, 70, 255), (140, 120, 80, 255)]
+        noise_fill(s, ramp, 121, weights=[2, 3, 2, 1])
+    else:
+        noise_fill(s, [BRASS[1], BRASS[2], BRASS[2]], 121)
+    for x in range(16):
+        s.set(x, 1, BRASS[3] if stage != "ancient" else (150, 130, 90, 255))
+        s.set(x, 14, BRASS[0] if stage != "ancient" else (60, 70, 50, 255))
+    s.rect(5, 4, 10, 11, ARM[1] if stage != "ancient" else (50, 46, 40, 255))
+    s.rect(6, 5, 9, 10, CHRON[1] if stage != "ancient" else (90, 70, 50, 255))
+    if stage == "sealed":
+        for y in range(16):
+            s.set(4, y, GLOW[1])
+            s.set(11, y, GLOW[1])
+        s.rect(6, 5, 9, 10, GLOW[1])
+        s.set(7, 7, GLOW[2])
+    elif stage == "open":
+        s.set(7, 6, GLOW[2])
+        s.set(8, 9, GLOW[1])
+    else:
+        for x, y in ((2, 5), (3, 9), (12, 3), (13, 11), (1, 12)):
+            s.set(x, y, (60, 110, 90, 255))
+    return s
+
+
+def capsule_top(stage):
+    s = Sprite()
+    base = BRASS if stage != "ancient" else [(60, 70, 50, 255), (90, 100, 70, 255), (110, 115, 80, 255), (130, 125, 90, 255), (150, 140, 100, 255)]
+    noise_fill(s, [base[1], base[2]], 123, weights=[1, 2])
+    s.ring(7.5, 7.5, 4.5, 6.2, base[3])
+    s.disc(7.5, 7.5, 3.0, GLOW[1] if stage == "sealed" else (base[0] if stage == "ancient" else CHRON[1]))
+    if stage != "ancient":
+        s.line(7, 4, 7, 7, GLOW[2] if stage == "sealed" else BRASS[4])
+        s.line(7, 7, 10, 7, GLOW[2] if stage == "sealed" else BRASS[4])
+    return s
+
+
+def time_seed():
+    """Zeitsaat: ein Samenkorn in einer winzigen Sanduhr aus Licht."""
+    s = Sprite()
+    for y in range(3, 14):
+        w = int(round(abs(y - 8.5) * 0.7)) + 1
+        for x in range(8 - w, 8 + w):
+            s.set(x, y, (150, 225, 245, 110))
+    s.rect(4, 2, 11, 2, BRASS[3])
+    s.rect(4, 14, 11, 14, BRASS[2])
+    for x, y in ((7, 8), (8, 8), (7, 9), (8, 9), (8, 7)):
+        s.set(x, y, (120, 200, 90, 255))
+    s.set(7, 7, (200, 255, 150, 255))
+    for x, y in ((7, 11), (8, 12), (6, 12), (9, 12), (7, 12)):
+        s.set(x, y, SAND[1])
+    s.set(8, 5, GLOW[2])
+    s.outline()
+    return s
+
+
+def rusty_iron():
+    """Rostklumpen: Eisen nach Jahrhunderten."""
+    s = Sprite()
+    blob = [(3, 7), (6, 3), (11, 4), (13, 9), (10, 13), (4, 12)]
+    rust = [(110, 50, 20, 255), (150, 72, 30, 255), (180, 98, 44, 255), (120, 110, 104, 255)]
+    rnd = random.Random(125)
+    for y in range(16):
+        for x in range(16):
+            if inside(blob, x + 0.5, y + 0.5):
+                s.set(x, y, rust[rnd.choice([0, 1, 1, 2, 3])])
+    s.outline()
+    return s
+
+
 def chronos_console_gui():
     """Konsolen-Oberfläche 176×208 mit Anzeige, Knopf-Sprites und Speicherbalken."""
     img = Image.new("RGBA", (256, 256), T)
@@ -2138,7 +2211,7 @@ ITEMS = {
     "chronite_plate": chronite_plate, "time_core_fragment": time_core_fragment, "chronik": chronik_item, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
     "chronos_watch": chronos_watch, "heart_of_time": heart_of_time, "time_loop": time_loop, "infinity_time_cell": infinity_time_cell,
     "fossil_fragment": fossil_fragment, "era_focus": era_focus, "mesozoic_focus": mesozoic_focus, "amber": lambda: amber_item(False),
-    "insect_amber": lambda: amber_item(True), "dna_sample": dna_sample,
+    "insect_amber": lambda: amber_item(True), "dna_sample": dna_sample, "time_seed": time_seed, "rusty_iron": rusty_iron,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
@@ -2165,6 +2238,8 @@ BLOCKS = {
     "chronos_gate_frame": gate_frame, "chronos_console_top": console_top, "chronos_console_side": console_side,
     "chronos_console_bottom": console_bottom, "amber_ore": amber_ore, "amber_block": amber_block,
     "home_anchor_side": anchor_side, "home_anchor_top": anchor_top, "home_anchor_stem": anchor_stem,
+    **{f"time_capsule_{part}_{stage}": (lambda f=f, stage=stage: f(stage)) for stage in ("open", "sealed", "ancient")
+       for part, f in (("side", capsule_side), ("top", capsule_top))},
 }
 
 

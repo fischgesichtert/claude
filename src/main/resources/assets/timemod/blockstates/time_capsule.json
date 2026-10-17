@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "stage=open": {
+      "model": "timemod:block/time_capsule_open"
+    },
+    "stage=sealed": {
+      "model": "timemod:block/time_capsule_sealed"
+    },
+    "stage=ancient": {
+      "model": "timemod:block/time_capsule_ancient"
+    }
+  }
+}

@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.gate;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.era.Eras;
+import com.fischgesichtert.timemod.registry.ModAdvancements;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -16,7 +17,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.Advancement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
@@ -221,19 +221,12 @@ public final class TimeStream {
         }
         player.connection.send(new ClientboundSetTitleTextPacket(journey.target().yearText().copy().withStyle(ChatFormatting.GOLD)));
         player.connection.send(new ClientboundSetSubtitleTextPacket(journey.target().title().copy().withStyle(ChatFormatting.GRAY)));
-        award(player, "first_journey");
+        ModAdvancements.award(player, "first_journey");
         if (journey.target().age() == Era.Age.MESOZOIC) {
-            award(player, "mesozoic");
+            ModAdvancements.award(player, "mesozoic");
         }
         if (journey.target().years() >= 1000) {
-            award(player, "far_future");
-        }
-    }
-
-    private static void award(ServerPlayer player, String id) {
-        Advancement advancement = player.server.getAdvancements().getAdvancement(TimeMod.id(id));
-        if (advancement != null) {
-            player.getAdvancements().award(advancement, "done");
+            ModAdvancements.award(player, "far_future");
         }
     }
 

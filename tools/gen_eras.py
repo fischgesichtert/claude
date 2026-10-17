@@ -544,12 +544,17 @@ TITLES = {
 }
 
 
+def span_text(years, separator, singular, plural):
+    """Die Zeitspanne ohne Vorzeichen, etwa „1.000 Jahre“ (für „… später“, „… alt“)."""
+    digits = f"{abs(years):,}".replace(",", separator)
+    return f"{digits} {singular if abs(years) == 1 else plural}"
+
+
 def year_text(years, separator, singular, plural):
     if years == 0:
         return None
-    digits = f"{abs(years):,}".replace(",", separator)
     sign = "+" if years > 0 else "−"
-    return f"{sign}{digits} {singular if abs(years) == 1 else plural}"
+    return sign + span_text(years, separator, singular, plural)
 
 
 def lang():
@@ -561,6 +566,8 @@ def lang():
             key = "present" if years == 0 else era_id(years)
             data[f"era.{NS}.{key}"] = names[idx]
             data[f"era.{NS}.{key}.year"] = year_text(years, separator, singular, plural) or today
+            if years != 0:
+                data[f"era.{NS}.{key}.span"] = span_text(years, separator, singular, plural)
         write(path, dict(sorted(data.items())))
 
 

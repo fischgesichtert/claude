@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:time_capsule"
+    },
+    "title": {
+      "translate": "advancements.timemod.capsule.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.capsule.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "timemod:first_journey"
+}

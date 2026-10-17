@@ -4,6 +4,8 @@ import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.menu.ChronosConsoleMenu;
 import com.fischgesichtert.timemod.menu.ClockmakerMenu;
 import com.fischgesichtert.timemod.menu.TemporalWorkbenchMenu;
+import com.fischgesichtert.timemod.menu.TimeCapsuleMenu;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlags;
@@ -16,6 +18,8 @@ public final class ModMenus {
         new MenuType<>(TemporalWorkbenchMenu::new, FeatureFlags.VANILLA_SET));
     public static final MenuType<ChronosConsoleMenu> CHRONOS_CONSOLE = Registry.register(BuiltInRegistries.MENU, TimeMod.id("chronos_console"),
         new MenuType<>(ChronosConsoleMenu::new, FeatureFlags.VANILLA_SET));
+    public static final MenuType<TimeCapsuleMenu> TIME_CAPSULE = Registry.register(BuiltInRegistries.MENU, TimeMod.id("time_capsule"),
+        new ExtendedScreenHandlerType<>(TimeCapsuleMenu::new));
 
     private ModMenus() {
     }

@@ -6,6 +6,7 @@ import com.fischgesichtert.timemod.block.ChronoPillarBlock;
 import com.fischgesichtert.timemod.block.ChronosConsoleBlock;
 import com.fischgesichtert.timemod.block.ChronosPortalBlock;
 import com.fischgesichtert.timemod.block.HomeAnchorBlock;
+import com.fischgesichtert.timemod.block.TimeCapsuleBlock;
 import com.fischgesichtert.timemod.block.ChroniteOreBlock;
 import com.fischgesichtert.timemod.block.ChroniteSproutBlock;
 import com.fischgesichtert.timemod.block.ClockmakerBenchBlock;
@@ -76,6 +77,8 @@ public final class ModBlocks {
         .noOcclusion()));
     public static final Block HOME_ANCHOR = register("home_anchor", new HomeAnchorBlock(BlockBehaviour.Properties.of()
         .mapColor(MapColor.COLOR_LIGHT_BLUE).strength(2.0F, 1200.0F).sound(SoundType.AMETHYST).lightLevel(s -> 10).noOcclusion().noLootTable()));
+    public static final Block TIME_CAPSULE = register("time_capsule", new TimeCapsuleBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.GOLD).requiresCorrectToolForDrops().strength(3.0F, 1200.0F).sound(SoundType.METAL).lightLevel(s -> 3).noOcclusion()));
     // Bernstein aus dem Pleistozän (Brennstein: er brennt wirklich)
     public static final Block AMBER_ORE = register("amber_ore", new DropExperienceBlock(BlockBehaviour.Properties.of()
         .mapColor(MapColor.STONE).instrument(NoteBlockInstrument.BASEDRUM).requiresCorrectToolForDrops().strength(3.0F, 3.0F), UniformInt.of(1, 4)));

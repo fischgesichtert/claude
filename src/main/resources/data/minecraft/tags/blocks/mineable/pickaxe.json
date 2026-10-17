@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "timemod:home_anchor"
+    "timemod:home_anchor",
+    "timemod:time_capsule"
   ]
 }

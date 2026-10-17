@@ -137,6 +137,11 @@ ITEMS = [
      "Seit einer Million Jahren gefangen. Vielleicht steckt noch Blut in ihr …", "Trapped for a million years. Maybe there is still blood inside …"),
     ("dna_sample", "generated", "DNS-Probe", "DNA Sample",
      "Urzeitliches Erbgut aus dem Bauch einer Mücke.", "Prehistoric genes from a mosquito's belly."),
+    ("time_seed", "generated", "Zeitsaat", "Time Seed",
+     "Auf einen Setzling in der Vergangenheit: In der Gegenwart steht dort ein Baum, so alt wie die Reise weit war.",
+     "On a sapling in the past: in the present a tree stands there, as old as the journey was far."),
+    ("rusty_iron", "generated", "Rostklumpen", "Rusty Iron",
+     "Eisen nach Jahrhunderten. Im Schmelzofen bleibt etwas davon übrig.", "Iron after centuries. A blast furnace saves a little of it."),
     ("mesozoic_focus", "generated", "Fokus: Mesozoikum", "Focus: Mesozoic",
      "Richtet die Chronos-Konsole auf das Zeitalter der Dinosaurier aus.", "Aims the Chronos Console at the age of the dinosaurs."),
 ]
@@ -292,6 +297,7 @@ BLOCKS = {
     "chronos_console": ("Chronos-Konsole", "Chronos Console"),
     "chronos_portal": ("Zeitportal", "Time Portal"),
     "home_anchor": ("Heimkehr-Anker", "Homeward Anchor"),
+    "time_capsule": ("Zeitkapsel", "Time Capsule"),
     "amber_ore": ("Bernsteinerz", "Amber Ore"),
     "amber_block": ("Bernsteinblock", "Block of Amber"),
 }
@@ -343,6 +349,20 @@ LANG_GATE = {
         "block.timemod.home_anchor.desc": "Führt zurück vor das Tor, durch das du kamst. Selbst gebaut: in die Gegenwart.",
         "commands.timemod.travel.done": "Reise ins Jahr %s",
         "commands.timemod.travel.unknown": "Kein Jahr der Zeitmaschine: %s",
+        "container.timemod.time_capsule": "Zeitkapsel",
+        "container.timemod.time_capsule.aged": "Zeitkapsel · %s alt",
+        "container.timemod.time_capsule.hint": "Schleichen + Benutzen versiegelt sie",
+        "container.timemod.time_capsule.hint_here": "Versiegeln lässt sie sich nur in der Vergangenheit",
+        "container.timemod.time_capsule.sender": "Versiegelt von %s",
+        "container.timemod.time_capsule.years": "%s Jahre",
+        "block.timemod.time_capsule.desc": "Befülle sie in der Vergangenheit und versiegle sie (Schleichen + Benutzen) – in der Gegenwart wartet sie auf dich.",
+        "message.timemod.capsule.sealed": "Versiegelt – ihr Inhalt reist durch die Jahre",
+        "message.timemod.capsule.not_past": "Nur in der Vergangenheit kann eine Kapsel die Jahre bis heute überdauern",
+        "message.timemod.capsule.empty": "Die Kapsel ist leer",
+        "message.timemod.capsule.sent": "Versiegelt! In der Gegenwart liegt sie nun an dieser Stelle",
+        "message.timemod.seed.not_past": "Zeitsaat wirkt nur in der Vergangenheit",
+        "message.timemod.seed.already": "Dieser Setzling trägt schon Zeitsaat",
+        "message.timemod.seed.planted": "Die Zeitsaat keimt – %s später steht hier ein mächtiger Baum",
     },
     "en_us": {
         "container.timemod.chronos_console": "Chronos Console",
@@ -389,6 +409,20 @@ LANG_GATE = {
         "block.timemod.home_anchor.desc": "Leads back to the gate you came through. Self-built: to the present.",
         "commands.timemod.travel.done": "Journey to the year %s",
         "commands.timemod.travel.unknown": "Not a year of the time machine: %s",
+        "container.timemod.time_capsule": "Time Capsule",
+        "container.timemod.time_capsule.aged": "Time capsule · %s old",
+        "container.timemod.time_capsule.hint": "Sneak + use to seal it",
+        "container.timemod.time_capsule.hint_here": "It can only be sealed in the past",
+        "container.timemod.time_capsule.sender": "Sealed by %s",
+        "container.timemod.time_capsule.years": "%s years",
+        "block.timemod.time_capsule.desc": "Fill it in the past and seal it (sneak + use) – it waits for you in the present.",
+        "message.timemod.capsule.sealed": "Sealed – its contents travel through the years",
+        "message.timemod.capsule.not_past": "Only in the past can a capsule outlast the years until today",
+        "message.timemod.capsule.empty": "The capsule is empty",
+        "message.timemod.capsule.sent": "Sealed! In the present it now lies at this very spot",
+        "message.timemod.seed.not_past": "Time seeds only work in the past",
+        "message.timemod.seed.already": "This sapling already carries a time seed",
+        "message.timemod.seed.planted": "The time seed sprouts – %s later a mighty tree stands here",
     },
 }
 
@@ -580,7 +614,7 @@ def item_models():
         parent = "minecraft:item/handheld" if kind == "handheld" else "minecraft:item/generated"
         write(ASSETS / f"models/item/{item_id}.json", {"parent": parent, "textures": {"layer0": t(f"item/{item_id}")}})
     for block_id in BLOCKS:
-        if block_id in ("chronite_sprout", "chronos_portal"):
+        if block_id in ("chronite_sprout", "chronos_portal", "time_capsule"):
             continue
         write(ASSETS / f"models/item/{block_id}.json", {"parent": t(f"block/{block_id}")})
 
@@ -641,6 +675,19 @@ def gate_models():
         ],
     })
     simple_state("home_anchor")
+    # Zeitkapsel: offen, versiegelt (in der Vergangenheit), gefunden (in der Gegenwart)
+    for stage in ("open", "sealed", "ancient"):
+        write(ASSETS / f"models/block/time_capsule_{stage}.json", {
+            "parent": "minecraft:block/block",
+            "textures": {"particle": t(f"block/time_capsule_side_{stage}"), "side": t(f"block/time_capsule_side_{stage}"),
+                         "top": t(f"block/time_capsule_top_{stage}")},
+            "elements": [{"from": [2, 0, 2], "to": [14, 14, 14], "faces": {
+                "down": {"texture": "#top"}, "up": {"texture": "#top"}, "north": {"texture": "#side"}, "south": {"texture": "#side"},
+                "east": {"texture": "#side"}, "west": {"texture": "#side"}}}],
+        })
+    write(ASSETS / "blockstates/time_capsule.json", {"variants": {
+        f"stage={stage}": {"model": t(f"block/time_capsule_{stage}")} for stage in ("open", "sealed", "ancient")}})
+    write(ASSETS / "models/item/time_capsule.json", {"parent": t("block/time_capsule_open")})
     write(ASSETS / "blockstates/chronos_portal.json", {"variants": {
         "axis=x": {"model": t("block/chronos_portal_ns")},
         "axis=z": {"model": t("block/chronos_portal_ew")},
@@ -919,7 +966,7 @@ def loot_tables():
     citadel_loot()
     boss_loot()
     for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar",
-                 "lifetime_extractor", "chronos_gate_frame", "amber_block"):
+                 "lifetime_extractor", "chronos_gate_frame", "amber_block", "time_capsule"):
         self_drop(name)
     # Die Konsole behält ihren Chronon-Speicher
     write(DATA / f"{NS}/loot_tables/blocks/chronos_console.json", {
@@ -1085,6 +1132,13 @@ def recipes():
                                                        "H": t("heart_of_time"), "B": t("brass_block")}, t("chronos_console"))
     clockmaker("home_anchor", ["CEC", "GKG", "BBB"], {"C": t("chronite_crystal"), "E": "minecraft:ender_pearl", "G": t("time_glass"),
                                                    "K": t("clockwork"), "B": t("brass_ingot")}, t("home_anchor"))
+    clockmaker("time_capsule", ["BGB", "CXC", "BBB"], {"B": t("brass_ingot"), "G": t("time_glass"), "C": t("chronite_crystal"),
+                                                    "X": "minecraft:chest"}, t("time_capsule"))
+    clockmaker("time_seed", [" D ", "CSC", " M "], {"D": t("time_dust"), "C": t("chronite_crystal"), "S": "minecraft:wheat_seeds",
+                                                 "M": "minecraft:bone_meal"}, t("time_seed"), 2)
+    write(DATA / f"{NS}/recipes/iron_nugget_from_rusty_iron.json", {
+        "type": "minecraft:blasting", "category": "misc", "ingredient": {"item": t("rusty_iron")},
+        "result": "minecraft:iron_nugget", "experience": 0.1, "cookingtime": 100})
     clockmaker("era_focus", ["FBF", "CTC", "FBF"], {"F": t("fossil_fragment"), "B": t("brass_ingot"), "C": t("chronite_crystal"),
                                                  "T": t("time_glass")}, t("era_focus"))
     clockmaker("mesozoic_focus", ["DXD", "XFX", "DXD"], {"D": t("dna_sample"), "X": t("chronite_crystal"), "F": t("era_focus")}, t("mesozoic_focus"))
@@ -1117,7 +1171,22 @@ def tags():
     tag("minecraft/tags/blocks/needs_stone_tool.json", [t("amber_ore")])
     # Hält der Wither, hält das Tor: Rahmen, Konsole und Portal lassen sich nicht wegsprengen
     tag("minecraft/tags/blocks/wither_immune.json", [t("chronos_portal")])
-    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("home_anchor")])
+    tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("home_anchor"), t("time_capsule")])
+    # Was die Zeit übersteht und was sie schnell frisst (Datenpakete können beides erweitern)
+    tag(f"{NS}/tags/items/timeless.json", ["minecraft:" + n for n in (
+        "diamond", "diamond_block", "emerald", "emerald_block", "gold_ingot", "gold_nugget", "gold_block", "raw_gold", "raw_gold_block",
+        "netherite_ingot", "netherite_block", "netherite_scrap", "ancient_debris", "amethyst_shard", "amethyst_block", "quartz",
+        "nether_star", "echo_shard", "heart_of_the_sea", "nautilus_shell", "prismarine_shard", "prismarine_crystals", "obsidian",
+        "crying_obsidian", "golden_apple", "enchanted_golden_apple", "totem_of_undying", "trident")] + [t(n) for n in (
+        "chronite_crystal", "heart_of_time", "clockwork_core", "phage_heart", "time_core_fragment", "amber", "insect_amber", "amber_block",
+        "fossil_fragment", "dna_sample", "era_focus", "mesozoic_focus", "pocket_time_cell", "chronite_time_cell", "paradox_time_cell",
+        "infinity_time_cell", "chronik")])
+    tag(f"{NS}/tags/items/organic.json", ["minecraft:" + n for n in (
+        "leather", "paper", "string", "feather", "stick", "wheat", "wheat_seeds", "sugar", "rabbit_hide", "map", "filled_map", "name_tag",
+        "painting", "item_frame", "glow_item_frame", "armor_stand", "bowl", "bow", "crossbow", "fishing_rod", "shield", "torch",
+        "wooden_sword", "wooden_pickaxe", "wooden_axe", "wooden_shovel", "wooden_hoe", "leather_helmet", "leather_chestplate",
+        "leather_leggings", "leather_boots", "saddle", "lead", "book", "writable_book", "written_book", "bamboo", "sugar_cane",
+        "cactus", "vine", "lily_pad", "hay_block", "slime_ball", "honeycomb", "ink_sac", "glow_ink_sac", "egg", "bone_meal")])
     tag("minecraft/tags/blocks/dragon_immune.json", [t("chronos_portal"), t("chronos_gate_frame")])
     tag("minecraft/tags/items/trimmable_armor.json", [t(f"chrono_{p}") for p in ("helmet", "chestplate", "leggings", "boots")])
     tag("c/tags/items/brass_ingots.json", [t("brass_ingot")])

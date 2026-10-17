@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.registry;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.block.entity.ChronosConsoleBlockEntity;
 import com.fischgesichtert.timemod.block.entity.HomeAnchorBlockEntity;
+import com.fischgesichtert.timemod.block.entity.TimeCapsuleBlockEntity;
 import com.fischgesichtert.timemod.block.entity.LifetimeExtractorBlockEntity;
 import com.fischgesichtert.timemod.block.entity.TemporalWorkbenchBlockEntity;
 import com.fischgesichtert.timemod.block.entity.TimeCondenserBlockEntity;
@@ -25,6 +26,8 @@ public final class ModBlockEntities {
         TimeMod.id("chronos_console"), FabricBlockEntityTypeBuilder.create(ChronosConsoleBlockEntity::new, ModBlocks.CHRONOS_CONSOLE).build());
     public static final BlockEntityType<HomeAnchorBlockEntity> HOME_ANCHOR = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
         TimeMod.id("home_anchor"), FabricBlockEntityTypeBuilder.create(HomeAnchorBlockEntity::new, ModBlocks.HOME_ANCHOR).build());
+    public static final BlockEntityType<TimeCapsuleBlockEntity> TIME_CAPSULE = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
+        TimeMod.id("time_capsule"), FabricBlockEntityTypeBuilder.create(TimeCapsuleBlockEntity::new, ModBlocks.TIME_CAPSULE).build());
 
     private ModBlockEntities() {
     }

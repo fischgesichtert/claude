@@ -11,6 +11,7 @@ import com.fischgesichtert.timemod.item.ChronoDebugWandItem;
 import com.fischgesichtert.timemod.item.ChronoKnifeItem;
 import com.fischgesichtert.timemod.era.Era;
 import com.fischgesichtert.timemod.item.EraFocusItem;
+import com.fischgesichtert.timemod.item.TimeSeedItem;
 import com.fischgesichtert.timemod.item.GrowthHourglassItem;
 import com.fischgesichtert.timemod.item.MomentLensItem;
 import com.fischgesichtert.timemod.item.PocketWatchItem;
@@ -135,6 +136,9 @@ public final class ModItems {
     public static final Item AMBER_BLOCK = block(ModBlocks.AMBER_BLOCK);
     public static final Item INSECT_AMBER = register("insect_amber", new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
     public static final Item DNA_SAMPLE = register("dna_sample", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON)));
+    public static final Item TIME_CAPSULE = block(ModBlocks.TIME_CAPSULE);
+    public static final Item TIME_SEED = register("time_seed", new TimeSeedItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
+    public static final Item RUSTY_IRON = register("rusty_iron", new Item(new Item.Properties()));
     public static final Item MESOZOIC_FOCUS = register("mesozoic_focus", new EraFocusItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC),
         EnumSet.of(Era.Age.STONE_AGE, Era.Age.ICE_AGE, Era.Age.CENOZOIC, Era.Age.MESOZOIC)));
 

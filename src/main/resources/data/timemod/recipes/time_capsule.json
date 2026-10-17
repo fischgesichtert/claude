@@ -1,0 +1,26 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "BGB",
+    "CXC",
+    "BBB"
+  ],
+  "key": {
+    "B": {
+      "item": "timemod:brass_ingot"
+    },
+    "G": {
+      "item": "timemod:time_glass"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "X": {
+      "item": "minecraft:chest"
+    }
+  },
+  "result": {
+    "item": "timemod:time_capsule",
+    "count": 1
+  }
+}

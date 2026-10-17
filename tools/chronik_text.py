@@ -213,6 +213,28 @@ CHAPTERS = {
         "• Focus: Mesozoic (dinosaurs): in the Pleistocene, a million years back, amber lies in the rock. "
         "Sometimes a mosquito is trapped inside. With a glass bottle it becomes a DNA sample.",
     ),
+    "letters": (
+        "Grüße an die Gegenwart",
+        "Was du in der Vergangenheit tust, bleibt dort – sonst gäbe es endlose Paradoxa. Zwei Dinge aber überdauern die Jahre absichtlich.\n\n"
+        "• Die Zeitkapsel: Befülle sie in der Vergangenheit und versiegle sie mit Schleichen + Benutzen. In der Gegenwart liegt sie an "
+        "derselben Stelle, notfalls im Erdreich vergraben. Ihr Inhalt ist gealtert: Essen ist verrottet, Eisen verrostet, Kupfer grün, "
+        "Holz, Wolle und Papier sind zerfallen, Werkzeuge abgenutzt. Diamanten bleiben Diamanten, Gold bleibt Gold. "
+        "Eine Kapsel, die die Jahre überdauert hat, schimmert leise – so findest du sie auch im hohen Gras.\n\n"
+        "• Die Zeitsaat: Streue sie in der Vergangenheit auf einen Setzling. In der Gegenwart steht dort ein Baum, so alt wie die Reise weit war – "
+        "nach tausend Jahren ein Riese mit Wurzeln wie Mauern. Was älter als zwanzigtausend Jahre ist, findest du nur noch als versteinerten Stamm, "
+        "mit Bernstein darin.\n\n"
+        "Beides weicht deinen Bauten aus: Keine Kapsel und kein Baum zerstört, was du in der Gegenwart gebaut hast.",
+        "Greetings to the Present",
+        "What you do in the past stays there – otherwise there would be endless paradoxes. But two things outlast the years on purpose.\n\n"
+        "• The Time Capsule: fill it in the past and seal it with sneak + use. In the present it lies at the same spot, buried in the ground "
+        "if need be. Its contents have aged: food has rotted, iron has rusted, copper turned green, wood, wool and paper have crumbled, "
+        "tools are worn. Diamonds stay diamonds, gold stays gold. "
+        "A capsule that has outlasted the years shimmers softly – so you can find it even in tall grass.\n\n"
+        "• The Time Seed: sprinkle it on a sapling in the past. In the present a tree stands there, as old as the journey was far – "
+        "after a thousand years a giant with roots like walls. Anything older than twenty thousand years remains only as a petrified trunk, "
+        "with amber inside.\n\n"
+        "Both avoid your buildings: no capsule and no tree destroys what you built in the present.",
+    ),
     "future": (
         "Was noch kommt",
         "Das Tor steht, doch die Epochen sind noch jung.\n\n"
@@ -292,6 +314,12 @@ ADVANCEMENTS = [
      "Durch den Zeitstrom", "Reise mit dem Chronos-Tor in ein anderes Jahr", "Through the Time Stream", "Travel to another year with the Chronos Gate"),
     ("far_future", "first_journey", "minecraft:spyglass", "challenge", ("impossible", None),
      "Ein Jahrtausend später", "Reise 1000 Jahre in die Zukunft", "A Millennium Later", "Travel 1000 years into the future"),
+    ("capsule", "first_journey", "timemod:time_capsule", "goal", ("impossible", None),
+     "Post aus der Vergangenheit", "Öffne eine Zeitkapsel, die die Jahre überdauert hat", "Mail from the Past",
+     "Open a time capsule that outlasted the years"),
+    ("time_seed", "first_journey", "timemod:time_seed", "task", ("impossible", None),
+     "Wer Bäume pflanzt", "Streue Zeitsaat auf einen Setzling in der Vergangenheit", "Seeds of Time",
+     "Sprinkle a time seed on a sapling in the past"),
     ("mesozoic", "dna", "minecraft:sniffer_egg", "challenge", ("impossible", None),
      "Willkommen im Erdmittelalter", "Reise in das Zeitalter der Dinosaurier", "Welcome to the Mesozoic", "Travel to the age of the dinosaurs"),
 ]

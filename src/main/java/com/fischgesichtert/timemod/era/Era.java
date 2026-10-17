@@ -66,4 +66,9 @@ public record Era(int years, Age age, ResourceKey<Level> level, Mood mood) {
     public Component yearText() {
         return Component.translatable("era.timemod." + id() + ".year");
     }
+
+    /** Der Abstand zur Gegenwart ohne Vorzeichen, etwa „1.000 Jahre“ (für „… später“ oder „… alt“). */
+    public Component span() {
+        return Component.translatable("era.timemod." + id() + ".span");
+    }
 }

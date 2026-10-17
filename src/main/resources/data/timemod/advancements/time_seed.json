@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:time_seed"
+    },
+    "title": {
+      "translate": "advancements.timemod.time_seed.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.time_seed.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "parent": "timemod:first_journey"
+}

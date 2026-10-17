@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -34,6 +35,8 @@ public class DemoDirector implements ClientModInitializer {
     private static final Logger LOGGER = LoggerFactory.getLogger("TIME-Demo");
 
     private final List<Step> script = new ArrayList<>();
+    /** Server-Schritte, die noch laufen: Solange einer läuft, wartet das Drehbuch (sonst eilen die Bilder voraus). */
+    private final AtomicInteger busy = new AtomicInteger();
     private int tick;
     private int cursor;
     private boolean started;
@@ -58,6 +61,7 @@ public class DemoDirector implements ClientModInitializer {
             case "loop" -> LoopShowcase.write(this);
             case "eras" -> EraShowcase.write(this);
             case "gate" -> GateShowcase.write(this);
+            case "letters" -> LetterShowcase.write(this);
             default -> DemoScript.write(this);
         }
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
@@ -86,12 +90,19 @@ public class DemoDirector implements ClientModInitializer {
         return at(() -> action.accept(Minecraft.getInstance()));
     }
 
-    /** Führt Code im integrierten Server mit dem (einzigen) Spieler aus. */
+    /** Führt Code im integrierten Server mit dem (einzigen) Spieler aus; das Drehbuch geht erst danach weiter. */
     public DemoDirector server(Consumer<ServerPlayer> action) {
         return at(() -> {
             IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
             if (server != null) {
-                server.execute(() -> server.getPlayerList().getPlayers().stream().findFirst().ifPresent(action));
+                busy.incrementAndGet();
+                server.execute(() -> {
+                    try {
+                        server.getPlayerList().getPlayers().stream().findFirst().ifPresent(action);
+                    } finally {
+                        busy.decrementAndGet();
+                    }
+                });
             }
         });
     }
@@ -143,8 +154,11 @@ public class DemoDirector implements ClientModInitializer {
             LOGGER.info("Demo startet ({} Schritte)", script.size());
             mc.options.hideGui = true;
         }
+        if (busy.get() > 0) {
+            return;
+        }
         tick++;
-        while (cursor < script.size() && script.get(cursor).atTick() <= tick) {
+        while (cursor < script.size() && script.get(cursor).atTick() <= tick && busy.get() == 0) {
             script.get(cursor++).action().run();
         }
         if (recording != null && tick % recordEvery == 0) {

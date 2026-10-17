@@ -27,6 +27,7 @@ import com.fischgesichtert.timemod.client.screen.ChronikScreen;
 import com.fischgesichtert.timemod.client.screen.ClockmakerScreen;
 import com.fischgesichtert.timemod.item.ChronikItem;
 import com.fischgesichtert.timemod.client.screen.TemporalWorkbenchScreen;
+import com.fischgesichtert.timemod.client.screen.TimeCapsuleScreen;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModEntities;
@@ -64,6 +65,7 @@ public class TimeModClient implements ClientModInitializer {
         ChronikItem.opener = () -> Minecraft.getInstance().setScreen(new ChronikScreen());
         MenuScreens.register(ModMenus.TEMPORAL_WORKBENCH, TemporalWorkbenchScreen::new);
         MenuScreens.register(ModMenus.CHRONOS_CONSOLE, ChronosConsoleScreen::new);
+        MenuScreens.register(ModMenus.TIME_CAPSULE, TimeCapsuleScreen::new);
         BlockEntityRenderers.register(ModBlockEntities.CHRONOS_CONSOLE, ChronosConsoleRenderer::new);
         BlockEntityRenderers.register(ModBlockEntities.HOME_ANCHOR, HomeAnchorRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.HOME_ANCHOR, RenderType.cutout());

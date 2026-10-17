@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "timemod:chrono_upgrade_template"
+  },
+  "base": {
+    "item": "minecraft:netherite_leggings"
+  },
+  "addition": {
+    "item": "timemod:chronite_plate"
+  },
+  "result": {
+    "item": "timemod:chrono_leggings"
+  }
+}

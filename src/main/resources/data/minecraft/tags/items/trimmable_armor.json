@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "timemod:chrono_helmet",
+    "timemod:chrono_chestplate",
+    "timemod:chrono_leggings",
+    "timemod:chrono_boots"
+  ]
+}

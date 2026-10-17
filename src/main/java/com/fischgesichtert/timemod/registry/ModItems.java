@@ -1,6 +1,8 @@
 package com.fischgesichtert.timemod.registry;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.armor.ChronoArmorItem;
+import com.fischgesichtert.timemod.armor.ChronoUpgradeTemplate;
 import com.fischgesichtert.timemod.energy.ChrononCellItem;
 import com.fischgesichtert.timemod.item.BrakeSpringItem;
 import com.fischgesichtert.timemod.item.ChronoDebugWandItem;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -70,6 +73,14 @@ public final class ModItems {
     public static final Item CHRONO_PILLAR = block(ModBlocks.CHRONO_PILLAR);
     public static final Item CLOCKWORK_CORE = register("clockwork_core", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE).fireResistant()));
     public static final Item PHAGE_HEART = register("phage_heart", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE).fireResistant()));
+    public static final Item CHRONITE_PLATE = register("chronite_plate", new Item(new Item.Properties().fireResistant()));
+    public static final Item CHRONO_UPGRADE_TEMPLATE = register("chrono_upgrade_template", ChronoUpgradeTemplate.create());
+    public static final Item CHRONO_HELMET = register("chrono_helmet", new ChronoArmorItem(ArmorItem.Type.HELMET, new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item CHRONO_CHESTPLATE = register("chrono_chestplate", new ChronoArmorItem(ArmorItem.Type.CHESTPLATE, new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item CHRONO_LEGGINGS = register("chrono_leggings", new ChronoArmorItem(ArmorItem.Type.LEGGINGS, new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item CHRONO_BOOTS = register("chrono_boots", new ChronoArmorItem(ArmorItem.Type.BOOTS, new Item.Properties().rarity(Rarity.EPIC)));
+    public static final Item PARADOX_TIME_CELL = register("paradox_time_cell", new ChrononCellItem(100_000, new Item.Properties().stacksTo(1).rarity(Rarity.RARE).fireResistant()));
+    public static final Item LIFETIME_EXTRACTOR = block(ModBlocks.LIFETIME_EXTRACTOR);
     public static final Item BLANK_MODULE = module("blank_module", ModuleItem.Kind.BLANK, 0);
     public static final Item FILTER_ANIMALS = module("filter_animals", ModuleItem.Kind.FILTER, TimeFilter.ANIMALS);
     public static final Item FILTER_MONSTERS = module("filter_monsters", ModuleItem.Kind.FILTER, TimeFilter.MONSTERS);

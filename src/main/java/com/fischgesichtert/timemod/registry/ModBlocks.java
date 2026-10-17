@@ -5,6 +5,7 @@ import com.fischgesichtert.timemod.block.ChronoPillarBlock;
 import com.fischgesichtert.timemod.block.ChroniteOreBlock;
 import com.fischgesichtert.timemod.block.ChroniteSproutBlock;
 import com.fischgesichtert.timemod.block.ClockmakerBenchBlock;
+import com.fischgesichtert.timemod.block.LifetimeExtractorBlock;
 import com.fischgesichtert.timemod.block.TemporalWorkbenchBlock;
 import com.fischgesichtert.timemod.block.TimeCondenserBlock;
 import com.fischgesichtert.timemod.block.TimeFieldProjectorBlock;
@@ -44,6 +45,9 @@ public final class ModBlocks {
         .lightLevel(s -> s.getValue(TemporalWorkbenchBlock.FORMED) ? 13 : 4).noOcclusion()));
     public static final Block CHRONO_PILLAR = register("chrono_pillar", new ChronoPillarBlock(BlockBehaviour.Properties.of()
         .mapColor(MapColor.GOLD).requiresCorrectToolForDrops().strength(5.0F, 9.0F).sound(SoundType.METAL).lightLevel(s -> 7).noOcclusion()));
+    public static final Block LIFETIME_EXTRACTOR = register("lifetime_extractor", new LifetimeExtractorBlock(BlockBehaviour.Properties.of()
+        .mapColor(MapColor.COLOR_BLACK).requiresCorrectToolForDrops().strength(6.0F, 12.0F).sound(SoundType.NETHERITE_BLOCK)
+        .lightLevel(s -> s.getValue(LifetimeExtractorBlock.ACTIVE) ? 9 : 2).noOcclusion()));
 
     private ModBlocks() {
     }

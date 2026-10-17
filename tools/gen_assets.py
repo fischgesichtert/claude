@@ -66,6 +66,14 @@ ITEMS = [
      "Das tickende Herz des Uhrmachers. Es schlägt noch.", "The ticking heart of the Clockmaker. It still beats."),
     ("phage_heart", "generated", "Phagenherz", "Phage Heart",
      "Hat unzählige Sekunden gefressen – und gibt sie nur widerwillig her.", "It devoured countless seconds – and gives them back only grudgingly."),
+    ("chronite_plate", "generated", "Chronit-Platte", "Chronite Plate",
+     "Gepresstes Chronit mit Netherit-Kern – Rohstoff der Chrono-Rüstung.", "Pressed chronite around a netherite core – base of Chrono armor."),
+    ("chrono_upgrade_template", "generated", "Schmiedevorlage", "Smithing Template", None, None),
+    ("chrono_helmet", "generated", "Chrono-Helm", "Chrono Helmet", None, None),
+    ("chrono_chestplate", "generated", "Chrono-Brustpanzer", "Chrono Chestplate", None, None),
+    ("chrono_leggings", "generated", "Chrono-Beinschutz", "Chrono Leggings", None, None),
+    ("chrono_boots", "generated", "Chrono-Stiefel", "Chrono Boots", None, None),
+    ("paradox_time_cell", "generated", "Paradox-Zeitzelle", "Paradox Time Cell", None, None),
     ("blank_module", "generated", "Leeres Modul", "Blank Module",
      "Grundplatine für Filter und Verstärker.", "Base board for filters and amplifiers."),
     ("filter_animals", "generated", "Filtermodul: Tiere", "Filter Module: Animals",
@@ -113,6 +121,7 @@ BLOCKS = {
     "time_field_projector": ("Zeitfeld-Projektor", "Time Field Projector"),
     "temporal_workbench": ("Temporal-Werkbank", "Temporal Workbench"),
     "chrono_pillar": ("Chrono-Säule", "Chrono Pillar"),
+    "lifetime_extractor": ("Lebenszeit-Extraktor", "Lifetime Extractor"),
 }
 
 LANG_EXTRA = {
@@ -164,6 +173,17 @@ LANG_EXTRA = {
         "filter.timemod.machines": "Maschinen",
         "filter.timemod.daytime": "Tag/Nacht",
         "filter.timemod.weather": "Wetter",
+        "item.timemod.chrono_upgrade_template.applies_to": "Netherit-Rüstung",
+        "item.timemod.chrono_upgrade_template.ingredients": "Chronit-Platte",
+        "item.timemod.chrono_upgrade_template.title": "Chrono-Aufwertung",
+        "item.timemod.chrono_upgrade_template.base_slot": "Netherit-Rüstungsteil einlegen",
+        "item.timemod.chrono_upgrade_template.additions_slot": "Chronit-Platte einlegen",
+        "tooltip.timemod.chrono_armor.piece": "Jedes Teil spart 5 % Chronon",
+        "tooltip.timemod.chrono_armor.helmet": "Zeitsicht: zeigt alle Zeitzonen",
+        "tooltip.timemod.chrono_armor.set": "Volles Set: Du bewegst dich in fremdem Zeitstopp",
+        "message.timemod.extractor.status": "Extraktor: %s / %s Chronon",
+        "death.attack.timemod.old_age": "%1$s ist an Altersschwäche gestorben",
+        "death.attack.timemod.old_age.player": "%1$s ist an Altersschwäche gestorben, während %2$s zusah",
     },
     "en_us": {
         "itemGroup.timemod.time": "TIME",
@@ -213,6 +233,17 @@ LANG_EXTRA = {
         "filter.timemod.machines": "machines",
         "filter.timemod.daytime": "day/night",
         "filter.timemod.weather": "weather",
+        "item.timemod.chrono_upgrade_template.applies_to": "Netherite Armor",
+        "item.timemod.chrono_upgrade_template.ingredients": "Chronite Plate",
+        "item.timemod.chrono_upgrade_template.title": "Chrono Upgrade",
+        "item.timemod.chrono_upgrade_template.base_slot": "Add netherite armor",
+        "item.timemod.chrono_upgrade_template.additions_slot": "Add Chronite Plate",
+        "tooltip.timemod.chrono_armor.piece": "Each piece saves 5% Chronon",
+        "tooltip.timemod.chrono_armor.helmet": "Time sight: shows all time zones",
+        "tooltip.timemod.chrono_armor.set": "Full set: you move in others' stopped time",
+        "message.timemod.extractor.status": "Extractor: %s / %s Chronon",
+        "death.attack.timemod.old_age": "%1$s died of old age",
+        "death.attack.timemod.old_age.player": "%1$s died of old age while %2$s watched",
     },
 }
 
@@ -354,6 +385,26 @@ def block_models():
     })
     simple_state("chrono_pillar")
 
+    # Lebenszeit-Extraktor: Sockel mit Sanduhr-Rune, die beim Entziehen leuchtet
+    for suffix in ("", "_active"):
+        write(ASSETS / f"models/block/lifetime_extractor{suffix}.json", {
+            "parent": "minecraft:block/block",
+            "textures": {"particle": t("block/lifetime_extractor_side"), "side": t("block/lifetime_extractor_side"),
+                         "top": t(f"block/lifetime_extractor_top{suffix}"), "bottom": t("block/lifetime_extractor_bottom")},
+            "elements": [
+                {"from": [0, 0, 0], "to": [16, 6, 16], "faces": {
+                    "down": {"texture": "#bottom", "cullface": "down"}, "up": {"texture": "#bottom"},
+                    "north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}}},
+                {"from": [2, 6, 2], "to": [14, 10, 14], "faces": {
+                    "up": {"texture": "#top"},
+                    "north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}}},
+            ],
+        })
+    write(ASSETS / "blockstates/lifetime_extractor.json", {"variants": {
+        "active=false": {"model": t("block/lifetime_extractor")},
+        "active=true": {"model": t("block/lifetime_extractor_active")},
+    }})
+
 
 # ------------------------------------------------------------------------------------------
 # Beutetabellen
@@ -374,7 +425,8 @@ SILK = {"condition": "minecraft:match_tool", "predicate": {"enchantments": [{"en
 
 
 def loot_tables():
-    for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar"):
+    for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar",
+                 "lifetime_extractor"):
         self_drop(name)
     write(DATA / f"{NS}/loot_tables/blocks/time_glass.json", {
         "type": "minecraft:block",
@@ -485,6 +537,23 @@ def recipes():
                        ("filter_vehicles", "minecraft:minecart"), ("filter_growth", "minecraft:bone_meal"), ("filter_environment", "minecraft:snowball"),
                        ("filter_fluids", "minecraft:bucket"), ("filter_redstone", "minecraft:repeater"), ("filter_machines", "minecraft:furnace")):
         clockmaker(name, [" X ", "XMX", " X "], {"X": item, "M": t("blank_module")}, t(name))
+    clockmaker("chronite_plate", ["CCC", "CNC", "CCC"], {"C": t("chronite_crystal"), "N": "minecraft:netherite_scrap"}, t("chronite_plate"))
+    clockmaker("chrono_upgrade_template", ["DCD", "DHD", "DDD"], {"D": "minecraft:diamond", "C": t("chronite_crystal"), "H": t("phage_heart")},
+               t("chrono_upgrade_template"), 2)
+    clockmaker("chrono_upgrade_template_copy", ["DTD", "DCD", "DDD"], {"D": "minecraft:diamond", "T": t("chrono_upgrade_template"),
+                                                                       "C": t("chronite_crystal")}, t("chrono_upgrade_template"), 2)
+    for piece in ("helmet", "chestplate", "leggings", "boots"):
+        write(DATA / f"{NS}/recipes/chrono_{piece}_smithing.json", {
+            "type": "minecraft:smithing_transform",
+            "template": {"item": t("chrono_upgrade_template")},
+            "base": {"item": f"minecraft:netherite_{piece}"},
+            "addition": {"item": t("chronite_plate")},
+            "result": {"item": t(f"chrono_{piece}")},
+        })
+    clockmaker("paradox_time_cell", ["PEP", "CXC", "PEP"], {"P": t("chronite_plate"), "E": "minecraft:echo_shard", "C": t("chronite_crystal"),
+                                                            "X": t("chronite_time_cell")}, t("paradox_time_cell"))
+    clockmaker("lifetime_extractor", ["CHC", "SXS", "BBB"], {"C": t("chronite_crystal"), "H": t("phage_heart"), "S": "minecraft:soul_lantern",
+                                                             "X": t("time_condenser"), "B": "minecraft:polished_blackstone"}, t("lifetime_extractor"))
     clockmaker("radius_module", ["EDE", "DMD", "EDE"], {"E": "minecraft:ender_pearl", "D": t("time_dust"), "M": t("blank_module")}, t("radius_module"))
     clockmaker("duration_module", ["CDC", "DMD", "CDC"], {"C": "minecraft:clock", "D": t("time_dust"), "M": t("blank_module")}, t("duration_module"))
     clockmaker("strength_module", ["BDB", "DMD", "BDB"], {"B": "minecraft:blaze_powder", "D": t("time_dust"), "M": t("blank_module")}, t("strength_module"))
@@ -499,11 +568,12 @@ def tags():
     def tag(path, values):
         write(DATA / path, {"replace": False, "values": values})
     tag("minecraft/tags/blocks/mineable/pickaxe.json", [t("brass_block"), t("deepslate_chronite_ore"), t("chronite_sprout"), t("time_condenser"), t("time_field_projector"),
-                                                        t("temporal_workbench"), t("chrono_pillar")])
+                                                        t("temporal_workbench"), t("chrono_pillar"), t("lifetime_extractor")])
     tag("minecraft/tags/blocks/mineable/shovel.json", [t("time_sand")])
     tag("minecraft/tags/blocks/mineable/axe.json", [t("clockmaker_bench")])
     tag("minecraft/tags/blocks/needs_iron_tool.json", [t("brass_block"), t("time_condenser"), t("time_field_projector"), t("chrono_pillar")])
-    tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore"), t("temporal_workbench")])
+    tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore"), t("temporal_workbench"), t("lifetime_extractor")])
+    tag("minecraft/tags/items/trimmable_armor.json", [t(f"chrono_{p}") for p in ("helmet", "chestplate", "leggings", "boots")])
     tag("c/tags/items/brass_ingots.json", [t("brass_ingot")])
     tag("c/tags/items/brass_nuggets.json", [t("brass_nugget")])
     tag("c/tags/items/brass_blocks.json", [t("brass_block")])

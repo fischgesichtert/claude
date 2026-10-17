@@ -7,6 +7,7 @@
     "timemod:time_condenser",
     "timemod:time_field_projector",
     "timemod:temporal_workbench",
-    "timemod:chrono_pillar"
+    "timemod:chrono_pillar",
+    "timemod:lifetime_extractor"
   ]
 }

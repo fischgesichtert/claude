@@ -1,0 +1,29 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "CHC",
+    "SXS",
+    "BBB"
+  ],
+  "key": {
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "H": {
+      "item": "timemod:phage_heart"
+    },
+    "S": {
+      "item": "minecraft:soul_lantern"
+    },
+    "X": {
+      "item": "timemod:time_condenser"
+    },
+    "B": {
+      "item": "minecraft:polished_blackstone"
+    }
+  },
+  "result": {
+    "item": "timemod:lifetime_extractor",
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "timemod:block/lifetime_extractor"
+    },
+    "active=true": {
+      "model": "timemod:block/lifetime_extractor_active"
+    }
+  }
+}

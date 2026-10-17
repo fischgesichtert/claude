@@ -6,6 +6,7 @@
   "client": [
     "ClientLevelMixin",
     "LevelRendererMixin",
+    "LivingEntityRendererMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
     "ParticleAccessor",

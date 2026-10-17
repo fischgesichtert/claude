@@ -141,7 +141,7 @@ public class ProgressionTests implements FabricGameTest {
     }
 
     /** Chronit-Erz flackert über geplante Ticks – in einer Stopp-Zone (Moment-Linse) bleibt es stehen. */
-    @GameTest(template = ARENA, timeoutTicks = 120, setupTicks = 5)
+    @GameTest(template = ARENA, timeoutTicks = 170, setupTicks = 5)
     public void chroniteOreFreezesInStoppedTime(GameTestHelper helper) {
         BlockPos frozenPos = new BlockPos(8, 2, 8);
         BlockPos freePos = new BlockPos(14, 2, 8);
@@ -169,15 +169,18 @@ public class ProgressionTests implements FabricGameTest {
                 last[1] = b;
             }
         });
+        // Erster Wechsel kommt nach 20–79 Ticks (onPlace); die Linse hält 60 Ticks
         helper.runAtTickTime(58, () -> {
             if (flips[0] != 0) {
                 helper.fail("Das Erz unter der Moment-Linse darf nicht flackern (" + flips[0] + " Wechsel)");
             }
+        });
+        helper.runAtTickTime(82, () -> {
             if (flips[1] == 0) {
-                helper.fail("Freies Chronit-Erz muss innerhalb von 3 Sekunden flackern");
+                helper.fail("Freies Chronit-Erz muss spätestens nach 80 Ticks flackern");
             }
         });
-        helper.runAtTickTime(115, () -> {
+        helper.runAtTickTime(145, () -> {
             if (flips[0] == 0) {
                 helper.fail("Nach Ablauf der Moment-Linse muss das Erz wieder flackern");
             }

@@ -828,6 +828,199 @@ def pillar_core():
 
 
 # ------------------------------------------------------------------------------------------
+# Stufe III: Chrono-Rüstung, Paradox-Zelle, Lebenszeit-Extraktor
+# ------------------------------------------------------------------------------------------
+
+ARM = [(26, 20, 38, 255), (42, 34, 60, 255), (62, 50, 88, 255), (88, 72, 120, 255)]
+MAGENTA = [(120, 30, 110, 255), (200, 70, 190, 255), (255, 160, 240, 255)]
+
+
+def shade_poly(s, poly, ramp=ARM):
+    xs = [p[0] for p in poly]
+    ys = [p[1] for p in poly]
+    for y in range(min(ys), max(ys) + 1):
+        for x in range(min(xs), max(xs) + 1):
+            if inside(poly, x + 0.5, y + 0.5):
+                f = ((x - min(xs)) / max(1, max(xs) - min(xs)) + (y - min(ys)) / max(1, max(ys) - min(ys))) / 2
+                s.set(x, y, ramp[max(0, min(len(ramp) - 1, 3 - int(f * 3.2)))])
+
+
+def chrono_helmet():
+    s = Sprite()
+    shade_poly(s, [(3, 4), (5, 2), (11, 2), (13, 4), (13, 11), (11, 11), (11, 7), (5, 7), (5, 11), (3, 11)])
+    s.line(3, 7, 13, 7, BRASS[2])
+    s.line(5, 2, 11, 2, BRASS[3])
+    s.line(6, 8, 10, 8, GLOW[1])
+    s.set(8, 4, GLOW[2])
+    s.set(7, 4, GLOW[1])
+    s.outline()
+    return s
+
+
+def chrono_chestplate():
+    s = Sprite()
+    shade_poly(s, [(1, 2), (6, 2), (7, 4), (9, 4), (10, 2), (15, 2), (15, 7), (12, 7), (12, 14), (4, 14), (4, 7), (1, 7)])
+    s.line(4, 7, 4, 13, BRASS[1])
+    s.line(12, 7, 12, 13, BRASS[1])
+    s.line(1, 2, 6, 2, BRASS[3])
+    s.line(10, 2, 15, 2, BRASS[3])
+    s.rect(7, 7, 9, 9, BRASS[2])
+    s.set(8, 8, GLOW[2])
+    s.set(7, 8, GLOW[1])
+    s.set(9, 8, GLOW[1])
+    s.line(5, 11, 11, 11, CHRON[2])
+    s.outline()
+    return s
+
+
+def chrono_leggings():
+    s = Sprite()
+    shade_poly(s, [(3, 2), (13, 2), (13, 14), (10, 14), (9, 6), (7, 6), (6, 14), (3, 14)])
+    s.line(3, 2, 13, 2, BRASS[3])
+    s.line(3, 3, 13, 3, BRASS[1])
+    s.rect(4, 8, 5, 9, BRASS[2])
+    s.rect(11, 8, 12, 9, BRASS[2])
+    s.set(8, 4, GLOW[2])
+    s.line(4, 12, 5, 12, GLOW[1])
+    s.line(11, 12, 12, 12, GLOW[1])
+    s.outline()
+    return s
+
+
+def chrono_boots():
+    s = Sprite()
+    shade_poly(s, [(2, 7), (6, 7), (6, 12), (7, 12), (7, 14), (1, 14), (1, 12), (2, 12)])
+    shade_poly(s, [(10, 7), (14, 7), (14, 12), (15, 12), (15, 14), (9, 14), (9, 12), (10, 12)])
+    s.line(2, 7, 6, 7, BRASS[3])
+    s.line(10, 7, 14, 7, BRASS[3])
+    s.line(1, 13, 7, 13, BRASS[1])
+    s.line(9, 13, 15, 13, BRASS[1])
+    s.set(4, 10, GLOW[2])
+    s.set(12, 10, GLOW[2])
+    s.outline()
+    return s
+
+
+def chronite_plate():
+    s = Sprite()
+    shade_poly(s, [(2, 4), (13, 2), (14, 11), (3, 13)], [CHRON[0], CHRON[1], CHRON[2], CHRON[3]])
+    for x, y in ((3, 5), (12, 3), (13, 10), (4, 12)):
+        s.set(x, y, BRASS[3])
+    s.line(5, 6, 10, 5, GLOW[1])
+    s.line(5, 9, 11, 8, CHRON[3])
+    s.outline()
+    return s
+
+
+def chrono_upgrade_template():
+    s = Sprite()
+    s.rect(3, 1, 12, 14, (40, 34, 52, 255))
+    s.rect(4, 2, 11, 13, (56, 48, 72, 255))
+    s.rect(3, 1, 12, 1, (80, 70, 100, 255))
+    s.rect(3, 14, 12, 14, (24, 20, 32, 255))
+    clock_face(s, 7.5, 7.5, 3.3, face=[CHRON[1], CHRON[2]], rim=[GLOW[0], GLOW[0], GLOW[1], GLOW[2], GLOW[2]], hands=((0, -0.8), (0.6, 0.1)), glow=GLOW[2])
+    s.set(5, 12, BRASS[3])
+    s.set(10, 3, BRASS[3])
+    s.outline()
+    return s
+
+
+def paradox_time_cell():
+    s = cell([MAGENTA[0], MAGENTA[1], MAGENTA[2]], [CHRON[0], CHRON[1], CHRON[2], CHRON[3], CHRON[4]], big=True)
+    for i, (x, y) in enumerate(((6, 6), (7, 7), (8, 6), (9, 8), (8, 9), (7, 10))):
+        s.set(x, y, GLOW[2] if i % 2 else MAGENTA[2])
+    return s
+
+
+def extractor_side():
+    s = Sprite()
+    noise_fill(s, [(22, 18, 26, 255), (32, 26, 36, 255), (44, 36, 48, 255)], 91, weights=[2, 3, 1])
+    s.rect(0, 0, 15, 1, BRASS[2])
+    s.rect(0, 9, 15, 9, BRASS[1])
+    for x in range(2, 15, 3):
+        s.rect(x, 3, x, 7, (60, 14, 20, 255))
+        s.set(x, 5, RED[1])
+    return s
+
+
+def extractor_top(active):
+    s = Sprite()
+    noise_fill(s, [(22, 18, 26, 255), (32, 26, 36, 255)], 93, weights=[3, 2])
+    s.ring(7.5, 7.5, 5.6, 7.0, BRASS[1])
+    glow = [MAGENTA[1], MAGENTA[2]] if active else [(70, 20, 50, 255), (100, 40, 80, 255)]
+    # Sanduhr-Rune
+    hour = [(4, 3), (11, 3), (8, 7.5), (11, 12), (4, 12), (7, 7.5)]
+    for (x0, y0), (x1, y1) in zip(hour, hour[1:] + hour[:1]):
+        s.line(int(x0), int(y0), int(x1), int(y1), glow[0])
+    s.rect(6, 4, 9, 5, glow[1] if active else glow[0])
+    s.rect(7, 10, 8, 11, glow[1])
+    return s
+
+
+def extractor_bottom():
+    s = Sprite()
+    noise_fill(s, [(18, 14, 22, 255), (26, 20, 30, 255)], 95)
+    return s
+
+
+def armor_layer(layer):
+    s = Sprite(64, 32)
+
+    def face(x0, y0, w, h, kind, seed):
+        rnd = random.Random(seed)
+        for y in range(h):
+            for x in range(w):
+                c = ARM[1 + (rnd.random() < 0.35) + (y == 0)]
+                s.set(x0 + x, y0 + y, c)
+        if kind == "front_head":
+            s.line(x0 + 1, y0 + 3, x0 + w - 2, y0 + 3, GLOW[1])
+            s.line(x0, y0, x0 + w - 1, y0, BRASS[3])
+            s.set(x0 + w // 2, y0 + 1, GLOW[2])
+        elif kind == "front_body":
+            s.line(x0, y0, x0 + w - 1, y0, BRASS[3])
+            s.rect(x0 + w // 2 - 1, y0 + 3, x0 + w // 2, y0 + 4, GLOW[1])
+            s.set(x0 + w // 2 - 1, y0 + 3, GLOW[2])
+            s.line(x0 + 1, y0 + 7, x0 + w - 2, y0 + 7, BRASS[1])
+            s.line(x0, y0 + h - 1, x0 + w - 1, y0 + h - 1, BRASS[2])
+        elif kind == "arm":
+            s.line(x0, y0, x0 + w - 1, y0, BRASS[3])
+            s.line(x0, y0 + 5, x0 + w - 1, y0 + 5, BRASS[1])
+            s.set(x0 + w // 2, y0 + 2, GLOW[1])
+        elif kind == "leg":
+            s.line(x0, y0 + 4, x0 + w - 1, y0 + 4, BRASS[2])
+            s.set(x0 + w // 2, y0 + 5, GLOW[1])
+        elif kind == "boot":
+            s.line(x0, y0, x0 + w - 1, y0, BRASS[3])
+            s.set(x0 + w // 2, y0 + 1, GLOW[2])
+        elif kind == "belt":
+            s.line(x0, y0, x0 + w - 1, y0, BRASS[3])
+            s.line(x0, y0 + 1, x0 + w - 1, y0 + 1, BRASS[1])
+            s.set(x0 + w // 2, y0 + 2, GLOW[2])
+
+    def cube(u, v, w, h, d, front_kind, side_kind, rows=None, seed=0):
+        """Vanilla-Würfelabwicklung; rows=(von, bis) begrenzt auf einen Teil der Höhe."""
+        y_from, y_to = rows if rows else (0, h)
+        hh = y_to - y_from
+        if rows is None:
+            face(u + d, v, w, d, "top", seed)
+            face(u + d + w, v, w, d, "top", seed + 1)
+        face(u, v + d + y_from, d, hh, side_kind, seed + 2)
+        face(u + d, v + d + y_from, w, hh, front_kind, seed + 3)
+        face(u + d + w, v + d + y_from, d, hh, side_kind, seed + 4)
+        face(u + d + w + d, v + d + y_from, w, hh, side_kind, seed + 5)
+
+    if layer == 1:
+        cube(0, 0, 8, 8, 8, "front_head", "side", seed=10)
+        cube(16, 16, 8, 12, 4, "front_body", "side", seed=20)
+        cube(40, 16, 4, 12, 4, "arm", "arm", seed=30)
+        cube(0, 16, 4, 12, 4, "boot", "boot", rows=(7, 12), seed=40)
+    else:
+        cube(16, 16, 8, 12, 4, "belt", "belt", rows=(8, 12), seed=50)
+        cube(0, 16, 4, 12, 4, "leg", "leg", seed=60)
+    return s
+
+
+# ------------------------------------------------------------------------------------------
 # Oberfläche
 # ------------------------------------------------------------------------------------------
 
@@ -976,6 +1169,8 @@ ITEMS = {
     "time_accelerator": time_accelerator, "slow_pendulum": slow_pendulum, "rewind_spool": rewind_spool, "chrono_knife": chrono_knife,
     "pocket_time_cell": pocket_time_cell, "chronite_time_cell": chronite_time_cell,
     "clockwork_core": clockwork_core, "phage_heart": phage_heart,
+    "chrono_helmet": chrono_helmet, "chrono_chestplate": chrono_chestplate, "chrono_leggings": chrono_leggings, "chrono_boots": chrono_boots,
+    "chronite_plate": chronite_plate, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
@@ -995,6 +1190,8 @@ BLOCKS = {
     "temporal_workbench_top": lambda: workbench_top(False), "temporal_workbench_top_formed": lambda: workbench_top(True),
     "temporal_workbench_stem": workbench_stem,
     "chrono_pillar_side": pillar_side, "chrono_pillar_top": pillar_top, "chrono_pillar_core": pillar_core,
+    "lifetime_extractor_side": extractor_side, "lifetime_extractor_top": lambda: extractor_top(False),
+    "lifetime_extractor_top_active": lambda: extractor_top(True), "lifetime_extractor_bottom": extractor_bottom,
 }
 
 
@@ -1011,6 +1208,9 @@ def main(preview=None):
     GUI.mkdir(parents=True, exist_ok=True)
     clockmaker_gui().save(GUI / "clockmaker_bench.png")
     temporal_workbench_gui().save(GUI / "temporal_workbench.png")
+    armor_dir = ROOT / "src/main/resources/assets/minecraft/textures/models/armor"
+    for layer in (1, 2):
+        armor_layer(layer).save(armor_dir / f"timemod_chrono_layer_{layer}.png")
     print(f"{len(sprites)} Texturen geschrieben")
     if preview:
         cols = 10

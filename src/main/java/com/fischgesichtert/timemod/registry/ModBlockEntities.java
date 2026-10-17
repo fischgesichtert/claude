@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.registry;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.block.entity.LifetimeExtractorBlockEntity;
 import com.fischgesichtert.timemod.block.entity.TemporalWorkbenchBlockEntity;
 import com.fischgesichtert.timemod.block.entity.TimeCondenserBlockEntity;
 import com.fischgesichtert.timemod.block.entity.TimeFieldProjectorBlockEntity;
@@ -16,6 +17,8 @@ public final class ModBlockEntities {
         TimeMod.id("time_field_projector"), FabricBlockEntityTypeBuilder.create(TimeFieldProjectorBlockEntity::new, ModBlocks.TIME_FIELD_PROJECTOR).build());
     public static final BlockEntityType<TemporalWorkbenchBlockEntity> TEMPORAL_WORKBENCH = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
         TimeMod.id("temporal_workbench"), FabricBlockEntityTypeBuilder.create(TemporalWorkbenchBlockEntity::new, ModBlocks.TEMPORAL_WORKBENCH).build());
+    public static final BlockEntityType<LifetimeExtractorBlockEntity> LIFETIME_EXTRACTOR = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
+        TimeMod.id("lifetime_extractor"), FabricBlockEntityTypeBuilder.create(LifetimeExtractorBlockEntity::new, ModBlocks.LIFETIME_EXTRACTOR).build());
 
     private ModBlockEntities() {
     }

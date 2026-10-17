@@ -1,0 +1,26 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "PEP",
+    "CXC",
+    "PEP"
+  ],
+  "key": {
+    "P": {
+      "item": "timemod:chronite_plate"
+    },
+    "E": {
+      "item": "minecraft:echo_shard"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    },
+    "X": {
+      "item": "timemod:chronite_time_cell"
+    }
+  },
+  "result": {
+    "item": "timemod:paradox_time_cell",
+    "count": 1
+  }
+}

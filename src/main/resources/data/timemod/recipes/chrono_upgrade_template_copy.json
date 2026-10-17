@@ -1,0 +1,23 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "DTD",
+    "DCD",
+    "DDD"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "T": {
+      "item": "timemod:chrono_upgrade_template"
+    },
+    "C": {
+      "item": "timemod:chronite_crystal"
+    }
+  },
+  "result": {
+    "item": "timemod:chrono_upgrade_template",
+    "count": 2
+  }
+}

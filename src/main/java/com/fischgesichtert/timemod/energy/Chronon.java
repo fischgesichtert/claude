@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod.energy;
 
+import com.fischgesichtert.timemod.armor.ChronoArmorItem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -52,6 +53,7 @@ public final class Chronon {
         if (player.getAbilities().instabuild) {
             return true;
         }
+        cost = discounted(player, cost);
         int available = stored(tool);
         for (ItemStack stack : player.getInventory().items) {
             if (stack != tool && stack.getItem() instanceof ChrononCellItem) {
@@ -71,6 +73,12 @@ public final class Chronon {
             }
         }
         return true;
+    }
+
+    /** Chrono-Rüstung spart je Teil 5 %. */
+    public static int discounted(Player player, int cost) {
+        int pieces = ChronoArmorItem.pieces(player);
+        return pieces == 0 ? cost : (int) Math.ceil(cost * (1.0 - ChronoArmorItem.SAVING_PER_PIECE * pieces));
     }
 
     public static String format(int amount) {

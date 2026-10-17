@@ -1,5 +1,6 @@
 package com.fischgesichtert.timemod;
 
+import com.fischgesichtert.timemod.armor.ChronoArmorItem;
 import com.fischgesichtert.timemod.command.ChronoCommand;
 import com.fischgesichtert.timemod.network.TimeNetworking;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
@@ -12,6 +13,7 @@ import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.registry.ModWorldgen;
 import com.fischgesichtert.timemod.rewind.PlayerHistory;
 import com.fischgesichtert.timemod.rewind.RecordingDemand;
+import com.fischgesichtert.timemod.time.TimeImmunity;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.resources.ResourceLocation;
@@ -40,6 +42,7 @@ public class TimeMod implements ModInitializer {
         PlayerHistory.init();
         RecordingDemand.init();
         TimeNetworking.init();
+        TimeImmunity.register(ChronoArmorItem::hasFullSet);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ChronoCommand.register(dispatcher));
         LOGGER.info("TIME geladen – die Zeit gehört dir.");
     }

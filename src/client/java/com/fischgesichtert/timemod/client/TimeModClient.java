@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.client;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.client.effect.RewindEffect;
 import com.fischgesichtert.timemod.client.effect.TimeStopEffect;
+import com.fischgesichtert.timemod.client.effect.ZoneSight;
 import com.fischgesichtert.timemod.client.render.ChronoKnifeRenderer;
 import com.fischgesichtert.timemod.client.render.TemporalWorkbenchRenderer;
 import com.fischgesichtert.timemod.client.render.TimeCondenserRenderer;
@@ -67,6 +68,9 @@ public class TimeModClient implements ClientModInitializer {
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> TimeStopEffect.clear());
         WorldRenderEvents.END.register(TimeStopEffect::render);
+        WorldRenderEvents.BEFORE_DEBUG_RENDER.register(ZoneSight::render);
+        ClientAging.init();
+        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.LIFETIME_EXTRACTOR, RenderType.cutout());
         ClientTickEvents.END_CLIENT_TICK.register(client -> ClientClock.tick());
         ClientTickEvents.END_CLIENT_TICK.register(this::tickAmbience);
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {

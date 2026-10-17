@@ -56,6 +56,25 @@ final class TierThreeShowcase {
         // Nacht: die Ringe leuchten
         d.command("time set 18000").command("tp @a 3.6 101.6 -0.6 30 20").wait(30).screenshot("t3_03_werkbank_nacht");
 
+        // Chrono-Rüstung, Lebenszeit-Extraktor mit alternden Kühen, Zeitsicht des Helms
+        d.command("time set 6000")
+            .command("summon armor_stand -5.5 100 4.5 {Rotation:[200f,0f],ShowArms:1b,NoBasePlate:1b,ArmorItems:["
+                + "{id:\"timemod:chrono_boots\",Count:1b},{id:\"timemod:chrono_leggings\",Count:1b},"
+                + "{id:\"timemod:chrono_chestplate\",Count:1b},{id:\"timemod:chrono_helmet\",Count:1b}],"
+                + "HandItems:[{id:\"timemod:stasis_watch\",Count:1b},{}]}")
+            .command("setblock 6 100 4 timemod:lifetime_extractor")
+            .command("summon cow 6.5 100.7 4.5 {NoAI:1b,Rotation:[160f,0f]}")
+            .command("summon cow 8.5 100 2.5 {NoAI:1b,Rotation:[120f,0f]}")
+            .command("summon cow 9.5 100 7.5 {NoAI:1b,Rotation:[200f,0f]}")
+            .command("tp @a 0.5 101.5 -5.5 0 10").wait(140).screenshot("t3_07_ruestung_extraktor")
+            .command("tp @a 6.5 101.4 0.5 0 25").wait(10).screenshot("t3_08_extraktor_nah")
+            .command("item replace entity @a armor.head with timemod:chrono_helmet")
+            .command("execute positioned -6 101 -2 run chrono zone 3 3")
+            .command("execute positioned 5 101 -3 run chrono zone 2.5 0.25")
+            .command("execute positioned 0 102 9 run chrono zone 4 0")
+            .command("tp @a 0.5 102.5 -9.5 0 12").wait(20).screenshot("t3_09_zeitsicht")
+            .command("chrono clear").command("item replace entity @a armor.head with air").wait(5);
+
         // Oberfläche: Werkzeug mit Modulen
         d.command("gamemode creative @a").command("time set 6000").command("tp @a 0.5 100 0.5 0 30").wait(10)
             .client(mc -> mc.options.hideGui = false)

@@ -11,7 +11,8 @@
       "com.fischgesichtert.timemod.gametest.TimeStopTests",
       "com.fischgesichtert.timemod.gametest.RewindTests",
       "com.fischgesichtert.timemod.gametest.ProgressionTests",
-      "com.fischgesichtert.timemod.gametest.ModuleTests"
+      "com.fischgesichtert.timemod.gametest.ModuleTests",
+      "com.fischgesichtert.timemod.gametest.ArmorAndExtractorTests"
     ]
   },
   "depends": {

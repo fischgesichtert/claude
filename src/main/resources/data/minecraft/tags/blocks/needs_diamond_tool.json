@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "timemod:deepslate_chronite_ore",
-    "timemod:temporal_workbench"
+    "timemod:temporal_workbench",
+    "timemod:lifetime_extractor"
   ]
 }

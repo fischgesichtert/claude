@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.future.town;
 
 import com.fischgesichtert.timemod.entity.MossBear;
 import com.fischgesichtert.timemod.entity.RuinGuardian;
+import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModEntities;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
@@ -15,12 +16,14 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,7 +33,28 @@ import org.jetbrains.annotations.Nullable;
  * manchmal Moosbären. Alles ist aus Seed, Dorf und Jahr bestimmt.
  */
 public final class RuinLife {
+    /** Ab welchem Jahr die Glocke der letzten Stadt in den Ruinen hängt. */
+    public static final int CITY_BELL_YEARS = 1000;
+
     private RuinLife() {
+    }
+
+    /** Die Glocke der letzten Stadt auf einem kleinen Platz aus bemoosten Steinziegeln. */
+    private static void bell(WorldGenLevel level, BlockPos spot) {
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                if (Math.abs(dx) + Math.abs(dz) > 3) {
+                    continue;
+                }
+                BlockPos floor = spot.offset(dx, -1, dz);
+                if (level.getBlockState(floor).isFaceSturdy(level, floor, Direction.UP)) {
+                    level.setBlock(floor, ((dx + dz) & 1) == 0 ? Blocks.MOSSY_STONE_BRICKS.defaultBlockState()
+                        : Blocks.CRACKED_STONE_BRICKS.defaultBlockState(), Block.UPDATE_CLIENTS);
+                }
+            }
+        }
+        level.setBlock(spot, ModBlocks.CITY_BELL.defaultBlockState(), Block.UPDATE_CLIENTS);
+        level.setBlock(spot.above(), Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
     }
 
     /** Bewohner eines verlassenen Dorf-Chunks: wird von der Verwitterung aufgerufen. */
@@ -62,6 +86,13 @@ public final class RuinLife {
                 continue;
             }
             RandomSource random = RandomSource.create(level.getSeed() ^ start.toLong() * 0x2545F4914F6CDD1DL ^ years);
+            // In den Ruinen einer Stadt von +1000 hängt noch ihre Glocke
+            if (years >= CITY_BELL_YEARS && outlook.stage() >= 2) {
+                BlockPos spot = spot(level, chunk.getPos(), random);
+                if (spot != null) {
+                    bell(level, spot);
+                }
+            }
             int guardians = 1 + outlook.stage() / 2;
             for (int i = 0; i < guardians; i++) {
                 BlockPos spot = spot(level, chunk.getPos(), random);

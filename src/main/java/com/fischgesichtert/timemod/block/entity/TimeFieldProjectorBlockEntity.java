@@ -5,6 +5,7 @@ import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.energy.ChrononHolder;
 import com.fischgesichtert.timemod.energy.ChrononStorage;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
+import com.fischgesichtert.timemod.registry.ModItems;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeAnchored;
@@ -20,6 +21,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -35,6 +37,9 @@ import net.minecraft.world.phys.AABB;
 public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAnchored, ChrononStorage {
     public static final double[] FACTORS = {2.0, 3.0, 4.0, 0.5, 0.25};
     public static final int[] RADII = {2, 3, 4, 6, 8};
+    /** Mit dem Herz der letzten Stadt: die Reichweite einer Stadtuhr – und ein Viertel des Verbrauchs. */
+    public static final int[] CITY_RADII = {2, 3, 4, 6, 8, 12, 16, 24};
+    public static final double CITY_COST = 0.25;
     public static final int CAPACITY = 50_000;
 
     private int factorIndex;
@@ -42,6 +47,7 @@ public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAn
     private int buffer;
     private double debt;
     private int zoneId = -1;
+    private boolean cityHeart;
 
     public TimeFieldProjectorBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.TIME_FIELD_PROJECTOR, pos, state);
@@ -51,15 +57,25 @@ public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAn
         return FACTORS[Math.floorMod(factorIndex, FACTORS.length)];
     }
 
+    private int[] radii() {
+        return cityHeart ? CITY_RADII : RADII;
+    }
+
     public int radius() {
-        return RADII[Math.floorMod(radiusIndex, RADII.length)];
+        int[] radii = radii();
+        return radii[Math.floorMod(radiusIndex, radii.length)];
+    }
+
+    /** Schlägt das Herz der letzten Stadt in diesem Projektor? */
+    public boolean hasCityHeart() {
+        return cityHeart;
     }
 
     /** Chronon pro Tick: wächst mit der Fläche und der Stärke der Zeitverschiebung. */
     public double costPerTick() {
         double r = radius();
         double strength = factor() >= 1 ? factor() - 1 : 1.0 / factor() - 1;
-        return r * r * (0.5 + strength) * 0.04;
+        return r * r * (0.5 + strength) * 0.04 * (cityHeart ? CITY_COST : 1.0);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, TimeFieldProjectorBlockEntity self) {
@@ -116,6 +132,18 @@ public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAn
             return InteractionResult.SUCCESS;
         }
         ItemStack held = player.getItemInHand(hand);
+        if (held.is(ModItems.HEART_OF_THE_LAST_CITY) && !cityHeart) {
+            cityHeart = true;
+            if (!player.getAbilities().instabuild) {
+                held.shrink(1);
+            }
+            removeZone(serverLevel);
+            setChanged();
+            level.playSound(null, worldPosition, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 1.5F, 0.8F);
+            player.displayClientMessage(Component.translatable("message.timemod.projector.city_heart").withStyle(ChatFormatting.GREEN), false);
+            status(player);
+            return InteractionResult.CONSUME;
+        }
         if (held.getItem() instanceof ChrononHolder) {
             int moved = Chronon.extract(held, CAPACITY - buffer);
             buffer += moved;
@@ -128,7 +156,7 @@ public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAn
             return InteractionResult.PASS;
         }
         if (player.isShiftKeyDown()) {
-            radiusIndex = Math.floorMod(radiusIndex + 1, RADII.length);
+            radiusIndex = Math.floorMod(radiusIndex + 1, radii().length);
         } else {
             factorIndex = Math.floorMod(factorIndex + 1, FACTORS.length);
         }
@@ -171,6 +199,7 @@ public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAn
         tag.putInt("Factor", factorIndex);
         tag.putInt("Radius", radiusIndex);
         tag.putInt("Buffer", buffer);
+        tag.putBoolean("CityHeart", cityHeart);
     }
 
     @Override
@@ -178,6 +207,7 @@ public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAn
         factorIndex = tag.getInt("Factor");
         radiusIndex = tag.contains("Radius") ? tag.getInt("Radius") : 2;
         buffer = tag.getInt("Buffer");
+        cityHeart = tag.getBoolean("CityHeart");
     }
 
     @Override

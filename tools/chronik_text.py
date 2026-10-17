@@ -292,6 +292,35 @@ CHAPTERS = {
         "chronometer: take one back to the present, and a villager who finds it becomes a Chrono Trader too. They buy rust and brass "
         "and sell time dust, pocket watches, chronite seeds, time seals, charged time cells, time capsules and time seeds.",
     ),
+    "last_city": (
+        "Die letzte Stadt",
+        "Nicht jede Stadt der Zukunft hat überlebt. In den Ruinen der Städte, die bei +1000 untergegangen sind, hängt noch ihre "
+        "Glocke – grün vor Alter, in einem morschen Joch auf einem bemoosten Sockel. Bringst du ihr drei Wächterkerne von den "
+        "Ruinenwächtern, klingt sie ein letztes Mal, und unter dem alten Marktplatz erwacht der Wächter der letzten Stadt: ein Koloss "
+        "aus Kalkstein und Kupfer, der Kopf ein Glockenturm, die rechte Hand eine Glocke.\n\n"
+        "Tausend Jahre haben ihm nichts anhaben können: Er heilt sich ständig, und deine Schläge prallen zum Teil ab. Nur in "
+        "beschleunigter Zeit holen ihn die Jahrhunderte ein – dann zerfällt er, heilt nicht mehr und nimmt mehr Schaden. Doch seine "
+        "Glocke stellt die Zeit richtig: Jeder Glockenschlag löst die Zeitzonen um ihn auf und stößt dich zurück. Halte deinen "
+        "Zeitraffer bereit.\n\n"
+        "Sein Verwitterungshauch lässt deine Rüstung altern, sein Stampfen schleudert, wer zu nah steht, und zweimal ruft er "
+        "Ruinenwächter aus dem Boden. Unter der Hälfte fallen seine Kupferplatten: Er wird schneller, und über deinem Kopf zieht ein "
+        "Gewitter auf – such Deckung, wenn es knistert.\n\n"
+        "Sein Herz, das Herz der letzten Stadt, macht einen Zeitfeld-Projektor zur Stadtuhr: Reichweite bis 24 Blöcke, und er "
+        "braucht nur noch ein Viertel des Chronons.",
+        "The Last City",
+        "Not every city of the future survived. In the ruins of the cities that fell by +1000 their bell still hangs – green with "
+        "age, in a rotting yoke on a mossy plinth. Bring it three guardian cores from the Ruin Guardians and it rings one last time, "
+        "and beneath the old market square the Warden of the Last City awakens: a colossus of calcite and copper, its head a bell "
+        "tower, its right hand a bell.\n\n"
+        "A thousand years could not harm it: it heals constantly, and your blows partly glance off. Only in accelerated time do the "
+        "centuries catch up with it – then it crumbles, stops healing and takes more damage. But its bell sets time right: every "
+        "toll dissolves the time zones around it and knocks you back. Keep your Time Accelerator ready.\n\n"
+        "Its breath of ages wears down your armor, its stomp hurls whoever stands too close, and twice it calls Ruin Guardians from "
+        "the ground. Below half its health its copper plates fall: it grows faster, and a thunderstorm gathers over your head – "
+        "take cover when it crackles.\n\n"
+        "Its heart, the Heart of the Last City, turns a Time Field Projector into a city clock: a range of up to 24 blocks at a "
+        "quarter of the Chronon.",
+    ),
     "future": (
         "Die Zukunft",
         "Die Zukunft entsteht aus der Gegenwart. Reist du in ein Jahr der Zukunft, findest du dort, was du heute gebaut hast – so, wie es "
@@ -424,6 +453,8 @@ ADVANCEMENTS = [
      "Ein Bär voller Wald", "Schere einen Moosbären", "A Bear Full of Forest", "Shear a Moss Bear"),
     ("chrono_trader", "future_city", "timemod:chronometer", "goal", ("trade", "timemod:chrono_trader"),
      "Zeit ist Geld", "Handle mit einem Chrono-Händler", "Time Is Money", "Trade with a Chrono Trader"),
+    ("last_city", "future_city", "timemod:heart_of_the_last_city", "challenge", ("kill", "timemod:city_colossus"),
+     "Die letzte Stadt", "Besiege den Wächter der letzten Stadt", "The Last City", "Defeat the Warden of the Last City"),
     ("mesozoic", "dna", "minecraft:sniffer_egg", "challenge", ("impossible", None),
      "Willkommen im Erdmittelalter", "Reise in das Zeitalter der Dinosaurier", "Welcome to the Mesozoic", "Travel to the age of the dinosaurs"),
 ]

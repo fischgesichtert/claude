@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.block;
 
 import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.entity.boss.ChronophageBoss;
+import com.fischgesichtert.timemod.entity.boss.CityColossus;
 import com.fischgesichtert.timemod.entity.boss.ClockmakerBoss;
 import com.fischgesichtert.timemod.entity.boss.ParadoxBoss;
 import com.fischgesichtert.timemod.registry.ModBlocks;
@@ -16,6 +17,7 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -25,18 +27,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Erwecken der Bosse: Am Uhrwerk-Altar genügt ein Uhrwerk, der Phagen-Altar verlangt vier
  * Zeitkern-Fragmente, der Spiegel-Altar eine geladene Paradox-Zeitzelle – Paradox wird zum Echo
- * dessen, der sie opfert. Solange der Boss in der Nähe lebt, ruht der Altar.
+ * dessen, der sie opfert. Die Glocke der letzten Stadt klingt mit drei Wächterkernen; der Koloss steigt
+ * dann gegenüber dem Läutenden aus dem Boden. Solange der Boss in der Nähe lebt, ruht der Altar.
  */
 public final class BossAltars {
     public static final int FRAGMENTS = 4;
     /** Der Spiegel-Altar verlangt eine Paradox-Zeitzelle mit mindestens so viel Chronon. */
     public static final int PARADOX_CHARGE = 50_000;
+    /** So viele Wächterkerne bringen die Glocke der letzten Stadt zum Klingen. */
+    public static final int GUARDIAN_CORES = 3;
 
     private BossAltars() {
     }
@@ -84,6 +90,29 @@ public final class BossAltars {
                 boss.becomeEchoOf(player);
             }
             spawn(server, boss, Vec3.atBottomCenterOf(pos).add(0, 1.0, 4.0), player, "boss.timemod.paradox.awakens");
+            return InteractionResult.CONSUME;
+        }
+        if (state.is(ModBlocks.CITY_BELL) && held.is(ModItems.GUARDIAN_CORE)) {
+            if (held.getCount() < GUARDIAN_CORES && !player.getAbilities().instabuild) {
+                player.displayClientMessage(Component.translatable("message.timemod.altar.city_bell.more", GUARDIAN_CORES)
+                    .withStyle(ChatFormatting.DARK_AQUA), true);
+                return InteractionResult.CONSUME;
+            }
+            if (!server.getEntitiesOfClass(CityColossus.class, nearby).isEmpty()) {
+                return busy(player);
+            }
+            consume(player, held, GUARDIAN_CORES);
+            server.playSound(null, pos, SoundEvents.BELL_BLOCK, SoundSource.BLOCKS, 3.0F, 0.6F);
+            CityColossus colossus = ModEntities.CITY_COLOSSUS.create(server);
+            Vec3 front = Vec3.atBottomCenterOf(pos).add(player.position().subtract(Vec3.atBottomCenterOf(pos)).multiply(1, 0, 1).normalize().scale(-6.0));
+            BlockPos ground = BlockPos.containing(front);
+            Vec3 at = new Vec3(front.x, server.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, ground.getX(), ground.getZ()), front.z);
+            if (colossus != null) {
+                // Erst aus dem Boden steigen lassen, dann in die Welt: So sieht der Client es von Anfang an
+                colossus.moveTo(at.x, at.y, at.z);
+                colossus.emerge();
+            }
+            spawn(server, colossus, at, player, "boss.timemod.city_colossus.awakens");
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;

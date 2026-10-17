@@ -45,6 +45,12 @@ public final class ModSounds {
     public static final SoundEvent WARDEN_BOLT_HIT = register("warden_bolt_hit");
     public static final SoundEvent SEAL_STAMP = register("seal_stamp");
     public static final SoundEvent GUARDIAN_WAKE = register("guardian_wake");
+    public static final SoundEvent COLOSSUS_EMERGE = register("colossus_emerge");
+    public static final SoundEvent COLOSSUS_BELL = register("colossus_bell");
+    public static final SoundEvent COLOSSUS_BREATH = register("colossus_breath");
+    public static final SoundEvent COLOSSUS_STOMP = register("colossus_stomp");
+    public static final SoundEvent COLOSSUS_HURT = register("colossus_hurt");
+    public static final SoundEvent COLOSSUS_DEATH = register("colossus_death");
 
     private ModSounds() {
     }

@@ -679,6 +679,81 @@ def guardian_wake():
     return normalize(fade(reverb(out, 1.2, 0.25, brightness=3000), 0.01, 0.2), -1)
 
 
+
+# ---------------------------------------------------------------------------------------------
+# M8f: der Wächter der letzten Stadt
+# ---------------------------------------------------------------------------------------------
+
+def colossus_emerge():
+    """Er steigt aus dem Boden: Erdbeben-Grollen, berstender Stein, am Ende ein tiefer Glockenschlag."""
+    length = 3.6
+    x = t(length)
+    rumble = fft_filter(noise(length), low=180) * env_ad(len(x), 1.2, 2.2, curve=1.5)
+    sub = sweep(28, 46, length) * env_ad(len(x), 1.0, 2.4, curve=1.6)
+    out = silence(length + 2.5)
+    place(out, normalize(rumble, -4), 0.0)
+    place(out, normalize(sub, -6), 0.0)
+    for i in range(14):
+        place(out, normalize(tick(900 + RNG.uniform(-200, 300), 160, length=0.09, level=1.0), -10 - RNG.uniform(0, 6)), RNG.uniform(0.3, 3.0))
+    place(out, normalize(bell(55.0, 2.5), -3), 3.0)
+    return normalize(trim(reverb(out, 2.0, 0.3, brightness=2500)), -1)
+
+
+def colossus_bell():
+    """Die Glocke der letzten Stadt: ein gewaltiger, tiefer Schlag mit Druckwelle und langem Nachhall."""
+    out = silence(5.0)
+    place(out, normalize(bell(73.4, 4.2), -2), 0.0)
+    place(out, normalize(bell(146.8, 3.0), -9), 0.0)
+    place(out, normalize(bell(220.0, 2.2), -14), 0.01)
+    whomp = sweep(90, 30, 0.6) * env_ad(int(0.6 * SR), 0.003, 0.4, curve=3.0)
+    place(out, normalize(whomp, -3), 0.0)
+    air = svf_sweep(noise(1.2), 300, 4000, q=3.0) * env_ad(int(1.2 * SR), 0.05, 0.9, curve=2.5)
+    place(out, normalize(air, -14), 0.05)
+    return normalize(trim(reverb(out, 3.0, 0.35, brightness=3500)), -1)
+
+
+def colossus_breath():
+    """Verwitterungshauch: ein langer, staubiger Atem mit knisternder Asche."""
+    length = 1.9
+    x = t(length)
+    breath = svf_sweep(noise(length), 900, 300, q=2.0) * env_ad(len(x), 0.35, 1.3, curve=1.8)
+    low = fft_filter(noise(length), low=140) * env_ad(len(x), 0.3, 1.4, curve=1.6)
+    crackle = fft_filter(noise(length), high=2500) * (RNG.random(len(x)) < 0.003) * 6 * env_ad(len(x), 0.3, 1.4, curve=1.5)
+    return normalize(fade(mix(normalize(breath, -3), normalize(low, -8), normalize(crackle, -16)), 0.02, 0.2), -1)
+
+
+def colossus_stomp():
+    """Stampfen: ein Einschlag, der den Boden erzittern lässt, und rieselnde Steine."""
+    out = silence(1.6)
+    place(out, normalize(boom(1.3, 70, 22), -1), 0.0)
+    for i in range(8):
+        place(out, normalize(tick(1200 + RNG.uniform(-300, 600), 260, length=0.07, level=1.0), -14), 0.15 + RNG.uniform(0, 0.8))
+    return normalize(fade(out, 0.002, 0.15), -1)
+
+
+def colossus_hurt():
+    """Getroffen: Stein platzt ab, Kupfer klingt dumpf."""
+    out = silence(0.7)
+    crack = fft_filter(noise(0.12), low=3000, high=400) * np.exp(-t(0.12) / 0.025)
+    place(out, normalize(crack, -2), 0.0)
+    place(out, normalize(bell(311.1, 0.6), -8), 0.0)
+    place(out, normalize(tick(700, 120, length=0.1, level=1.2), -6), 0.02)
+    return normalize(fade(out, 0.002, 0.1), -1)
+
+
+def colossus_death():
+    """Er zerfällt: die Glocke springt (verstimmter Klang), ein langes Einstürzen, eine ferne letzte Glocke."""
+    out = silence(6.0)
+    cracked = mix(bell(73.4, 2.0), bell(77.8, 1.8) * 0.8, bell(110.0, 1.5) * 0.5)
+    place(out, normalize(cracked, -3), 0.0)
+    collapse = fft_filter(noise(3.2), low=400) * env_ad(int(3.2 * SR), 0.4, 2.6, curve=1.6)
+    place(out, normalize(collapse, -5), 0.6)
+    for i in range(20):
+        place(out, normalize(tick(800 + RNG.uniform(-300, 900), 200, length=0.08, level=1.0), -12 - RNG.uniform(0, 8)), RNG.uniform(0.6, 3.4))
+    place(out, normalize(reverb(bell(587.3, 1.2), 1.5, 0.7), -16), 4.2)
+    return normalize(trim(reverb(out, 2.4, 0.3, brightness=3000)), -1)
+
+
 SOUNDS = {
     "time_stop": time_stop,
     "time_resume": time_resume,
@@ -718,6 +793,12 @@ SOUNDS = {
     "warden_bolt_hit": warden_bolt_hit,
     "seal_stamp": seal_stamp,
     "guardian_wake": guardian_wake,
+    "colossus_emerge": colossus_emerge,
+    "colossus_bell": colossus_bell,
+    "colossus_breath": colossus_breath,
+    "colossus_stomp": colossus_stomp,
+    "colossus_hurt": colossus_hurt,
+    "colossus_death": colossus_death,
 }
 
 

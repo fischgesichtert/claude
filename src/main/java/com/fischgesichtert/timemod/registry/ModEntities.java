@@ -9,6 +9,7 @@ import com.fischgesichtert.timemod.entity.ThrownChronoKnife;
 import com.fischgesichtert.timemod.entity.TimeLeech;
 import com.fischgesichtert.timemod.entity.TimeWarden;
 import com.fischgesichtert.timemod.entity.boss.ChronophageBoss;
+import com.fischgesichtert.timemod.entity.boss.CityColossus;
 import com.fischgesichtert.timemod.entity.boss.ClockmakerBoss;
 import com.fischgesichtert.timemod.entity.boss.ParadoxBoss;
 import com.fischgesichtert.timemod.entity.boss.ParadoxEcho;
@@ -57,6 +58,9 @@ public final class ModEntities {
     public static final EntityType<RuinGuardian> RUIN_GUARDIAN = register("ruin_guardian",
         FabricEntityTypeBuilder.<RuinGuardian>create(MobCategory.MISC, RuinGuardian::new)
             .dimensions(EntityDimensions.fixed(1.4F, 2.7F)).trackRangeChunks(10).build());
+    public static final EntityType<CityColossus> CITY_COLOSSUS = register("city_colossus",
+        FabricEntityTypeBuilder.<CityColossus>create(MobCategory.MONSTER, CityColossus::new)
+            .dimensions(EntityDimensions.fixed(2.6F, 4.4F)).fireImmune().trackRangeChunks(10).build());
     public static final EntityType<MossBear> MOSS_BEAR = register("moss_bear",
         FabricEntityTypeBuilder.<MossBear>createMob().spawnGroup(MobCategory.CREATURE).entityFactory(MossBear::new)
             .dimensions(EntityDimensions.fixed(1.4F, 1.4F)).trackRangeChunks(10)
@@ -77,6 +81,7 @@ public final class ModEntities {
         FabricDefaultAttributeRegistry.register(TIME_WARDEN, TimeWarden.createAttributes());
         FabricDefaultAttributeRegistry.register(RUIN_GUARDIAN, RuinGuardian.createAttributes());
         FabricDefaultAttributeRegistry.register(MOSS_BEAR, MossBear.createAttributes());
+        FabricDefaultAttributeRegistry.register(CITY_COLOSSUS, CityColossus.createAttributes());
         // Moosbären in den Wäldern der Zukunft (die Spawnregel lässt sie nur dort und erst ab +100 Jahren zu)
         BiomeModifications.addSpawn(BiomeSelectors.tag(FutureBiomeSource.WOODED), MobCategory.CREATURE, MOSS_BEAR, 6, 1, 2);
     }

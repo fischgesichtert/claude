@@ -55,7 +55,8 @@ public class ChronikScreen extends Screen {
         new Chapter("machine", List.of(ModItems.CHRONOS_GATE_FRAME, ModItems.ERA_FOCUS, ModItems.CHRONOS_CONSOLE)),
         new Chapter("letters", List.of(ModItems.TIME_SEED, Items.OAK_SAPLING, ModItems.TIME_CAPSULE)),
         new Chapter("future", List.of(Items.CLOCK, ModItems.CHRONITE_CRYSTAL, Items.ENDER_EYE)),
-        new Chapter("creatures", List.of(ModItems.GUARDIAN_CORE, Items.MOSS_BLOCK, ModItems.CHRONOMETER, Items.EMERALD)));
+        new Chapter("creatures", List.of(ModItems.GUARDIAN_CORE, Items.MOSS_BLOCK, ModItems.CHRONOMETER, Items.EMERALD)),
+        new Chapter("last_city", List.of(ModItems.CITY_BELL, ModItems.GUARDIAN_CORE, ModItems.TIME_ACCELERATOR, ModItems.HEART_OF_THE_LAST_CITY)));
 
     /** Eine Buchseite: Zeilen, ggf. Kapitelkopf mit Bildern. */
     private record Page(@Nullable Chapter chapter, boolean head, List<FormattedCharSequence> lines) {

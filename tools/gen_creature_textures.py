@@ -608,6 +608,213 @@ def chronometer_bottom():
     noise_fill_local(s, MAHOGANY[:3], 1031)
     return s
 
+
+# ------------------------------------------------------------------------------------------
+# Wächter der letzten Stadt (256×128, Abwicklung wie CityColossusModel)
+# ------------------------------------------------------------------------------------------
+
+CALCITE = [(176, 172, 160, 255), (198, 194, 182, 255), (216, 212, 200, 255), (232, 229, 218, 255)]
+PATINA = [(40, 92, 74, 255), (58, 122, 98, 255), (80, 152, 122, 255), (118, 184, 154, 255)]
+BRONZE = [(96, 62, 30, 255), (134, 90, 44, 255), (170, 120, 60, 255)]
+WARM = [(180, 110, 30, 255), (240, 170, 60, 255), (255, 220, 130, 255), (255, 246, 210, 255)]
+
+
+def calcite_face(s, rect, seed, cracks=2, moss=0.06):
+    fill_face(s, rect, CALCITE, seed, [1, 3, 4, 2])
+    x, y, w, h = rect
+    rnd = random.Random(seed)
+    # Quaderfugen
+    for yy in range(0, h, 6):
+        for xx in range(w):
+            if rnd.random() < 0.85:
+                s.set(x + xx, y + yy, CALCITE[0])
+    # Risse
+    for _ in range(cracks):
+        cx, cy = x + rnd.randrange(w), y + rnd.randrange(h)
+        for _ in range(rnd.randint(3, 7)):
+            s.set(cx, cy, (120, 116, 106, 255))
+            cx += rnd.choice((-1, 0, 1))
+            cy += 1
+            if not (x <= cx < x + w and y <= cy < y + h):
+                break
+    for yy in range(h):
+        for xx in range(w):
+            if rnd.random() < moss * (1.0 - yy / max(h, 1)):
+                s.set(x + xx, y + yy, MOSS[rnd.choice([1, 2])])
+
+
+def patina_face(s, rect, seed):
+    fill_face(s, rect, PATINA, seed, [1, 3, 3, 1])
+    x, y, w, h = rect
+    rnd = random.Random(seed)
+    for _ in range(w * h // 14):
+        s.set(x + rnd.randrange(w), y + rnd.randrange(h), BRONZE[rnd.choice([1, 2])])
+
+
+def colossus_textures(bare):
+    s = Sprite(256, 128)
+    glow = Sprite(256, 128)
+    body = Cube(0, 0, 24, 24, 14)
+    for name, rect in body.each():
+        calcite_face(s, rect, 1101 + len(name), cracks=6 if bare else 3, moss=0.12 if name == "top" else 0.04)
+        x, y, w, h = rect
+        if name not in ("top", "bottom"):
+            for xx in range(w):
+                s.set(x + xx, y + h - 3, PATINA[1])
+                s.set(x + xx, y + h - 2, PATINA[2])
+    if bare:
+        # Ohne Platten liegt das Uhrwerk frei: Zahnräder in Messing, ein glühender Kern
+        for name in ("front", "back", "right", "left"):
+            x, y, w, h = body.faces[name]
+            rnd = random.Random(1120 + len(name))
+            for _ in range(3 if name in ("front", "back") else 2):
+                cx, cy = x + 3 + rnd.randrange(max(1, w - 6)), y + 3 + rnd.randrange(max(1, h - 10))
+                r = rnd.choice([2.2, 3.0, 3.6])
+                for yy in range(-4, 5):
+                    for xx in range(-4, 5):
+                        d = math.hypot(xx, yy)
+                        ang = math.atan2(yy, xx)
+                        tooth = int((ang + math.pi) / (2 * math.pi) * 10) % 2 == 0
+                        if d <= r - 0.8 or (d <= r + 0.4 and tooth):
+                            s.set(cx + xx, cy + yy, BRASS[2] if (xx + yy) % 3 else BRASS[3])
+                        if d <= 0.9:
+                            s.set(cx + xx, cy + yy, GLOW[1])
+                            glow.set(cx + xx, cy + yy, GLOW[2])
+    # Die Uhr der Stadt
+    clock = Cube(80, 0, 10, 10, 1)
+    for name, rect in clock.each():
+        patina_face(s, rect, 1131)
+    fx, fy, fw, fh = clock.faces["front"]
+    for yy in range(fh):
+        for xx in range(fw):
+            d = math.hypot(xx - 4.5, yy - 4.5)
+            if d <= 3.9:
+                s.set(fx + xx, fy + yy, FACE[1] if (xx * 3 + yy) % 5 else FACE[0])
+            elif d <= 5.0:
+                s.set(fx + xx, fy + yy, PATINA[2] if xx + yy < 9 else PATINA[1])
+    for hour in range(12):
+        ang = hour / 12 * 2 * math.pi
+        xx, yy = int(round(4.5 + math.sin(ang) * 3.3)), int(round(4.5 - math.cos(ang) * 3.3))
+        s.set(fx + xx, fy + yy, (40, 40, 44, 255))
+        glow.set(fx + xx, fy + yy, WARM[0])
+    for i in range(1, 4):
+        s.set(fx + 4, fy + 4 - i, (30, 30, 34, 255))
+        glow.set(fx + 4, fy + 4 - i, WARM[1])
+    for i in range(1, 3):
+        s.set(fx + 4 + i, fy + 4 + i // 2, (30, 30, 34, 255))
+        glow.set(fx + 4 + i, fy + 4 + i // 2, WARM[1])
+    # Kupferne Schulterplatten
+    for v in (0, 24):
+        plate = Cube(104, v, 9, 5, 16)
+        for name, rect in plate.each():
+            patina_face(s, rect, 1141 + v + len(name))
+            x, y, w, h = rect
+            if name == "top":
+                for xx in range(0, w, 3):
+                    for yy in range(h):
+                        s.set(x + xx, y + yy, PATINA[0] if yy % 4 else PATINA[3])
+    # Kopf: Glockenturm aus Kalkstein, Kupferdach in drei Stufen, Blitzableiter
+    head = Cube(0, 40, 12, 12, 12)
+    for name, rect in head.each():
+        calcite_face(s, rect, 1151 + len(name), cracks=2)
+        x, y, w, h = rect
+        if name not in ("top", "bottom"):
+            # Rundbogenfenster (dunkel; das leuchtende Fenster ist ein eigener Würfel vorne)
+            for yy in range(3, 8):
+                for xx in range(4, 8):
+                    if not (yy == 3 and xx in (4, 7)):
+                        s.set(x + xx, y + yy, (40, 36, 34, 255))
+    for i, (u, v, w, h, d) in enumerate(((48, 40, 14, 2, 14), (104, 48, 10, 4, 10), (144, 48, 6, 3, 6))):
+        roof = Cube(u, v, w, h, d)
+        for name, rect in roof.each():
+            patina_face(s, rect, 1161 + i * 10 + len(name))
+    rod = Cube(168, 48, 2, 6, 2)
+    for name, rect in rod.each():
+        fill_face(s, rect, [BRONZE[1], BRONZE[2], PATINA[2]], 1191)
+    window = Cube(176, 48, 6, 3, 1)
+    for name, rect in window.each():
+        fill_face(s, rect, [WARM[0], WARM[1]], 1192)
+        fill_face(glow, rect, [WARM[1], WARM[2], WARM[3]], 1193)
+    # Arme: Kalksteinsäulen mit Kupferbändern; rechts die Glocke, links die Faust
+    for u, seed in ((0, 1201), (124, 1211)):
+        arm = Cube(u, 64, 6, 26, 8)
+        for name, rect in arm.each():
+            calcite_face(s, rect, seed + len(name), cracks=2)
+            x, y, w, h = rect
+            if name not in ("top", "bottom"):
+                for yy in (4, 5, 17, 18):
+                    for xx in range(w):
+                        s.set(x + xx, y + yy, PATINA[1 if yy % 2 else 2])
+    for i, (u, w, h, d) in enumerate(((28, 6, 3, 6), (52, 8, 4, 8), (84, 10, 2, 10))):
+        bell = Cube(u, 64, w, h, d)
+        for name, rect in bell.each():
+            patina_face(s, rect, 1221 + i * 10 + len(name))
+            if name == "bottom" and i == 2:
+                x, y, w2, h2 = rect
+                s.rect(x + 1, y + 1, x + w2 - 2, y + h2 - 2, (24, 30, 28, 255))
+    fist = Cube(152, 64, 8, 8, 10)
+    for name, rect in fist.each():
+        calcite_face(s, rect, 1251 + len(name), cracks=1)
+    for u, seed in ((0, 1261), (32, 1271)):
+        leg = Cube(u, 98, 8, 18, 8)
+        for name, rect in leg.each():
+            calcite_face(s, rect, seed + len(name), cracks=2, moss=0.1)
+            x, y, w, h = rect
+            if name not in ("top", "bottom"):
+                for xx in range(w):
+                    s.set(x + xx, y + h - 2, PATINA[1])
+                    s.set(x + xx, y + h - 1, PATINA[0])
+                    s.set(x + xx, y + 2, PATINA[2])
+    return s, glow
+
+
+def heart_of_the_last_city():
+    """Herz der letzten Stadt: eine kleine grüne Glocke, in der ein warmes Licht brennt, mit einem Zifferblatt-Ring."""
+    s = Sprite()
+    rows = [(4, 5, 10), (5, 4, 11), (6, 4, 11), (7, 3, 12), (8, 3, 12), (9, 3, 12), (10, 2, 13), (11, 2, 13), (12, 1, 14), (13, 1, 14)]
+    for y, x0, x1 in rows:
+        for x in range(x0, x1 + 1):
+            light = (8 - x) / 8
+            s.set(x, y, PATINA[3] if light > 0.3 else PATINA[2] if light > -0.2 else PATINA[1])
+    s.rect(6, 2, 9, 3, BRONZE[2])
+    s.rect(7, 1, 8, 1, BRONZE[1])
+    for x in range(1, 15):
+        s.set(x, 13, PATINA[0])
+    for yy in range(7, 12):
+        for xx in range(6, 10):
+            d = math.hypot(xx - 7.5, yy - 9.0)
+            if d <= 1.9:
+                s.set(xx, yy, WARM[2] if d < 1.0 else WARM[1])
+    s.set(7, 8, WARM[3])
+    s.set(5, 6, PATINA[3])
+    s.set(7, 14, BRONZE[1])
+    s.set(8, 14, BRONZE[1])
+    s.outline()
+    return s
+
+
+def city_bell_plinth():
+    s = Sprite()
+    stone_bricks(s, (0, 0, 16, 16), 1301, moss=0.35)
+    return s
+
+
+def city_bell_wood():
+    s = Sprite()
+    noise_fill_local(s, [(52, 40, 30, 255), (70, 54, 40, 255), (88, 70, 52, 255)], 1311)
+    for x in range(16):
+        s.set(x, 0, (40, 30, 22, 255))
+    return s
+
+
+def city_bell_bronze():
+    s = Sprite()
+    patina_face(s, (0, 0, 16, 16), 1321)
+    for y in range(16):
+        s.set(0, y, PATINA[0])
+        s.set(15, y, PATINA[0])
+    return s
+
 # ------------------------------------------------------------------------------------------
 # Items
 # ------------------------------------------------------------------------------------------
@@ -693,8 +900,10 @@ def damping_module():
     return g.module("amp", "damping")
 
 
-ITEMS = {"time_seal": time_seal, "clock_hand_blade": clock_hand_blade, "damping_module": damping_module, "guardian_core": guardian_core}
-BLOCKS = {"chronometer_top": chronometer_top, "chronometer_side": chronometer_side, "chronometer_bottom": chronometer_bottom}
+ITEMS = {"time_seal": time_seal, "clock_hand_blade": clock_hand_blade, "damping_module": damping_module, "guardian_core": guardian_core,
+         "heart_of_the_last_city": heart_of_the_last_city}
+BLOCKS = {"chronometer_top": chronometer_top, "chronometer_side": chronometer_side, "chronometer_bottom": chronometer_bottom,
+          "city_bell_plinth": city_bell_plinth, "city_bell_wood": city_bell_wood, "city_bell_bronze": city_bell_bronze}
 
 
 def main(preview=None):
@@ -713,13 +922,17 @@ def main(preview=None):
     tex, glow = ruin_guardian_textures()
     tex.save(TEX / "entity" / "ruin_guardian.png")
     glow.save(TEX / "entity" / "ruin_guardian_glow.png")
+    for bare, suffix in ((False, ""), (True, "_bare")):
+        tex, glow = colossus_textures(bare)
+        tex.save(TEX / "entity" / f"city_colossus{suffix}.png")
+        glow.save(TEX / "entity" / f"city_colossus{suffix}_glow.png")
     moss_bear_textures(False).save(TEX / "entity" / "moss_bear.png")
     moss_bear_textures(True).save(TEX / "entity" / "moss_bear_sheared.png")
     for folder in ("villager", "zombie_villager"):
         path = TEX / "entity" / folder / "profession" / "chrono_trader.png"
         chrono_trader_overlay().save(path)
         (path.parent / "chrono_trader.png.mcmeta").write_text('{"villager": {"hat": "partial"}}\n')
-    print(f"{len(sprites)} Item- und Block-Texturen und 3 Wesen geschrieben")
+    print(f"{len(sprites)} Item- und Block-Texturen und 4 Wesen geschrieben")
     if preview:
         scale = 6
         sheet = Image.new("RGBA", (128 * 4 + 16 * scale * len(sprites) + 40, 128 * 4), (60, 60, 70, 255))

@@ -330,5 +330,59 @@
         "attenuation_distance": 32
       }
     ]
+  },
+  "colossus_emerge": {
+    "subtitle": "subtitles.timemod.colossus_emerge",
+    "sounds": [
+      {
+        "name": "timemod:colossus_emerge",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "colossus_bell": {
+    "subtitle": "subtitles.timemod.colossus_bell",
+    "sounds": [
+      {
+        "name": "timemod:colossus_bell",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "colossus_breath": {
+    "subtitle": "subtitles.timemod.colossus_breath",
+    "sounds": [
+      {
+        "name": "timemod:colossus_breath",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "colossus_stomp": {
+    "subtitle": "subtitles.timemod.colossus_stomp",
+    "sounds": [
+      {
+        "name": "timemod:colossus_stomp",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "colossus_hurt": {
+    "subtitle": "subtitles.timemod.colossus_hurt",
+    "sounds": [
+      {
+        "name": "timemod:colossus_hurt",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "colossus_death": {
+    "subtitle": "subtitles.timemod.colossus_death",
+    "sounds": [
+      {
+        "name": "timemod:colossus_death",
+        "attenuation_distance": 64
+      }
+    ]
   }
 }

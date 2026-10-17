@@ -23,7 +23,8 @@
       "com.fischgesichtert.timemod.gametest.ClimateTests",
       "com.fischgesichtert.timemod.gametest.TownTests",
       "com.fischgesichtert.timemod.gametest.ParadoxTests",
-      "com.fischgesichtert.timemod.gametest.CreatureTests"
+      "com.fischgesichtert.timemod.gametest.CreatureTests",
+      "com.fischgesichtert.timemod.gametest.LastCityTests"
     ]
   },
   "mixins": [

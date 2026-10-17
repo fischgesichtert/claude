@@ -167,6 +167,13 @@ public final class ModItems {
     public static final Item MOSS_BEAR_SPAWN_EGG = register("moss_bear_spawn_egg", new SpawnEggItem(ModEntities.MOSS_BEAR, 0x5A3F2A, 0x5E9A33,
         new Item.Properties()));
 
+    // Epochen-Boss +1000: der Wächter der letzten Stadt
+    public static final Item CITY_BELL = block(ModBlocks.CITY_BELL);
+    public static final Item HEART_OF_THE_LAST_CITY = register("heart_of_the_last_city", new Item(new Item.Properties().stacksTo(16)
+        .rarity(Rarity.EPIC).fireResistant()));
+    public static final Item CITY_COLOSSUS_SPAWN_EGG = register("city_colossus_spawn_egg", new SpawnEggItem(ModEntities.CITY_COLOSSUS, 0xD8D3C6, 0x4FA98A,
+        new Item.Properties()));
+
     // Entwicklung
     public static final Item CHRONO_DEBUG_WAND = register("chrono_debug_wand", new ChronoDebugWandItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));
 

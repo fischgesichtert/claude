@@ -39,10 +39,18 @@ ITEMS = [
      "The old heart of a Ruin Guardian. It still beats – in time with a bell that nobody rings anymore."),
     ("ruin_guardian_spawn_egg", "spawn_egg", "Ruinenwächter-Spawn-Ei", "Ruin Guardian Spawn Egg", None, None),
     ("moss_bear_spawn_egg", "spawn_egg", "Moosbär-Spawn-Ei", "Moss Bear Spawn Egg", None, None),
+    # M8f: der Wächter der letzten Stadt
+    ("heart_of_the_last_city", "generated", "Herz der letzten Stadt", "Heart of the Last City",
+     "Schlägt im Takt einer Stadtuhr. Mach damit einen Zeitfeld-Projektor zur Stadtuhr: bis 24 Blöcke weit, ein Viertel des Verbrauchs.",
+     "It beats in time with a city clock. Turns a Time Field Projector into a city clock: up to 24 blocks, a quarter of the cost."),
+    ("city_colossus_spawn_egg", "spawn_egg", "Spawn-Ei: Wächter der letzten Stadt", "Warden of the Last City Spawn Egg", None, None),
 ]
 
 # Blöcke: (id, de, en, Beschreibung de, Beschreibung en)
 BLOCKS = [
+    ("city_bell", "Glocke der letzten Stadt", "Bell of the Last City",
+     "Hängt noch in den Ruinen der Städte von +1000. Drei Wächterkerne bringen sie zum Klingen.",
+     "Still hangs in the ruins of the cities of +1000. Three guardian cores make it ring."),
     ("chronometer", "Chronometer", "Chronometer",
      "Präzisionsuhr der Zukunft – Arbeitsplatz der Chrono-Händler. Findet ein Dorfbewohner eines, handelt er mit der Zeit.",
      "A precision clock of the future – the Chrono Trader's workstation. A villager who finds one starts trading in time."),
@@ -61,6 +69,12 @@ SOUNDS = {
     "warden_bolt_hit": ("Stasis-Zeiger trifft", "Stasis bolt hits", 16),
     "seal_stamp": ("Zeitsiegel wird aufgedrückt", "Time seal pressed", 16),
     "guardian_wake": ("Ruinenwächter erwacht", "Ruin Guardian awakens", 32),
+    "colossus_emerge": ("Der Boden bebt", "The ground shakes", 64),
+    "colossus_bell": ("Die Glocke der letzten Stadt schlägt", "The bell of the last city tolls", 64),
+    "colossus_breath": ("Verwitterungshauch", "Breath of ages", 32),
+    "colossus_stomp": ("Koloss stampft", "Colossus stomps", 48),
+    "colossus_hurt": ("Stein platzt ab", "Stone chips away", 32),
+    "colossus_death": ("Der Wächter der letzten Stadt zerfällt", "The Warden of the Last City crumbles", 64),
 }
 
 LANG = {
@@ -84,6 +98,12 @@ LANG = {
         "entity.timemod.ruin_guardian": "Ruinenwächter",
         "entity.timemod.moss_bear": "Moosbär",
         "entity.minecraft.villager.chrono_trader": "Chrono-Händler",
+        "entity.timemod.city_colossus": "Wächter der letzten Stadt",
+        "boss.timemod.city_colossus.awakens": "Der Wächter der letzten Stadt erwacht",
+        "boss.timemod.city_colossus.awakens.hint": "Nur in beschleunigter Zeit holen ihn die Jahrhunderte ein",
+        "message.timemod.altar.city_bell": "Eine alte Glocke, grün vor Alter. Sie wartet auf die Herzen ihrer Wächter …",
+        "message.timemod.altar.city_bell.more": "Die Glocke verlangt %s Wächterkerne.",
+        "message.timemod.projector.city_heart": "Das Herz der letzten Stadt schlägt jetzt im Projektor: bis 24 Blöcke weit, ein Viertel des Verbrauchs.",
     },
     "en_us": {
         "entity.timemod.time_warden": "Time Warden",
@@ -105,6 +125,12 @@ LANG = {
         "entity.timemod.ruin_guardian": "Ruin Guardian",
         "entity.timemod.moss_bear": "Moss Bear",
         "entity.minecraft.villager.chrono_trader": "Chrono Trader",
+        "entity.timemod.city_colossus": "Warden of the Last City",
+        "boss.timemod.city_colossus.awakens": "The Warden of the Last City awakens",
+        "boss.timemod.city_colossus.awakens.hint": "Only in accelerated time do the centuries catch up with him",
+        "message.timemod.altar.city_bell": "An old bell, green with age. It waits for the hearts of its guardians …",
+        "message.timemod.altar.city_bell.more": "The bell demands %s guardian cores.",
+        "message.timemod.projector.city_heart": "The heart of the last city now beats in the projector: up to 24 blocks, a quarter of the cost.",
     },
 }
 
@@ -118,7 +144,28 @@ def item_models():
         write(ASSETS / f"models/item/{item_id}.json", {"parent": parent, "textures": {"layer0": t(f"item/{item_id}")}})
 
 
+def city_bell_model():
+    def box(frm, to, tex):
+        return {"from": frm, "to": to, "faces": {face: {"texture": tex} for face in ("down", "up", "north", "south", "west", "east")}}
+    write(ASSETS / "blockstates/city_bell.json", {"variants": {"": {"model": t("block/city_bell")}}})
+    write(ASSETS / "models/block/city_bell.json", {
+        "parent": "minecraft:block/block",
+        "textures": {"particle": t("block/city_bell_plinth"), "plinth": t("block/city_bell_plinth"), "wood": t("block/city_bell_wood"),
+                     "bronze": t("block/city_bell_bronze")},
+        "elements": [
+            box([1, 0, 1], [15, 5, 15], "#plinth"),
+            box([2, 5, 7], [4, 16, 9], "#wood"),
+            box([12, 5, 7], [14, 16, 9], "#wood"),
+            box([4, 14, 7], [12, 16, 9], "#wood"),
+            box([6, 12, 6], [10, 14, 10], "#bronze"),
+            box([5, 9, 5], [11, 12, 11], "#bronze"),
+            box([4, 8, 4], [12, 9, 12], "#bronze"),
+        ],
+    })
+
+
 def block_assets():
+    city_bell_model()
     for block_id, *_ in BLOCKS:
         write(ASSETS / f"models/item/{block_id}.json", {"parent": t(f"block/{block_id}")})
     write(ASSETS / "blockstates/chronometer.json", {"variants": {
@@ -189,6 +236,13 @@ def loot_tables():
     write(DATA / f"{NS}/loot_tables/entities/moss_bear.json", {"type": "minecraft:entity", "pools": [
         {"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:moss_block", "functions": count(0, 2)}]},
         {"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:sweet_berries", "functions": count(0, 2)}]},
+    ]})
+    write(DATA / f"{NS}/loot_tables/entities/city_colossus.json", {"type": "minecraft:entity", "pools": [
+        {"rolls": 1, "entries": [{"type": "minecraft:item", "name": t("heart_of_the_last_city")}]},
+        {"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:oxidized_copper", "functions": count(4, 8, 0)}]},
+        {"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:calcite", "functions": count(4, 10, 0)}]},
+        {"rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:bell"}]},
+        {"rolls": 1, "entries": [{"type": "minecraft:item", "name": t("guardian_core"), "functions": count(1, 2, 0)}]},
     ]})
     write(DATA / f"{NS}/loot_tables/blocks/chronometer.json", {"type": "minecraft:block", "pools": [
         {"rolls": 1, "conditions": [{"condition": "minecraft:survives_explosion"}],

@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /** Worauf zielt der Spieler? Entities (auch Pfeile im Flug) vor Blöcken. */
-final class TimeTargeting {
+public final class TimeTargeting {
     private TimeTargeting() {
     }
 
@@ -38,7 +38,7 @@ final class TimeTargeting {
     }
 
     /** Ziel-Mittelpunkt für Zonen: angeschauter Block oder ein Stück vor dem Spieler. */
-    static Vec3 point(Player player, double range) {
+    public static Vec3 point(Player player, double range) {
         return block(player, range).map(hit -> Vec3.atCenterOf(hit.getBlockPos().relative(hit.getDirection())))
             .orElseGet(() -> player.getEyePosition().add(player.getViewVector(1.0F).scale(Math.min(range, 6))));
     }

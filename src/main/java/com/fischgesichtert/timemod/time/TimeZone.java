@@ -32,6 +32,8 @@ public final class TimeZone {
      * Spieler darin werden mitgespult. Der Client zeigt sie als laufendes Band.
      */
     private final boolean rewind;
+    /** Beim Zurückspulen: Der Auslöser bleibt frei (er steuert die Zeit, statt mitzulaufen). */
+    private boolean ownerFree;
     /** Verbleibende echte Ticks; negativ = unbegrenzt. */
     private int remainingTicks;
 
@@ -209,6 +211,15 @@ public final class TimeZone {
         return false;
     }
 
+    public boolean ownerFree() {
+        return ownerFree;
+    }
+
+    public TimeZone freeOwner() {
+        this.ownerFree = true;
+        return this;
+    }
+
     public void write(FriendlyByteBuf buf) {
         buf.writeVarInt(id);
         shape.write(buf);
@@ -221,6 +232,7 @@ public final class TimeZone {
         if (owner != null) {
             buf.writeUUID(owner);
         }
+        buf.writeBoolean(ownerFree);
     }
 
     public static TimeZone read(FriendlyByteBuf buf) {
@@ -234,6 +246,7 @@ public final class TimeZone {
         UUID owner = buf.readBoolean() ? buf.readUUID() : null;
         TimeZone zone = new TimeZone(id, shape, factor, mask, owner, remaining, false, rewind);
         zone.targetEntity = target;
+        zone.ownerFree = buf.readBoolean();
         return zone;
     }
 

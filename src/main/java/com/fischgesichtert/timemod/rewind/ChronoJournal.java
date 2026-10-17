@@ -140,9 +140,18 @@ public final class ChronoJournal {
         return replaying > 0;
     }
 
+    /** Die laufende Rückspul-Wiedergabe (eine schon beendete zählt nicht mehr). */
     @Nullable
     public RewindSession session() {
+        if (session != null && session.isFinished()) {
+            session = null;
+        }
         return session;
+    }
+
+    /** Wie viele Ticks das Journal höchstens aufbewahrt. */
+    public int capacityTicks() {
+        return capacity;
     }
 
     private void clear() {
@@ -272,7 +281,7 @@ public final class ChronoJournal {
 
     /** Am Ende eines echten Ticks: Zustand festhalten und den Frame abschließen. */
     public void endRealTick() {
-        if (!recording || session != null || open == null) {
+        if (!recording || session() != null || open == null) {
             return;
         }
         Frame frame = open;
@@ -411,7 +420,12 @@ public final class ChronoJournal {
      * (Kategorien aus {@link TimeFilter}) lässt sich einschränken, was zurückgespult wird.
      */
     public RewindSession rewind(int ticks, int speed, @Nullable RewindSession.Region region, @Nullable UUID owner, int mask) {
-        if (!recording || session != null || open == null) {
+        return rewind(ticks, speed, region, owner, mask, false);
+    }
+
+    /** Wie oben; mit {@code ownerFree} bleibt der Auslöser stehen und kann das Zurückspulen jederzeit beenden. */
+    public RewindSession rewind(int ticks, int speed, @Nullable RewindSession.Region region, @Nullable UUID owner, int mask, boolean ownerFree) {
+        if (!recording || session() != null || open == null) {
             return null;
         }
         // Der laufende (unvollständige) Tick wird immer zuerst rückgängig gemacht
@@ -419,7 +433,7 @@ public final class ChronoJournal {
         frames.addLast(open);
         open = null;
         int count = Math.min(ticks, frames.size() - 1);
-        session = new RewindSession(this, level, count + 1, speed, region, owner, mask);
+        session = new RewindSession(this, level, count + 1, speed, region, owner, mask, ownerFree);
         if (speed <= 0) {
             session.runToEnd();
             session = null;

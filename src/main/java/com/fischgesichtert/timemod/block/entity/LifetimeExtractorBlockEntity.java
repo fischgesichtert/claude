@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.block.entity;
 import com.fischgesichtert.timemod.block.LifetimeExtractorBlock;
 import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.energy.ChrononHolder;
+import com.fischgesichtert.timemod.energy.ChrononStorage;
 import com.fischgesichtert.timemod.network.Aging;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModDamageTypes;
@@ -34,7 +35,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 /** Puffer und Arbeitslogik des Lebenszeit-Extraktors. */
-public class LifetimeExtractorBlockEntity extends BlockEntity {
+public class LifetimeExtractorBlockEntity extends BlockEntity implements ChrononStorage {
     public static final int BUFFER_CAPACITY = 50_000;
     /** Chronon je entzogenem Lebenspunkt: eine Kuh (10 Leben) bringt 250. */
     public static final int CHRONON_PER_HEALTH = 25;
@@ -130,6 +131,18 @@ public class LifetimeExtractorBlockEntity extends BlockEntity {
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public int storedChronon() {
+        return buffer + Chronon.stored(charging);
+    }
+
+    @Override
+    public int drainChronon(int amount) {
+        int fromBuffer = Math.min(buffer, amount);
+        buffer -= fromBuffer;
+        return fromBuffer + Chronon.extract(charging, amount - fromBuffer);
     }
 
     public int buffer() {

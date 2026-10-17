@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.block.entity;
 import com.fischgesichtert.timemod.block.TimeFieldProjectorBlock;
 import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.energy.ChrononHolder;
+import com.fischgesichtert.timemod.energy.ChrononStorage;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
@@ -31,7 +32,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 /** Zeitfeld-Projektor: eine dauerhafte, würfelförmige Zeitzone um den Block, bezahlt mit Chronon. */
-public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAnchored {
+public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAnchored, ChrononStorage {
     public static final double[] FACTORS = {2.0, 3.0, 4.0, 0.5, 0.25};
     public static final int[] RADII = {2, 3, 4, 6, 8};
     public static final int CAPACITY = 50_000;
@@ -142,6 +143,18 @@ public class TimeFieldProjectorBlockEntity extends BlockEntity implements TimeAn
         player.displayClientMessage(Component.translatable("message.timemod.projector.status",
             String.format(Locale.ROOT, "%.2f", factor()), radius(), Chronon.format(buffer), String.format(Locale.ROOT, "%.1f", costPerTick() * 20))
             .withStyle(ChatFormatting.AQUA), true);
+    }
+
+    @Override
+    public int storedChronon() {
+        return buffer;
+    }
+
+    @Override
+    public int drainChronon(int amount) {
+        int taken = Math.min(buffer, amount);
+        buffer -= taken;
+        return taken;
     }
 
     public int buffer() {

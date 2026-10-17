@@ -1,25 +1,36 @@
 package com.fischgesichtert.timemod.rewind;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.energy.Chronon;
+import com.fischgesichtert.timemod.item.RewindPersistent;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import com.fischgesichtert.timemod.time.TimeFilter;
 import com.fischgesichtert.timemod.time.TimeZone;
 import com.fischgesichtert.timemod.time.ZoneShape;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.IntUnaryOperator;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.Container;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.vehicle.ContainerEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,11 +44,26 @@ import org.jetbrains.annotations.Nullable;
  * in umgekehrter Reihenfolge, Entstandenes verschwindet, Verschwundenes kehrt zurück (mit derselben
  * UUID), und alle Entities und Spieler nehmen ihre Position vom Tick davor ein – so laufen sie
  * ihre Wege sichtbar rückwärts.
+ * <p>
+ * Damit sich durch Zurückspulen nichts verdoppeln lässt, gelten zwei Regeln:
+ * <ul>
+ * <li>Blöcke, Maschinen und Gegenstände laufen nur gemeinsam zurück, und mit ihnen die Inventare
+ * aller Spieler im Bereich. Das gilt auch für den Auslöser, wenn er selbst an Ort und Stelle bleibt.
+ * Wer eines davon wählt, spult alles zurück.</li>
+ * <li>Chronon ist geronnene Zeit: Ausgegebenes kommt durch Zurückspulen nicht wieder
+ * ({@link #settleChronon()}).</li>
+ * </ul>
+ * Teilweises Zurückspulen (nur Wesen, Natur oder Tageszeit) bewegt und heilt. Es weckt keine Toten
+ * auf und stellt nur Nachwachsendes wieder her.
  */
 public final class RewindSession {
     private static final int SET_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS;
     /** Alles zurückspulen (Standard ohne Filtermodule). */
     public static final int EVERYTHING = TimeFilter.ALL_ENTITIES | TimeFilter.ALL_BLOCKS | TimeFilter.ALL_WORLD;
+    /** Was nur gemeinsam mit allem anderen zurückläuft. */
+    public static final int ITEM_BOUND = TimeFilter.BLOCK_TICKS | TimeFilter.MACHINES | TimeFilter.ITEMS;
+    /** Blockänderungen, die auch einzeln zurückgespult werden dürfen: alles Nachwachsende. */
+    private static final int RENEWABLE = TimeFilter.GROWTH | TimeFilter.ENVIRONMENT | TimeFilter.FLUIDS;
 
     private final ChronoJournal journal;
     private final ServerLevel level;
@@ -46,12 +72,26 @@ public final class RewindSession {
     @Nullable
     private final Region region;
     private final int mask;
+    /** Alles Gegenständliche läuft mit zurück (Blöcke, Maschinen, Gegenstände, Inventare). */
+    private final boolean full;
+    @Nullable
+    private final UUID owner;
+    private final boolean ownerFree;
     private int done;
     private boolean finished;
     @Nullable
     private TimeZone zone;
+    @Nullable
+    private Predicate<ServerPlayer> whileHeld;
     private final Set<BlockPos> touched = new HashSet<>();
-    private final List<Runnable> onFinish = new java.util.ArrayList<>();
+    private final List<Runnable> onFinish = new ArrayList<>();
+
+    /** Chronon, das beim Zurückspulen aus Dingen verschwunden ist und anderswo wieder auftauchen darf. */
+    private long chrononCredit;
+    /** Chronon, das im laufenden Schritt hinzugekommen ist … */
+    private long stepGain;
+    /** … und woraus es sich wieder entnehmen lässt. */
+    private final List<IntUnaryOperator> stepDrains = new ArrayList<>();
 
     /** Bereich, auf den das Zurückspulen wirkt. */
     public record Region(Vec3 center, double radius) {
@@ -64,17 +104,69 @@ public final class RewindSession {
         }
     }
 
-    RewindSession(ChronoJournal journal, ServerLevel level, int steps, int speed, @Nullable Region region, @Nullable UUID owner, int mask) {
+    RewindSession(ChronoJournal journal, ServerLevel level, int steps, int speed, @Nullable Region region, @Nullable UUID owner, int mask,
+                  boolean ownerFree) {
         this.journal = journal;
         this.level = level;
         this.totalSteps = steps;
         this.speed = speed;
         this.region = region;
-        this.mask = mask;
+        this.mask = effectiveMask(mask);
+        this.full = isFull(mask);
+        this.owner = owner;
+        this.ownerFree = ownerFree && owner != null;
         if (speed > 0) {
             ZoneShape shape = region != null ? new ZoneShape.Sphere(region.center(), region.radius()) : ZoneShape.Global.INSTANCE;
-            zone = ServerTimeEngine.of(level).addRewindZone(shape, mask, owner);
+            zone = ServerTimeEngine.of(level).addRewindZone(shape, this.mask, owner, this.ownerFree);
         }
+    }
+
+    /** Wer Blöcke, Maschinen oder Gegenstände wählt, spult alles Gegenständliche mit zurück. */
+    public static int effectiveMask(int mask) {
+        return isFull(mask) ? mask | TimeFilter.ALL_ENTITIES | TimeFilter.ALL_BLOCKS : mask;
+    }
+
+    /** Läuft bei dieser Auswahl alles Gegenständliche zurück? */
+    public static boolean isFull(int mask) {
+        return (mask & ITEM_BOUND) != 0;
+    }
+
+    /**
+     * Darf dieser Spieler gerade nichts fallen lassen? Das gilt für den Auslöser, der beim vollen
+     * Zurückspulen frei bleibt. Sein Inventar folgt der Welt, und Fallengelassenes käme doppelt zurück.
+     */
+    public static boolean holdsInventory(ServerPlayer player) {
+        RewindSession session = ServerTimeEngine.of(player.serverLevel()).journal().session();
+        return session != null && !session.finished && session.full && session.isFreeOwner(player.getUUID());
+    }
+
+    /** Bleibt der Auslöser stehen, während um ihn herum zurückgespult wird? */
+    private boolean isFreeOwner(UUID uuid) {
+        return ownerFree && uuid.equals(owner);
+    }
+
+    /** Nur so lange zurückspulen, wie der Auslöser es will, etwa solange er die Taste hält. */
+    public void whileHeld(Predicate<ServerPlayer> condition) {
+        whileHeld = condition;
+    }
+
+    /** Schon jetzt anhalten (Loslassen beim Scrubbing): die Welt bleibt bei diesem Stand. */
+    public void stop() {
+        finish();
+    }
+
+    /** Wie viele Ticks schon zurückgespult sind. */
+    public int done() {
+        return done;
+    }
+
+    public int totalSteps() {
+        return totalSteps;
+    }
+
+    @Nullable
+    public UUID owner() {
+        return owner;
     }
 
     private boolean wants(int category) {
@@ -109,6 +201,19 @@ public final class RewindSession {
         return state.is(BlockTags.SNOW) || state.is(BlockTags.ICE) || state.is(BlockTags.FIRE);
     }
 
+    /** Teil-Zurückspulen: nur Nachwachsendes, und nie etwas mit Block-Entity (Truhen, Maschinen …). */
+    private boolean partialAllows(Frame.BlockChange change) {
+        BlockState current = level.getBlockState(change.pos());
+        int category = blockCategory(change.oldState(), current);
+        return (category & RENEWABLE) != 0 && wants(category) && change.oldBlockEntity() == null
+            && !change.oldState().hasBlockEntity() && !current.hasBlockEntity();
+    }
+
+    /** Hält etwas Gegenstände fest, die beim Entfernen verloren gingen? (Teil-Zurückspulen lässt es stehen.) */
+    private static boolean holdsItems(Entity entity) {
+        return entity instanceof ContainerEntity || entity instanceof ItemFrame || entity instanceof ArmorStand;
+    }
+
     public boolean isFinished() {
         return finished;
     }
@@ -128,6 +233,11 @@ public final class RewindSession {
     }
 
     void tick() {
+        if (whileHeld != null && owner != null
+            && !(level.getPlayerByUUID(owner) instanceof ServerPlayer player && whileHeld.test(player))) {
+            finish();
+            return;
+        }
         for (int i = 0; i < speed && !finished; i++) {
             step();
         }
@@ -159,6 +269,7 @@ public final class RewindSession {
         } finally {
             journal.endReplay();
         }
+        settleChronon();
         done++;
         if (done >= totalSteps || journal.frames().isEmpty()) {
             finish();
@@ -173,26 +284,34 @@ public final class RewindSession {
             if (region != null && !region.contains(change.pos())) {
                 continue;
             }
-            if (mask != EVERYTHING && !wants(blockCategory(change.oldState(), level.getBlockState(change.pos())))) {
+            if (!full && !partialAllows(change)) {
                 continue;
             }
+            long before = Chronon.total(level.getBlockEntity(change.pos()));
             level.setBlock(change.pos(), change.oldState(), SET_FLAGS);
             if (change.oldBlockEntity() != null) {
                 loadBlockEntity(change.pos(), change.oldBlockEntity());
             }
+            BlockEntity now = level.getBlockEntity(change.pos());
+            noteChronon(before, Chronon.total(now), amount -> Chronon.drain(now, amount));
             touched.add(change.pos());
         }
-        // 2) Block-Entities, deren Daten sich in diesem Tick geändert haben
-        for (BlockPos pos : frame.blockEntityAfter.keySet()) {
-            if ((region != null && !region.contains(pos)) || !wants(TimeFilter.MACHINES)) {
-                continue;
-            }
-            CompoundTag before = journal.blockEntityState(pos);
-            if (before != null) {
-                loadBlockEntity(pos, before);
+        // 2) Block-Entities, deren Daten sich in diesem Tick geändert haben (nur beim vollen Zurückspulen)
+        if (full) {
+            for (BlockPos pos : frame.blockEntityAfter.keySet()) {
+                if (region != null && !region.contains(pos)) {
+                    continue;
+                }
+                CompoundTag state = journal.blockEntityState(pos);
+                BlockEntity blockEntity = level.getBlockEntity(pos);
+                if (state != null && blockEntity != null) {
+                    long before = Chronon.total(blockEntity);
+                    loadBlockEntity(pos, state);
+                    noteChronon(before, Chronon.total(blockEntity), amount -> Chronon.drain(blockEntity, amount));
+                }
             }
         }
-        // 3) Entities: Entstandenes verschwindet, Entferntes kehrt zurück
+        // 3) Entities: Entstandenes verschwindet, Entferntes kehrt zurück (nur beim vollen Zurückspulen)
         List<Frame.EntityEvent> events = frame.entityEvents;
         for (int i = events.size() - 1; i >= 0; i--) {
             Frame.EntityEvent event = events.get(i);
@@ -201,19 +320,25 @@ public final class RewindSession {
             }
             if (event.spawned()) {
                 Entity entity = level.getEntity(event.uuid());
-                if (entity != null && !(entity instanceof ServerPlayer)) {
+                if (entity != null && !(entity instanceof ServerPlayer) && (full || !holdsItems(entity))) {
+                    noteChronon(Chronon.total(entity), 0, amount -> 0);
                     entity.discard();
                 }
-            } else if (level.getEntity(event.uuid()) == null) {
-                revive(event);
+            } else if (full && level.getEntity(event.uuid()) == null) {
+                Entity revived = revive(event);
+                if (revived != null) {
+                    noteChronon(0, Chronon.total(revived), amount -> Chronon.drain(revived, amount));
+                }
             }
         }
-        // 4) Spieler-Inventare
-        for (Map.Entry<UUID, Frame.PlayerItems> entry : frame.playerItems.entrySet()) {
-            if (wants(TimeFilter.PLAYERS) && level.getEntity(entry.getKey()) instanceof ServerPlayer player && inRegion(player.getX(), player.getY(), player.getZ())) {
-                Frame.PlayerItems before = journal.playerItems(entry.getKey());
-                if (before != null) {
-                    applyItems(player, before);
+        // 4) Spieler-Inventare: beim vollen Zurückspulen für alle im Bereich, auch den freien Auslöser
+        if (full) {
+            for (Map.Entry<UUID, Frame.PlayerItems> entry : frame.playerItems.entrySet()) {
+                if (level.getEntity(entry.getKey()) instanceof ServerPlayer player && inRegion(player.getX(), player.getY(), player.getZ())) {
+                    Frame.PlayerItems before = journal.playerItems(entry.getKey());
+                    if (before != null) {
+                        restoreItems(player, before);
+                    }
                 }
             }
         }
@@ -229,7 +354,8 @@ public final class RewindSession {
         }
     }
 
-    private void revive(Frame.EntityEvent event) {
+    @Nullable
+    private Entity revive(Frame.EntityEvent event) {
         // Wurde die Entity in eine andere Dimension gebracht, dort entfernen (sonst gäbe es sie doppelt)
         for (ServerLevel other : level.getServer().getAllLevels()) {
             if (other != level) {
@@ -242,7 +368,7 @@ public final class RewindSession {
         Entity entity = EntityType.loadEntityRecursive(event.removedState().copy(), level, e -> e);
         if (entity == null) {
             TimeMod.LOGGER.warn("Zeitjournal: Entity {} konnte nicht wiederhergestellt werden", event.uuid());
-            return;
+            return null;
         }
         if (entity instanceof LivingEntity living) {
             living.deathTime = 0;
@@ -250,6 +376,7 @@ public final class RewindSession {
             living.setHealth(Math.max(living.getHealth(), 0.5F));
         }
         level.addFreshEntity(entity);
+        return entity;
     }
 
     /** Alle aufgezeichneten Entities (und Spieler) an ihre Position aus {@code frame} setzen. */
@@ -260,16 +387,11 @@ public final class RewindSession {
                 continue;
             }
             Entity entity = level.getEntity(entry.getKey());
-            if (entity == null || !wants(TimeFilter.categoryOf(entity))) {
+            if (entity instanceof ServerPlayer player) {
+                applyPlayer(player, pose, frame.playerVitals.get(entry.getKey()));
                 continue;
             }
-            if (entity instanceof ServerPlayer player) {
-                player.connection.teleport(pose.x(), pose.y(), pose.z(), pose.yRot(), pose.xRot());
-                player.setHealth(pose.health());
-                Frame.PlayerVitals vitals = frame.playerVitals.get(entry.getKey());
-                if (vitals != null) {
-                    applyVitals(player, vitals);
-                }
+            if (entity == null || !wants(TimeFilter.categoryOf(entity))) {
                 continue;
             }
             entity.setPos(pose.x(), pose.y(), pose.z());
@@ -278,13 +400,17 @@ public final class RewindSession {
             entity.setYHeadRot(pose.headRot());
             if (entity instanceof LivingEntity living) {
                 living.yBodyRot = pose.bodyRot();
-                if (living.isAlive() || pose.health() > 0) {
-                    living.setHealth(pose.health());
-                }
-                if (pose.health() > 0 && living.deathTime > 0) {
-                    // Mitten im Sterben zurückgespult: wieder ganz lebendig (sonst stirbt es nie wieder)
-                    living.deathTime = 0;
-                    living.dead = false;
+                boolean dying = living.deathTime > 0 || living.isDeadOrDying();
+                // Teil-Zurückspulen weckt keine Sterbenden auf: ihre Beute ist schon gefallen
+                if (full || !dying) {
+                    if (living.isAlive() || pose.health() > 0) {
+                        living.setHealth(pose.health());
+                    }
+                    if (pose.health() > 0 && living.deathTime > 0) {
+                        // Mitten im Sterben zurückgespult: wieder ganz lebendig (sonst stirbt es nie wieder)
+                        living.deathTime = 0;
+                        living.dead = false;
+                    }
                 }
             }
             entity.setOnGround(pose.onGround());
@@ -299,17 +425,35 @@ public final class RewindSession {
         }
     }
 
-    private static void applyVitals(ServerPlayer player, Frame.PlayerVitals vitals) {
-        player.getFoodData().setFoodLevel(vitals.food());
-        player.getFoodData().setSaturation(vitals.saturation());
-        player.experienceLevel = vitals.xpLevel();
-        player.experienceProgress = vitals.xpProgress();
-        player.totalExperience = vitals.totalXp();
-        player.getInventory().selected = vitals.selected();
+    /**
+     * Spieler: Körper (Ort, Leben, gewählter Platz) nur mit Spieler-Filter und nicht beim freien
+     * Auslöser. Hunger und Erfahrung gehören zum Inventar und folgen beim vollen Zurückspulen der Welt.
+     */
+    private void applyPlayer(ServerPlayer player, Frame.Pose pose, @Nullable Frame.PlayerVitals vitals) {
+        boolean body = wants(TimeFilter.PLAYERS) && !isFreeOwner(player.getUUID());
+        if (body) {
+            player.connection.teleport(pose.x(), pose.y(), pose.z(), pose.yRot(), pose.xRot());
+            player.setHealth(pose.health());
+        }
+        if (vitals == null || !(body || full)) {
+            return;
+        }
+        if (full) {
+            player.getFoodData().setFoodLevel(vitals.food());
+            player.getFoodData().setSaturation(vitals.saturation());
+            player.experienceLevel = vitals.xpLevel();
+            player.experienceProgress = vitals.xpProgress();
+            player.totalExperience = vitals.totalXp();
+        }
+        if (body) {
+            player.getInventory().selected = vitals.selected();
+        }
         player.resetSentInfo();
     }
 
-    private static void applyItems(ServerPlayer player, Frame.PlayerItems items) {
+    private void restoreItems(ServerPlayer player, Frame.PlayerItems items) {
+        long before = Chronon.total(player);
+        List<ItemStack> persistent = persistentItems(player);
         player.getInventory().load(items.inventory());
         player.getEnderChestInventory().fromTag(items.enderChest());
         player.removeAllEffects();
@@ -319,7 +463,79 @@ public final class RewindSession {
                 player.addEffect(effect);
             }
         }
+        carryPersistent(player, persistent);
         player.inventoryMenu.broadcastChanges();
+        noteChronon(before, Chronon.total(player), amount -> Chronon.drain(player, amount));
+    }
+
+    // ------------------------------------------------------------------ Was ein Zurückspulen übersteht
+
+    private static List<ItemStack> persistentItems(ServerPlayer player) {
+        List<ItemStack> out = new ArrayList<>();
+        for (Container container : List.<Container>of(player.getInventory(), player.getEnderChestInventory())) {
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                ItemStack stack = container.getItem(i);
+                if (stack.getItem() instanceof RewindPersistent) {
+                    out.add(stack.copy());
+                }
+            }
+        }
+        return out;
+    }
+
+    private static void carryPersistent(ServerPlayer player, List<ItemStack> before) {
+        if (before.isEmpty()) {
+            return;
+        }
+        List<ItemStack> unused = new ArrayList<>(before);
+        for (Container container : List.<Container>of(player.getInventory(), player.getEnderChestInventory())) {
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                ItemStack restored = container.getItem(i);
+                if (!(restored.getItem() instanceof RewindPersistent persistent)) {
+                    continue;
+                }
+                for (Iterator<ItemStack> it = unused.iterator(); it.hasNext(); ) {
+                    ItemStack current = it.next();
+                    if (current.is(restored.getItem())) {
+                        persistent.carryThroughRewind(current, restored);
+                        it.remove();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------ Chronon-Bilanz
+
+    private void noteChronon(long before, long after, IntUnaryOperator drain) {
+        stepGain += after - before;
+        if (after > before) {
+            stepDrains.add(drain);
+        }
+    }
+
+    /**
+     * Bilanz eines Schritts: Chronon, das wieder auftaucht, ohne anderswo zu verschwinden (etwa der
+     * bezahlte Preis in der Uhr), wird gleich wieder entnommen. Was nur den Ort wechselt (eine Zelle
+     * zurück in die Truhe), bleibt.
+     */
+    private void settleChronon() {
+        if (stepGain < 0) {
+            chrononCredit -= stepGain;
+        } else if (stepGain > 0) {
+            long covered = Math.min(chrononCredit, stepGain);
+            chrononCredit -= covered;
+            long excess = stepGain - covered;
+            for (IntUnaryOperator drain : stepDrains) {
+                if (excess <= 0) {
+                    break;
+                }
+                excess -= drain.applyAsInt((int) Math.min(excess, Integer.MAX_VALUE));
+            }
+        }
+        stepGain = 0;
+        stepDrains.clear();
     }
 
     private void finish() {
@@ -332,16 +548,20 @@ public final class RewindSession {
             Frame target = journal.frames().peekLast();
             if (target != null) {
                 // Innere Zustände (KI, Inventare von Mobs …) aus dem letzten Schlüsselbild ≤ Ziel
-                for (UUID uuid : target.poses.keySet()) {
-                    Entity entity = level.getEntity(uuid);
-                    if (entity == null || entity instanceof ServerPlayer || !wants(TimeFilter.categoryOf(entity))) {
-                        continue;
-                    }
-                    CompoundTag state = journal.entityState(uuid);
-                    if (state != null && inRegion(entity.getX(), entity.getY(), entity.getZ())) {
-                        CompoundTag copy = state.copy();
-                        copy.remove("id");
-                        entity.load(copy);
+                if (full) {
+                    for (UUID uuid : target.poses.keySet()) {
+                        Entity entity = level.getEntity(uuid);
+                        if (entity == null || entity instanceof ServerPlayer || !wants(TimeFilter.categoryOf(entity))) {
+                            continue;
+                        }
+                        CompoundTag state = journal.entityState(uuid);
+                        if (state != null && inRegion(entity.getX(), entity.getY(), entity.getZ())) {
+                            long before = Chronon.total(entity);
+                            CompoundTag copy = state.copy();
+                            copy.remove("id");
+                            entity.load(copy);
+                            noteChronon(before, Chronon.total(entity), amount -> Chronon.drain(entity, amount));
+                        }
                     }
                 }
                 applyPoses(target, true);
@@ -362,6 +582,7 @@ public final class RewindSession {
         } finally {
             journal.endReplay();
         }
+        settleChronon();
         if (zone != null) {
             ServerTimeEngine.of(level).removeZone(zone.id());
         }

@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod.block.entity;
 
 import com.fischgesichtert.timemod.energy.Chronon;
 import com.fischgesichtert.timemod.energy.ChrononHolder;
+import com.fischgesichtert.timemod.energy.ChrononStorage;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModItems;
 import com.fischgesichtert.timemod.registry.ModSounds;
@@ -26,7 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** Zeitkondensator: Kristalle → Chronon-Puffer → eingelegtes Werkzeug bzw. Zeitzelle. */
-public class TimeCondenserBlockEntity extends BlockEntity {
+public class TimeCondenserBlockEntity extends BlockEntity implements ChrononStorage {
     public static final int BUFFER_CAPACITY = 20_000;
     public static final int CHRONON_PER_CRYSTAL = 2_000;
     public static final int CHRONON_PER_LEVEL = 100;
@@ -118,6 +119,18 @@ public class TimeCondenserBlockEntity extends BlockEntity {
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public int storedChronon() {
+        return buffer + Chronon.stored(charging);
+    }
+
+    @Override
+    public int drainChronon(int amount) {
+        int fromBuffer = Math.min(buffer, amount);
+        buffer -= fromBuffer;
+        return fromBuffer + Chronon.extract(charging, amount - fromBuffer);
     }
 
     public ItemStack charging() {

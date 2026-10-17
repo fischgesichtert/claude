@@ -124,7 +124,14 @@ public final class ServerTimeEngine extends TimeEngine {
 
     /** Zone, in der gerade zurückgespult wird: alles steht, die Wiedergabe bewegt es. */
     public TimeZone addRewindZone(ZoneShape shape, int mask, @Nullable UUID owner) {
+        return addRewindZone(shape, mask, owner, false);
+    }
+
+    public TimeZone addRewindZone(ZoneShape shape, int mask, @Nullable UUID owner, boolean ownerFree) {
         TimeZone zone = new TimeZone(nextId++, shape, 0.0, mask, owner, -1, true, true);
+        if (ownerFree) {
+            zone.freeOwner();
+        }
         runOrDefer(() -> {
             zone.setClock(level.getLevelData().getGameTime());
             zones.add(zone);

@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:chronos_watch"
+    },
+    "title": {
+      "translate": "advancements.timemod.chronos.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.chronos.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:chronos_watch"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:chronophage"
+}

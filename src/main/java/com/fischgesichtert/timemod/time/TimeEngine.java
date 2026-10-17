@@ -160,8 +160,11 @@ public abstract class TimeEngine {
         if (zone == null || !zone.isStop()) {
             return false;
         }
-        // Beim Rückspulen läuft jeder mit zurück – auch wer es ausgelöst hat
-        return zone.isRewind() || !player.getUUID().equals(zone.owner()) && !TimeImmunity.isImmune(player);
+        // Beim Rückspulen läuft jeder mit zurück – auch wer es ausgelöst hat (außer er steuert es mit der Chronos-Uhr)
+        if (zone.isRewind()) {
+            return !(zone.ownerFree() && player.getUUID().equals(zone.owner()));
+        }
+        return !player.getUUID().equals(zone.owner()) && !TimeImmunity.isImmune(player);
     }
 
     /** Steht diese Entity gerade im Stillstand? */

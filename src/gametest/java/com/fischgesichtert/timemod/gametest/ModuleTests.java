@@ -23,11 +23,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** Stufe III: Module verändern Werkzeuge, die Temporal-Werkbank baut sie ein – ohne Verdopplung. */
@@ -197,9 +200,49 @@ public class ModuleTests implements FabricGameTest {
         });
     }
 
-    /** Rückspulen mit Tier-Filter holt das Schwein zurück, lässt aber den gebauten Block stehen. */
+    /**
+     * Teil-Zurückspulen (nur Tiere) bewegt Lebende zurück, weckt aber keine Toten auf (ihre Beute ist
+     * schon gefallen) und lässt Gebautes stehen.
+     */
     @GameTest(template = ARENA, timeoutTicks = 80, setupTicks = 20, batch = "timemod_rewind_filter")
     public void filteredRewindOnlyTouchesChosenCategory(GameTestHelper helper) {
+        Pig pig = helper.spawn(EntityType.PIG, new Vec3(12.5, 2, 8.5));
+        pig.setNoAi(true);
+        Pig walker = helper.spawn(EntityType.PIG, new Vec3(16.5, 2, 12.5));
+        walker.setNoAi(true);
+        Vec3 walkerStart = walker.position();
+        ChronoJournal journal = ServerTimeEngine.of(helper.getLevel()).journal();
+        journal.clearAnchors();
+        journal.addAnchor(Vec3.atCenterOf(helper.absolutePos(new BlockPos(12, 3, 8))), 24);
+        journal.setRecording(true);
+        BlockPos built = new BlockPos(14, 2, 8);
+        helper.runAtTickTime(5, () -> helper.setBlock(built, Blocks.GOLD_BLOCK));
+        helper.runAtTickTime(6, () -> walker.teleportTo(walkerStart.x + 4, walkerStart.y, walkerStart.z));
+        helper.runAtTickTime(7, pig::kill);
+        helper.runAtTickTime(40, () -> {
+            if (helper.getLevel().getEntity(pig.getUUID()) != null) {
+                helper.fail("Das Schwein sollte nach der Todesanimation verschwunden sein");
+            }
+            journal.rewind(36, 0, null, null, TimeFilter.ANIMALS);
+            journal.setRecording(false);
+            journal.clearAnchors();
+            if (helper.getLevel().getEntity(pig.getUUID()) != null) {
+                helper.fail("Teil-Zurückspulen darf keine Toten aufwecken (sonst ließe sich Beute verdoppeln)");
+            }
+            if (walker.position().distanceTo(walkerStart) > 0.5) {
+                helper.fail("Das lebende Schwein muss an seinen Ausgangspunkt zurück, ist bei " + walker.position());
+            }
+            if (!helper.getBlockState(built).is(Blocks.GOLD_BLOCK)) {
+                helper.fail("Mit Tier-Filter darf der gebaute Block nicht verschwinden");
+            }
+            walker.discard();
+            helper.succeed();
+        });
+    }
+
+    /** Wer Gegenstände wählt, spult alles Gegenständliche zurück: Das Schwein lebt, seine Beute ist weg, der Block auch. */
+    @GameTest(template = ARENA, timeoutTicks = 80, setupTicks = 20, batch = "timemod_rewind_filter_full")
+    public void itemBoundFilterRewindsEverything(GameTestHelper helper) {
         Pig pig = helper.spawn(EntityType.PIG, new Vec3(12.5, 2, 8.5));
         pig.setNoAi(true);
         ChronoJournal journal = ServerTimeEngine.of(helper.getLevel()).journal();
@@ -210,22 +253,24 @@ public class ModuleTests implements FabricGameTest {
         helper.runAtTickTime(5, () -> helper.setBlock(built, Blocks.GOLD_BLOCK));
         helper.runAtTickTime(7, pig::kill);
         helper.runAtTickTime(40, () -> {
-            if (helper.getLevel().getEntity(pig.getUUID()) != null) {
-                helper.fail("Das Schwein sollte nach der Todesanimation verschwunden sein");
+            AABB area = new AABB(helper.absolutePos(BlockPos.ZERO)).inflate(40);
+            if (helper.getLevel().getEntitiesOfClass(ItemEntity.class, area, e -> e.getItem().is(Items.PORKCHOP)).isEmpty()) {
+                helper.fail("Der Test ist wertlos: Das Schwein hat nichts fallen gelassen");
             }
-            journal.rewind(36, 0, null, null, TimeFilter.ANIMALS);
+            journal.rewind(36, 0, null, null, TimeFilter.ITEMS);
             journal.setRecording(false);
             journal.clearAnchors();
-            Pig revived = (Pig) helper.getLevel().getEntity(pig.getUUID());
-            if (revived == null || !revived.isAlive()) {
-                helper.fail("Mit Tier-Filter muss das Schwein zurückkommen");
+            if (!(helper.getLevel().getEntity(pig.getUUID()) instanceof Pig revived) || !revived.isAlive()) {
+                helper.fail("Beim vollen Zurückspulen kehrt das Schwein zurück");
+                return;
             }
-            if (!helper.getBlockState(built).is(Blocks.GOLD_BLOCK)) {
-                helper.fail("Mit Tier-Filter darf der gebaute Block nicht verschwinden");
+            if (!helper.getLevel().getEntitiesOfClass(ItemEntity.class, area, e -> e.getItem().is(Items.PORKCHOP)).isEmpty()) {
+                helper.fail("Die Beute muss mit zurückgespult werden – sonst gäbe es sie doppelt");
             }
-            if (revived != null) {
-                revived.discard();
+            if (helper.getBlockState(built).is(Blocks.GOLD_BLOCK)) {
+                helper.fail("Gegenstände ziehen Blöcke mit: Der gebaute Block muss verschwinden");
             }
+            revived.discard();
             helper.succeed();
         });
     }

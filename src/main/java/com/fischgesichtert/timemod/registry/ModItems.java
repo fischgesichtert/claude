@@ -3,6 +3,7 @@ package com.fischgesichtert.timemod.registry;
 import com.fischgesichtert.timemod.TimeMod;
 import com.fischgesichtert.timemod.armor.ChronoArmorItem;
 import com.fischgesichtert.timemod.armor.ChronoUpgradeTemplate;
+import com.fischgesichtert.timemod.chronos.ChronosWatchItem;
 import com.fischgesichtert.timemod.energy.ChrononCellItem;
 import com.fischgesichtert.timemod.item.BrakeSpringItem;
 import com.fischgesichtert.timemod.item.ChronikItem;
@@ -108,6 +109,10 @@ public final class ModItems {
     public static final Item DURATION_MODULE = module("duration_module", ModuleItem.Kind.DURATION, 0);
     public static final Item STRENGTH_MODULE = module("strength_module", ModuleItem.Kind.STRENGTH, 0);
     public static final Item EFFICIENCY_MODULE = module("efficiency_module", ModuleItem.Kind.EFFICIENCY, 0);
+
+    // Stufe IV: Herr der Zeit
+    public static final Item HEART_OF_TIME = register("heart_of_time", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant()));
+    public static final Item CHRONOS_WATCH = register("chronos_watch", new ChronosWatchItem(new Item.Properties().rarity(Rarity.EPIC)));
 
     // Entwicklung
     public static final Item CHRONO_DEBUG_WAND = register("chrono_debug_wand", new ChronoDebugWandItem(new Item.Properties().stacksTo(1).rarity(Rarity.EPIC)));

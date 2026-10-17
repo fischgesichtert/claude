@@ -752,6 +752,70 @@ def phage_heart():
     return s
 
 
+CHRONOS_FRAMES = 8
+GOLD = [(120, 70, 10, 255), (190, 130, 30, 255), (236, 186, 60, 255), (255, 226, 120, 255), (255, 248, 210, 255)]
+
+
+def chronos_watch():
+    """Die Chronos-Uhr, animiert: kreisender Minutenzeiger, ein schräger Orbit-Ring mit zwei Lichtern."""
+    strip = Sprite(16, 16 * CHRONOS_FRAMES)
+    cx, cy = 7.5, 7.5
+    tilt = math.radians(-18)
+    for f in range(CHRONOS_FRAMES):
+        s = Sprite()
+        phase = f / CHRONOS_FRAMES * 2 * math.pi
+
+        def ring_point(t):
+            x, y = 7.6 * math.cos(t), 1.9 * math.sin(t)
+            return cx + x * math.cos(tilt) - y * math.sin(tilt), cy + 1.2 + x * math.sin(tilt) + y * math.cos(tilt)
+
+        def draw_ring(front, color):
+            for i in range(120):
+                t = i / 120 * 2 * math.pi
+                if (math.sin(t) > 0) != front:
+                    continue
+                x, y = ring_point(t)
+                s.set(int(round(x)), int(round(y)), color)
+
+        draw_ring(False, CHRON[1])
+        a = phase - math.pi / 2
+        clock_face(s, cx, cy, 5.4, face=[(28, 16, 50, 255), (46, 28, 78, 255)], rim=GOLD,
+                   hands=((0.42, -0.5), (math.cos(a) * 0.95, math.sin(a) * 0.95)), glow=GLOW[2])
+        for k in range(4):
+            kx = cx + 3.3 * math.cos(k / 4 * 2 * math.pi)
+            ky = cy + 3.3 * math.sin(k / 4 * 2 * math.pi)
+            s.set(int(round(kx)), int(round(ky)), GOLD[3])
+        s.rect(7, 0, 8, 0, GOLD[3])
+        s.set(7, 1, GOLD[1])
+        s.set(8, 1, GOLD[2])
+        s.outline()
+        draw_ring(True, GLOW[1])
+        for t0 in (phase, phase + math.pi):
+            x, y = ring_point(t0)
+            s.set(int(round(x)), int(round(y)), (255, 255, 255, 255) if math.sin(t0) > 0 else GLOW[2])
+        strip.img.paste(s.img, (0, 16 * f))
+    return strip
+
+
+def heart_of_time():
+    s = Sprite()
+    heart = [(7.5, 14.5), (1.0, 7.5), (1.0, 4.0), (3.8, 1.6), (7.5, 4.0), (11.2, 1.6), (14.0, 4.0), (14.0, 7.5)]
+    for y in range(16):
+        for x in range(16):
+            if inside(heart, x + 0.5, y + 0.5):
+                light = ((7.5 - x) + (6 - y)) / 16
+                i = int(round(1 + 2.6 * (0.5 + 0.5 * light)))
+                s.set(x, y, GOLD[max(0, min(4, i))])
+    for x, y in ((2, 7), (3, 8), (4, 9), (13, 7), (12, 8), (11, 9), (6, 12), (8, 12), (7, 13)):
+        s.set(x, y, CHRON[2])
+    clock_face(s, 7.5, 7.4, 3.7, face=[(28, 16, 50, 255), (50, 32, 86, 255)], rim=[GOLD[0], GOLD[1], GOLD[1], GOLD[2], GOLD[4]],
+               hands=((0.0, -0.9), (0.7, 0.3)), glow=GLOW[2])
+    for x, y in ((3, 3), (12, 3)):
+        s.set(x, y, GOLD[4])
+    s.outline()
+    return s
+
+
 def workbench_side(formed):
     s = Sprite()
     noise_fill(s, [(34, 26, 52, 255), (44, 34, 66, 255), (56, 44, 82, 255)], 71, weights=[2, 3, 1])
@@ -1477,6 +1541,7 @@ ITEMS = {
     "clockwork_core": clockwork_core, "phage_heart": phage_heart,
     "chrono_helmet": chrono_helmet, "chrono_chestplate": chrono_chestplate, "chrono_leggings": chrono_leggings, "chrono_boots": chrono_boots,
     "chronite_plate": chronite_plate, "time_core_fragment": time_core_fragment, "chronik": chronik_item, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
+    "chronos_watch": chronos_watch, "heart_of_time": heart_of_time,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
@@ -1508,6 +1573,11 @@ def main(preview=None):
     for name, fn in ITEMS.items():
         s = fn()
         s.save(TEX / "item" / f"{name}.png")
+        if s.h > 16:
+            # Animierte Textur: Streifen aus Einzelbildern
+            (TEX / "item" / f"{name}.png.mcmeta").write_text('{"animation": {"frametime": 3}}\n')
+            sprites.append((name, s.img.crop((0, 0, 16, 16))))
+            continue
         sprites.append((name, s.img))
     for name, fn in BLOCKS.items():
         s = fn()

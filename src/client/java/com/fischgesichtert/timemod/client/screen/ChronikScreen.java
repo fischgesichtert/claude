@@ -48,6 +48,7 @@ public class ChronikScreen extends Screen {
         new Chapter("places", List.of(Items.FILLED_MAP, Items.SPYGLASS, ModItems.TIME_CORE_FRAGMENT, ModItems.CLOCKMAKER_ALTAR)),
         new Chapter("clockmaker", List.of(ModItems.CLOCKMAKER_ALTAR, ModItems.CLOCKWORK, ModItems.SLOW_PENDULUM, ModItems.CLOCKWORK_CORE)),
         new Chapter("chronophage", List.of(ModItems.PHAGE_ALTAR, ModItems.TIME_CORE_FRAGMENT, ModItems.STASIS_WATCH, ModItems.PHAGE_HEART)),
+        new Chapter("tier4", List.of(ModItems.HEART_OF_TIME, Items.NETHER_STAR, ModItems.STRENGTH_MODULE, ModItems.CHRONOS_WATCH)),
         new Chapter("future", List.of(Items.CLOCK, ModItems.CHRONITE_CRYSTAL, Items.ENDER_EYE)));
 
     /** Eine Buchseite: Zeilen, ggf. Kapitelkopf mit Bildern. */
@@ -160,11 +161,13 @@ public class ChronikScreen extends Screen {
         return -1;
     }
 
-    /** Wo steht der Eintrag {@code c} im Inhaltsverzeichnis? (5 links, der Rest rechts) */
+    /** Wo steht der Eintrag {@code c} im Inhaltsverzeichnis? (erste Hälfte links, der Rest rechts) */
     private int[] indexPosition(int c) {
-        int column = c < 5 ? 0 : 1;
-        int row = c < 5 ? c : c - 5;
-        return new int[] {pageX(column), top + 40 + row * 24};
+        int perColumn = (CHAPTERS.size() + 1) / 2;
+        int column = c < perColumn ? 0 : 1;
+        int row = column == 0 ? c : c - perColumn;
+        int spacing = Math.min(24, (BOOK_H - 64) / perColumn);
+        return new int[] {pageX(column), top + 36 + row * spacing};
     }
 
     private int pageX(int side) {

@@ -1,0 +1,41 @@
+{
+  "type": "timemod:clockmaker",
+  "pattern": [
+    "WNT",
+    "KHF",
+    "PMR"
+  ],
+  "key": {
+    "W": {
+      "item": "timemod:stasis_watch"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    },
+    "T": {
+      "item": "timemod:time_accelerator"
+    },
+    "K": {
+      "item": "timemod:clockwork_core"
+    },
+    "H": {
+      "item": "timemod:heart_of_time"
+    },
+    "F": {
+      "item": "timemod:phage_heart"
+    },
+    "P": {
+      "item": "timemod:slow_pendulum"
+    },
+    "M": {
+      "item": "timemod:strength_module"
+    },
+    "R": {
+      "item": "timemod:rewind_spool"
+    }
+  },
+  "result": {
+    "item": "timemod:chronos_watch",
+    "count": 1
+  }
+}

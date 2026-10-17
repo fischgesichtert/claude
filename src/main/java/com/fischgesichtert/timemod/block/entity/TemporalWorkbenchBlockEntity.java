@@ -1,6 +1,8 @@
 package com.fischgesichtert.timemod.block.entity;
 
 import com.fischgesichtert.timemod.block.TemporalWorkbenchBlock;
+import com.fischgesichtert.timemod.energy.Chronon;
+import com.fischgesichtert.timemod.energy.ChrononStorage;
 import com.fischgesichtert.timemod.menu.TemporalWorkbenchMenu;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModSounds;
@@ -32,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 /** Hält das Werkzeug, an dem gerade gearbeitet wird (es schwebt über der Werkbank). */
-public class TemporalWorkbenchBlockEntity extends BlockEntity {
+public class TemporalWorkbenchBlockEntity extends BlockEntity implements ChrononStorage {
     private static final Component TITLE = Component.translatable("container.timemod.temporal_workbench");
     private static final DustParticleOptions CHRONO_DUST = new DustParticleOptions(new Vector3f(0.45F, 0.9F, 1.0F), 1.0F);
 
@@ -77,6 +79,16 @@ public class TemporalWorkbenchBlockEntity extends BlockEntity {
 
     public ItemStack tool() {
         return tool.getItem(0);
+    }
+
+    @Override
+    public int storedChronon() {
+        return (int) Chronon.total(tool);
+    }
+
+    @Override
+    public int drainChronon(int amount) {
+        return Chronon.drain(tool, amount);
     }
 
     public SimpleContainer toolContainer() {

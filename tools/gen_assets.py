@@ -117,7 +117,107 @@ ITEMS = [
      "Schaltet stärkere Faktoren frei (bis 10× bzw. 0,05×) – bei der Spule: schneller.", "Unlocks stronger factors (up to 10× or 0.05×) – for the spool: faster."),
     ("efficiency_module", "generated", "Verstärker: Effizienz", "Amplifier: Efficiency",
      "−25 % Chronon-Verbrauch.", "−25% Chronon cost."),
+    # Stufe IV
+    ("heart_of_time", "generated", "Herz der Zeit", "Heart of Time",
+     "Schlägt im Takt aller Uhren der Welt.", "It beats in time with every clock in the world."),
+    ("chronos_watch", "generated", "Chronos-Uhr", "Chronos Watch", None, None),
 ]
+
+# Chronos-Uhr: Modi, Meisterschaft, Radialmenü und HUD
+LANG_CHRONOS = {
+    "de_de": {
+        "chronos.timemod.mode.stop": "Zeitstopp",
+        "chronos.timemod.mode.fast": "Zeitraffer",
+        "chronos.timemod.mode.slow": "Zeitlupe",
+        "chronos.timemod.mode.rewind": "Zurückspulen",
+        "chronos.timemod.level.0": "Lehrling",
+        "chronos.timemod.level.1": "Geselle",
+        "chronos.timemod.level.2": "Uhrmacher",
+        "chronos.timemod.level.3": "Zeitwanderer",
+        "chronos.timemod.level.4": "Zeitmeister",
+        "chronos.timemod.level.5": "Herr der Zeit",
+        "tooltip.timemod.chronos.cost": "Kosten: %s Chronon",
+        "tooltip.timemod.chronos.mastery": "Meisterschaft: %s (%s %%)",
+        "tooltip.timemod.chronos.hint": "R: Radialmenü · Schleichen + Mausrad: Wert · Schleichen + Benutzen: Zonen aufheben",
+        "tooltip.timemod.chronos.global": "überall",
+        "tooltip.timemod.chronos.radius": "Radius %s",
+        "tooltip.timemod.chronos.stop": "%s · %s · %s s",
+        "tooltip.timemod.chronos.zone": "%s %s · %s · %s s",
+        "tooltip.timemod.chronos.rewind": "%s · %s · bis %s s zurück",
+        "message.timemod.chronos.mastery": "Chronos-Uhr: Meisterschaft „%s“ – neue Grenzen freigeschaltet!",
+        "message.timemod.chronos.cancelled": "Deine Zeitzonen sind aufgehoben.",
+        "key.categories.timemod": "TIME",
+        "key.timemod.chronos_menu": "Chronos-Radialmenü",
+        "chronos.timemod.menu.value.stop": "Dauer",
+        "chronos.timemod.menu.value.fast": "Faktor",
+        "chronos.timemod.menu.value.slow": "Faktor",
+        "chronos.timemod.menu.value.rewind": "Tiefe",
+        "chronos.timemod.menu.radius": "Radius",
+        "chronos.timemod.menu.duration": "Zonendauer",
+        "chronos.timemod.menu.global": "Global",
+        "chronos.timemod.menu.global_locked": "Global ab „Zeitwanderer“",
+        "chronos.timemod.menu.self": "Selbst mitspulen",
+        "chronos.timemod.menu.filters": "Filter",
+        "chronos.timemod.menu.default": "Standard",
+        "chronos.timemod.menu.full": "Spult alles zurück, samt Inventaren",
+        "chronos.timemod.menu.partial": "Bewegt und heilt nur – Tote bleiben tot",
+        "chronos.timemod.menu.global_only": "nur global",
+        "chronos.timemod.menu.hint": "Klicken: wählen · Mausrad: Wert · Umschalt + Mausrad: Radius",
+        "chronos.timemod.hud.cost": "%s Chronon",
+        "chronos.timemod.hud.now": "jetzt",
+        "chronos.timemod.hud.memory": "Erinnerung: %s s",
+        "chronos.timemod.hud.no_memory": "Die Welt zeichnet nicht auf",
+        "chronos.timemod.hud.scrubbing": "Spule zurück … loslassen zum Anhalten",
+        "chronos.timemod.hud.rewinding": "Spule zurück …",
+        "chronos.timemod.hud.cooldown": "lädt nach",
+    },
+    "en_us": {
+        "chronos.timemod.mode.stop": "Time stop",
+        "chronos.timemod.mode.fast": "Fast forward",
+        "chronos.timemod.mode.slow": "Slow motion",
+        "chronos.timemod.mode.rewind": "Rewind",
+        "chronos.timemod.level.0": "Apprentice",
+        "chronos.timemod.level.1": "Journeyman",
+        "chronos.timemod.level.2": "Clockmaker",
+        "chronos.timemod.level.3": "Time Walker",
+        "chronos.timemod.level.4": "Time Master",
+        "chronos.timemod.level.5": "Lord of Time",
+        "tooltip.timemod.chronos.cost": "Cost: %s chronon",
+        "tooltip.timemod.chronos.mastery": "Mastery: %s (%s%%)",
+        "tooltip.timemod.chronos.hint": "R: radial menu · Sneak + wheel: value · Sneak + use: cancel zones",
+        "tooltip.timemod.chronos.global": "everywhere",
+        "tooltip.timemod.chronos.radius": "radius %s",
+        "tooltip.timemod.chronos.stop": "%s · %s · %s s",
+        "tooltip.timemod.chronos.zone": "%s %s · %s · %s s",
+        "tooltip.timemod.chronos.rewind": "%s · %s · up to %s s back",
+        "message.timemod.chronos.mastery": "Chronos Watch: mastery \"%s\" – new limits unlocked!",
+        "message.timemod.chronos.cancelled": "Your time zones have been lifted.",
+        "key.categories.timemod": "TIME",
+        "key.timemod.chronos_menu": "Chronos radial menu",
+        "chronos.timemod.menu.value.stop": "Duration",
+        "chronos.timemod.menu.value.fast": "Factor",
+        "chronos.timemod.menu.value.slow": "Factor",
+        "chronos.timemod.menu.value.rewind": "Depth",
+        "chronos.timemod.menu.radius": "Radius",
+        "chronos.timemod.menu.duration": "Zone duration",
+        "chronos.timemod.menu.global": "Global",
+        "chronos.timemod.menu.global_locked": "Global from \"Time Walker\"",
+        "chronos.timemod.menu.self": "Rewind yourself",
+        "chronos.timemod.menu.filters": "Filters",
+        "chronos.timemod.menu.default": "Default",
+        "chronos.timemod.menu.full": "Rewinds everything, inventories included",
+        "chronos.timemod.menu.partial": "Only moves and heals – the dead stay dead",
+        "chronos.timemod.menu.global_only": "global only",
+        "chronos.timemod.menu.hint": "Click: select · Wheel: value · Shift + wheel: radius",
+        "chronos.timemod.hud.cost": "%s chronon",
+        "chronos.timemod.hud.now": "now",
+        "chronos.timemod.hud.memory": "Memory: %s s",
+        "chronos.timemod.hud.no_memory": "The world is not recording",
+        "chronos.timemod.hud.scrubbing": "Rewinding … release to stop",
+        "chronos.timemod.hud.rewinding": "Rewinding …",
+        "chronos.timemod.hud.cooldown": "recharging",
+    },
+}
 
 BLOCKS = {
     "brass_block": ("Messingblock", "Block of Brass"),
@@ -714,6 +814,10 @@ def recipes():
         })
     clockmaker("paradox_time_cell", ["PEP", "CXC", "PEP"], {"P": t("chronite_plate"), "E": "minecraft:echo_shard", "C": t("chronite_crystal"),
                                                             "X": t("chronite_time_cell")}, t("paradox_time_cell"))
+    # Stufe IV
+    clockmaker("chronos_watch", ["WNT", "KHF", "PMR"], {"W": t("stasis_watch"), "N": "minecraft:nether_star", "T": t("time_accelerator"),
+                                                     "K": t("clockwork_core"), "H": t("heart_of_time"), "F": t("phage_heart"),
+                                                     "P": t("slow_pendulum"), "M": t("strength_module"), "R": t("rewind_spool")}, t("chronos_watch"))
     clockmaker("lifetime_extractor", ["CHC", "SXS", "BBB"], {"C": t("chronite_crystal"), "H": t("phage_heart"), "S": "minecraft:soul_lantern",
                                                              "X": t("time_condenser"), "B": "minecraft:polished_blackstone"}, t("lifetime_extractor"))
     clockmaker("radius_module", ["EDE", "DMD", "EDE"], {"E": "minecraft:ender_pearl", "D": t("time_dust"), "M": t("blank_module")}, t("radius_module"))
@@ -853,6 +957,7 @@ def lang():
         for block_id, names in BLOCKS.items():
             data[f"block.{NS}.{block_id}"] = names[idx]
         data.update(LANG_EXTRA[code])
+        data.update(LANG_CHRONOS[code])
         for key, (de_title, de_text, en_title, en_text) in CHAPTERS.items():
             data[f"chronik.{NS}.{key}.title"] = de_title if idx == 0 else en_title
             data[f"chronik.{NS}.{key}.text"] = de_text if idx == 0 else en_text

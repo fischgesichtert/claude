@@ -67,13 +67,13 @@ CHAPTERS = {
         "Lege ein Werkzeug der Stufe II ein und baue Module ein:\n"
         "• Filter legen fest, worauf es wirkt: Tiere, Monster, Wachstum, Maschinen …\n"
         "• Verstärker: Radius, Dauer, Stärke (bis 10× oder 0,05×) und Effizienz.\n\n"
-        "Beispiel: Zeitraffer mit Filter Wachstum – nur die Pflanzen rasen, die Kühe nicht. Beim Zurückspulen wirken Filter genauso.",
+        "Beispiel: Zeitraffer mit Filter Wachstum – nur die Pflanzen rasen, die Kühe nicht.\n\nBeim Zurückspulen laufen Blöcke, Maschinen und Gegenstände nur gemeinsam zurück, samt deinem Inventar – sonst ließe sich alles verdoppeln. Andere Filter bewegen und heilen nur: Tote bleiben tot.",
         "Tier III – Temporal Engineering",
         "The Temporal Workbench only awakens between four Chrono Pillars: two stacked, diagonally two blocks away from the bench. Then its rings begin to spin. To build it you need the Clockmaker's clockwork core.\n\n"
         "Insert a tier II tool and install modules:\n"
         "• Filters decide what it affects: animals, monsters, growth, machines …\n"
         "• Amplifiers: radius, duration, strength (up to 10× or 0.05×) and efficiency.\n\n"
-        "Example: an accelerator with the growth filter – only the plants race, the cows don't. Filters work the same way when rewinding.",
+        "Example: an accelerator with the growth filter – only the plants race, the cows don't.\n\nWhen rewinding, blocks, machines and items only go back together, along with your inventory – otherwise anything could be duplicated. Other filters only move and heal: the dead stay dead.",
     ),
     "tier3_gear": (
         "Rüstung und Lebenszeit",
@@ -123,16 +123,34 @@ CHAPTERS = {
         "Listen closely: before the maw opens, its clockwork winds up. Stop time right then! All hits during the stop land together when time moves on – and those wounds it cannot undo.\n\n"
         "Reward: the phage heart.",
     ),
+    "tier4": (
+        "Stufe IV – Herr der Zeit",
+        "Die Chronos-Uhr vereint alles: Zeitstopp, Zeitraffer, Zeitlupe und Zurückspulen, alle Filter und – mit genug Meisterschaft – die ganze Welt. "
+        "Du baust sie an der Uhrmacher-Werkbank aus vier Werkzeugen der Stufe II, beiden Bosskernen, einem Netherstern, einem Stärkemodul und dem Herz der Zeit.\n\n"
+        "• R öffnet das Radialmenü: Modus, Filter, Radius, Dauer, global.\n"
+        "• Schleichen + Mausrad: Stopp-Dauer, Faktor oder wie weit zurück.\n"
+        "• Schleichen + Benutzen hebt deine Zeitzonen auf.\n\n"
+        "Zurückspulen: Halte die Taste gedrückt – die Welt läuft rückwärts, du bleibst stehen. Lässt du los, bleibt sie genau dort, und nicht Gebrauchtes bekommst du zurück. "
+        "Dein Inventar folgt dabei der Welt, und ausgegebenes Chronon kehrt nie zurück. Die Zeitleiste zeigt, wie weit die Welt sich erinnert; ein Geisterpfad zeigt, wo du warst.\n\n"
+        "Jede Benutzung bringt Meisterschaft: längere Stopps, größere Radien, tieferes Zurückspulen und geringere Kosten. Ab „Zeitwanderer“ wirkt die Uhr auf die ganze Welt.",
+        "Tier IV – Lord of Time",
+        "The Chronos Watch unites everything: time stop, fast-forward, slow motion and rewind, every filter and – with enough mastery – the whole world. "
+        "You build it at the Clockmaker's Bench from four tier II tools, both boss cores, a nether star, a strength module and the Heart of Time.\n\n"
+        "• R opens the radial menu: mode, filters, radius, duration, global.\n"
+        "• Sneak + mouse wheel: stop duration, factor or how far back.\n"
+        "• Sneak + use cancels your time zones.\n\n"
+        "Rewinding: hold the button – the world runs backwards while you stand still. Let go and it stays exactly there, and you get back what you did not use. "
+        "Your inventory follows the world, and spent Chronon never returns. The timeline shows how far the world remembers; a ghost path shows where you have been.\n\n"
+        "Every use brings mastery: longer stops, larger radii, deeper rewinds and lower costs. From \"Time Walker\" on, the watch affects the whole world.",
+    ),
     "future": (
         "Was noch kommt",
-        "Die Hüter sind gefallen, doch die Zeit ist noch nicht ganz dein.\n\n"
-        "Gerüchte erzählen von der Chronos-Uhr, die alle Kräfte vereint – Stopp, Raffer, Lupe und Rückspulen, alle Filter, die ganze Welt.\n\n"
-        "Und von Toren aus Chronit, die in andere Jahre führen: tausend Jahre nach vorn, wo Ranken über deine Mauern wachsen – oder Millionen Jahre zurück, wo Echsen so groß wie Türme durch Farnwälder ziehen.\n\n"
+        "Die Chronos-Uhr gehört dir, doch die Zeit hat noch Türen.\n\n"
+        "Gerüchte erzählen von Toren aus Chronit, die in andere Jahre führen: tausend Jahre nach vorn, wo Ranken über deine Mauern wachsen – oder Millionen Jahre zurück, wo Echsen so groß wie Türme durch Farnwälder ziehen.\n\n"
         "Diese Seiten werden sich füllen.",
         "What Lies Ahead",
-        "The guardians have fallen, but time is not entirely yours yet.\n\n"
-        "Rumors tell of the Chronos Watch that unites all powers – stop, fast-forward, slow motion and rewind, every filter, the whole world.\n\n"
-        "And of gates of chronite that lead to other years: a thousand years ahead, where vines grow over your walls – or millions of years back, where lizards as tall as towers roam fern forests.\n\n"
+        "The Chronos Watch is yours, but time still has doors.\n\n"
+        "Rumors tell of gates of chronite that lead to other years: a thousand years ahead, where vines grow over your walls – or millions of years back, where lizards as tall as towers roam fern forests.\n\n"
         "These pages will fill.",
     ),
 }
@@ -182,4 +200,6 @@ ADVANCEMENTS = [
      "Nach JoJo-Regel", "Besitze die volle Chrono-Rüstung", "By the JoJo Rule", "Own the full set of Chrono armor"),
     ("extractor", "chronophage", "timemod:lifetime_extractor", "goal", ("item", "timemod:lifetime_extractor"),
      "Lebenszeit", "Baue einen Lebenszeit-Extraktor", "Lifetime", "Build a lifetime extractor"),
+    ("chronos", "chronophage", "timemod:chronos_watch", "challenge", ("item", "timemod:chronos_watch"),
+     "Herr der Zeit", "Baue die Chronos-Uhr", "Lord of Time", "Build the Chronos Watch"),
 ]

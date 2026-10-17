@@ -9,6 +9,7 @@ import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +36,12 @@ public abstract class ChrononToolItem extends Item implements ChrononHolder {
             return true;
         }
         player.displayClientMessage(Component.translatable("message.timemod.no_chronon", cost).withStyle(ChatFormatting.AQUA), true);
+        return false;
+    }
+
+    /** Laden und Bezahlen ändern die Item-Daten; die Hand soll dabei nicht neu ausholen. */
+    @Override
+    public boolean allowNbtUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
         return false;
     }
 

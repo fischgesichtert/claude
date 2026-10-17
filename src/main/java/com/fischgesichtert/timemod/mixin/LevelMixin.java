@@ -1,0 +1,45 @@
+package com.fischgesichtert.timemod.mixin;
+
+import com.fischgesichtert.timemod.time.TimeContext;
+import com.fischgesichtert.timemod.time.TimeEngine;
+import com.fischgesichtert.timemod.time.TimeLevel;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+
+@Mixin(Level.class)
+public abstract class LevelMixin implements TimeLevel {
+    @Unique
+    private TimeEngine timemod$engine;
+
+    @Override
+    public TimeEngine timemod$getEngine() {
+        return timemod$engine;
+    }
+
+    @Override
+    public void timemod$setEngine(TimeEngine engine) {
+        timemod$engine = engine;
+    }
+
+    /** Eigenzeit: Objekte in Zeitzonen sehen ihre eigene Spielzeit. */
+    @ModifyReturnValue(method = "getGameTime", at = @At("RETURN"))
+    private long timemod$eigenzeit(long gameTime) {
+        return TimeContext.adjust((Level) (Object) this, gameTime);
+    }
+
+    @WrapOperation(method = "tickBlockEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;tick()V"))
+    private void timemod$tickBlockEntity(TickingBlockEntity ticker, Operation<Void> original) {
+        TimeEngine engine = timemod$engine;
+        if (engine == null || engine.isIdle()) {
+            original.call(ticker);
+        } else {
+            engine.tickBlockEntity(ticker, () -> original.call(ticker));
+        }
+    }
+}

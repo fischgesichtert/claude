@@ -1,0 +1,9 @@
+{
+  "item.timemod.chrono_debug_wand": "Chrono-Debugstab",
+  "item.timemod.chrono_debug_wand.factor": "Zeitfaktor: %s",
+  "item.timemod.chrono_debug_wand.created": "Zeitzone erzeugt: %s",
+  "item.timemod.chrono_debug_wand.hint": "Rechtsklick: Zone erzeugen · Schleichen: Faktor wechseln",
+  "commands.timemod.chrono.created": "Zeitzone #%s erzeugt (Faktor %s)",
+  "commands.timemod.chrono.clear": "Alle Zeitzonen entfernt",
+  "commands.timemod.chrono.none": "Keine Zeitzonen aktiv"
+}

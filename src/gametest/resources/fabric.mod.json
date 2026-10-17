@@ -5,7 +5,10 @@
   "name": "TIME Gametests",
   "environment": "*",
   "entrypoints": {
-    "fabric-gametest": ["com.fischgesichtert.timemod.gametest.SmokeTests"]
+    "fabric-gametest": [
+      "com.fischgesichtert.timemod.gametest.SmokeTests",
+      "com.fischgesichtert.timemod.gametest.TimeEquivalenceTests"
+    ]
   },
   "depends": {
     "timemod": "*",

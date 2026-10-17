@@ -19,6 +19,7 @@ sourceSets {
 
 loom {
     splitEnvironmentSourceSets()
+    accessWidenerPath = file('src/main/resources/timemod.accesswidener')
 
     mods {
         timemod {
@@ -36,6 +37,7 @@ loom {
             server()
             name 'Gametest'
             vmArg '-Dfabric-api.gametest'
+            vmArg '-Dtimemod.debug=true'
             vmArg "-Dfabric-api.gametest.report-file=${project.buildDir}/gametest/report.xml"
             runDir 'build/gametest'
             source sourceSets.gametest
@@ -61,6 +63,13 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Jeder Gametest-Lauf startet mit einer frischen Welt, sonst bleiben Entities alter Läufe liegen.
+tasks.matching { it.name == 'runGametest' }.configureEach {
+    doFirst {
+        delete 'build/gametest/world', 'build/gametest/snapshots'
+    }
 }
 
 processResources {

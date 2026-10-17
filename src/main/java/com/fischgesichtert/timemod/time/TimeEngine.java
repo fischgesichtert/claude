@@ -1,0 +1,118 @@
+package com.fischgesichtert.timemod.time;
+
+import com.fischgesichtert.timemod.TimeMod;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * Gemeinsame Logik von Server- und Client-Engine: Zonenliste und die Frage
+ * „welche Zone bestimmt die Zeit an dieser Stelle?“.
+ */
+public abstract class TimeEngine {
+    /** Entity-Typen, die nie von Zeitmanipulation betroffen sind (per Datapack erweiterbar). */
+    public static final TagKey<EntityType<?>> TIME_IMMUNE = TagKey.create(Registries.ENTITY_TYPE, TimeMod.id("time_immune"));
+
+    protected final Level level;
+    protected final List<TimeZone> zones = new ArrayList<>();
+    @Nullable
+    protected TimeZone fullGlobal;
+
+    protected TimeEngine(Level level) {
+        this.level = level;
+    }
+
+    public Level level() {
+        return level;
+    }
+
+    public final boolean isIdle() {
+        return zones.isEmpty();
+    }
+
+    public List<TimeZone> zones() {
+        return Collections.unmodifiableList(zones);
+    }
+
+    @Nullable
+    public TimeZone fullGlobal() {
+        return fullGlobal;
+    }
+
+    @Nullable
+    public TimeZone zone(int id) {
+        for (TimeZone zone : zones) {
+            if (zone.id() == id) {
+                return zone;
+            }
+        }
+        return null;
+    }
+
+    protected void recomputeFullGlobal() {
+        fullGlobal = null;
+        for (TimeZone zone : zones) {
+            if (zone.isFullGlobal() && (fullGlobal == null || zone.id() > fullGlobal.id())) {
+                fullGlobal = zone;
+            }
+        }
+    }
+
+    /** Die maßgebliche Zone an einer Stelle für eine Kategorie, oder {@code null} (normale Zeit). */
+    @Nullable
+    public TimeZone resolve(double x, double y, double z, int category) {
+        TimeZone best = null;
+        for (int i = 0, n = zones.size(); i < n; i++) {
+            TimeZone zone = zones.get(i);
+            if (zone.accepts(category) && zone.shape().contains(x, y, z) && (best == null || zone.outranks(best))) {
+                best = zone;
+            }
+        }
+        return best;
+    }
+
+    @Nullable
+    public TimeZone resolveBlock(BlockPos pos, int category) {
+        return resolve(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, category);
+    }
+
+    /**
+     * Zone für eine Entity. Spieler und von Spielern gesteuerte Reittiere stehen außerhalb der Zeit,
+     * ebenso alles mit dem Tag {@code #timemod:time_immune}.
+     */
+    @Nullable
+    public TimeZone resolveEntity(Entity entity) {
+        if (zones.isEmpty() || isOutsideTime(entity)) {
+            return null;
+        }
+        return resolve(entity.getX(), entity.getY(0.5), entity.getZ(), TimeFilter.categoryOf(entity));
+    }
+
+    public static boolean isOutsideTime(Entity entity) {
+        if (entity instanceof Player) {
+            return true;
+        }
+        if (entity.getControllingPassenger() instanceof Player) {
+            return true;
+        }
+        return entity.getType().is(TIME_IMMUNE);
+    }
+
+    /** Tickt eine Block-Entity im normalen Durchlauf – je nach Zone gar nicht, einmal oder öfter. */
+    public abstract void tickBlockEntity(TickingBlockEntity ticker, Runnable original);
+
+    /** Zeitfaktor an einer Position (für Klang und Partikel); 1 = normale Zeit. */
+    public double factorAt(double x, double y, double z, int category) {
+        TimeZone zone = resolve(x, y, z, category);
+        return zone == null ? 1.0 : zone.factor();
+    }
+}

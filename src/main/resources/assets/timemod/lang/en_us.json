@@ -1,0 +1,9 @@
+{
+  "item.timemod.chrono_debug_wand": "Chrono Debug Wand",
+  "item.timemod.chrono_debug_wand.factor": "Time factor: %s",
+  "item.timemod.chrono_debug_wand.created": "Time zone created: %s",
+  "item.timemod.chrono_debug_wand.hint": "Right-click: create zone · Sneak: change factor",
+  "commands.timemod.chrono.created": "Time zone #%s created (factor %s)",
+  "commands.timemod.chrono.clear": "All time zones removed",
+  "commands.timemod.chrono.none": "No time zones active"
+}

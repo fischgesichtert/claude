@@ -1,0 +1,13 @@
+accessWidener v2 named
+
+# Zeit-Engine: direkter Zugriff auf Tick-Listen und -Methoden der Welt
+accessible field net/minecraft/server/level/ServerLevel entityTickList Lnet/minecraft/world/level/entity/EntityTickList;
+accessible field net/minecraft/server/level/ServerLevel blockEvents Lit/unimi/dsi/fastutil/objects/ObjectLinkedOpenHashSet;
+accessible method net/minecraft/server/level/ServerLevel doBlockEvent (Lnet/minecraft/world/level/BlockEventData;)Z
+accessible method net/minecraft/server/level/ServerLevel tickBlock (Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;)V
+accessible method net/minecraft/server/level/ServerLevel tickFluid (Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/material/Fluid;)V
+accessible method net/minecraft/server/level/ServerLevel advanceWeatherCycle ()V
+accessible field net/minecraft/world/level/Level blockEntityTickers Ljava/util/List;
+accessible field net/minecraft/world/ticks/LevelTicks allContainers Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible method net/minecraft/server/level/ChunkMap anyPlayerCloseEnoughForSpawning (Lnet/minecraft/world/level/ChunkPos;)Z
+accessible method net/minecraft/server/level/ChunkMap getChunks ()Ljava/lang/Iterable;

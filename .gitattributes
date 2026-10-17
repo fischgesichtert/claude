@@ -1,0 +1,4 @@
+# Shell-Skripte brauchen auch unter Windows Unix-Zeilenenden, sonst scheitern sie in Git Bash
+*.sh text eol=lf
+gradlew text eol=lf
+*.bat text eol=crlf

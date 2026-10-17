@@ -25,6 +25,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 
 public final class ModItems {
@@ -75,6 +76,8 @@ public final class ModItems {
     public static final Item PHAGE_HEART = register("phage_heart", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.RARE).fireResistant()));
     public static final Item TIME_CORE_FRAGMENT = register("time_core_fragment", new Item(new Item.Properties().rarity(Rarity.UNCOMMON)));
     public static final Item CLOCKMAKER_ALTAR = block(ModBlocks.CLOCKMAKER_ALTAR);
+    public static final Item CLOCKMAKER_SPAWN_EGG = register("clockmaker_spawn_egg", new SpawnEggItem(ModEntities.CLOCKMAKER, 0xB0782A, 0x6FE3FF, new Item.Properties()));
+    public static final Item CHRONOPHAGE_SPAWN_EGG = register("chronophage_spawn_egg", new SpawnEggItem(ModEntities.CHRONOPHAGE, 0x24142E, 0xD050E0, new Item.Properties()));
     public static final Item PHAGE_ALTAR = block(ModBlocks.PHAGE_ALTAR);
     public static final Item CHRONITE_PLATE = register("chronite_plate", new Item(new Item.Properties().fireResistant()));
     public static final Item CHRONO_UPGRADE_TEMPLATE = register("chrono_upgrade_template", ChronoUpgradeTemplate.create());

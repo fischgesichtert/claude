@@ -1087,6 +1087,182 @@ def altar_bottom(kind):
 
 
 # ------------------------------------------------------------------------------------------
+# Bosse (128x128, Würfel-Abwicklung wie im Modell)
+# ------------------------------------------------------------------------------------------
+
+STEEL = [(40, 42, 50, 255), (62, 64, 74, 255), (88, 90, 100, 255), (120, 122, 134, 255)]
+CHITIN = [(18, 10, 24, 255), (30, 16, 40, 255), (44, 24, 58, 255), (60, 34, 80, 255)]
+FLESH = [(70, 12, 40, 255), (100, 20, 60, 255), (140, 40, 90, 255)]
+
+
+class Cube:
+    """Flächen eines Modellwürfels in der Textur (Vanilla-Abwicklung)."""
+
+    def __init__(self, u, v, w, h, d):
+        self.faces = {
+            "top": (u + d, v, w, d), "bottom": (u + d + w, v, w, d),
+            "right": (u, v + d, d, h), "front": (u + d, v + d, w, h),
+            "left": (u + d + w, v + d, d, h), "back": (u + 2 * d + w, v + d, w, h),
+        }
+
+    def each(self, names=None):
+        for name, rect in self.faces.items():
+            if names is None or name in names:
+                yield name, rect
+
+
+def fill_face(s, rect, ramp, seed, weights=None):
+    x, y, w, h = rect
+    noise_fill(s, ramp, seed, x, y, x + w - 1, y + h - 1, weights)
+
+
+def clockmaker_textures():
+    s = Sprite(128, 128)
+    g = Sprite(128, 128)
+    body = Cube(0, 0, 18, 20, 10)
+    for name, rect in body.each():
+        fill_face(s, rect, BRASS[1:4], 201 + len(name), [2, 3, 1])
+        x, y, w, h = rect
+        for sx in range(x + 5, x + w - 1, 6):
+            s.line(sx, y, sx, y + h - 1, BRASS[0])
+        for rx, ry in ((x + 1, y + 1), (x + w - 2, y + 1), (x + 1, y + h - 2), (x + w - 2, y + h - 2)):
+            s.set(rx, ry, BRASS[4])
+    fx, fy, fw, fh = body.faces["front"]
+    s.rect(fx + 3, fy + 3, fx + 14, fy + 14, (24, 22, 30, 255))
+    s.rect(fx + 2, fy + 2, fx + 15, fy + 2, BRASS[4])
+    for gx, gy in ((fx + 1, fy + 17), (fx + 16, fy + 17)):
+        s.set(gx, gy, GLOW[1])
+        g.set(gx, gy, GLOW[2])
+    head = Cube(56, 0, 12, 12, 12)
+    for name, rect in head.each():
+        fill_face(s, rect, BRASS[1:4], 211 + len(name), [2, 3, 2])
+    hx, hy, hw, hh = head.faces["front"]
+    s.rect(hx + 1, hy + 4, hx + hw - 2, hy + 5, (16, 14, 22, 255))
+    for i in range(hx + 1, hx + hw - 1):
+        g.set(i, hy + 4, GLOW[1])
+    for i in range(3):
+        s.line(hx + 3, hy + 8 + i, hx + hw - 4, hy + 8 + i, BRASS[0] if i % 2 == 0 else BRASS[1])
+    s.rect(hx, hy + hh - 1, hx + hw - 1, hy + hh - 1, BRASS[0])
+    for cube_uv in ((0, 30), (24, 30)):
+        arm = Cube(cube_uv[0], cube_uv[1], 6, 22, 6)
+        for name, rect in arm.each():
+            fill_face(s, rect, STEEL, 221 + cube_uv[0] + len(name), [1, 3, 2, 1])
+            x, y, w, h = rect
+            if name not in ("top", "bottom"):
+                s.rect(x, y, x + w - 1, y + 1, BRASS[3])
+                s.rect(x, y + 10, x + w - 1, y + 11, BRASS[2])
+                s.rect(x, y + 16, x + w - 1, y + h - 1, BRASS[2])
+                s.set(x + w // 2, y + 5, GLOW[1])
+                g.set(x + w // 2, y + 5, GLOW[2])
+    for cube_uv in ((48, 30), (72, 30)):
+        leg = Cube(cube_uv[0], cube_uv[1], 6, 20, 6)
+        for name, rect in leg.each():
+            fill_face(s, rect, STEEL, 231 + cube_uv[0] + len(name), [1, 3, 2, 1])
+            x, y, w, h = rect
+            if name not in ("top", "bottom"):
+                s.rect(x, y + 8, x + w - 1, y + 10, BRASS[3])
+                s.rect(x, y + h - 4, x + w - 1, y + h - 1, (30, 30, 36, 255))
+    # Brustklappe mit Zifferblatt
+    door = Cube(96, 24, 10, 10, 1)
+    for name, rect in door.each():
+        fill_face(s, rect, BRASS[2:4], 241, [2, 1])
+    dx, dy, dw, dh = door.faces["front"]
+    sub = Sprite(10, 10)
+    clock_face(sub, 4.5, 4.5, 4.6, hands=((0, -0.9), (0.6, 0.2)))
+    s.img.alpha_composite(sub.img, (dx, dy))
+    # Kern (leuchtet), Monokel, Krone
+    core = Cube(104, 0, 6, 6, 3)
+    for name, rect in core.each():
+        fill_face(s, rect, [GLOW[0], GLOW[1]], 251, [1, 2])
+        fill_face(g, rect, [GLOW[1], GLOW[2], (255, 255, 255, 255)], 252, [2, 2, 1])
+    mono = Cube(104, 10, 3, 3, 1)
+    for name, rect in mono.each():
+        fill_face(s, rect, [BRASS[3]], 253)
+    mx, my, mw, mh = mono.faces["front"]
+    s.set(mx + 1, my + 1, GLOW[2])
+    g.set(mx + 1, my + 1, (255, 255, 255, 255))
+    for xx in range(mx, mx + 3):
+        for yy in range(my, my + 3):
+            if (xx, yy) != (mx + 1, my + 1):
+                g.set(xx, yy, GLOW[1])
+    crown = Cube(112, 10, 2, 4, 2)
+    for name, rect in crown.each():
+        fill_face(s, rect, [BRASS[3], BRASS[4]], 255)
+    # Zahnrad-Säge (Vorder- und Rückseite)
+    saw = Cube(0, 60, 12, 12, 1)
+    for name in ("front", "back"):
+        x, y, w, h = saw.faces[name]
+        sub = Sprite(12, 12)
+        gear(sub, 5.5, 5.5, 5.8, BRASS, teeth=10, hole=1.0)
+        sub.ring(5.5, 5.5, 2.4, 3.0, BRASS[0])
+        s.img.alpha_composite(sub.img, (x, y))
+    for name in ("top", "bottom", "left", "right"):
+        fill_face(s, saw.faces[name], [BRASS[2]], 256)
+    return s, g
+
+
+def chronophage_textures():
+    s = Sprite(128, 128)
+    g = Sprite(128, 128)
+    upper = Cube(0, 0, 24, 10, 24)
+    for name, rect in upper.each():
+        fill_face(s, rect, CHITIN, 301 + len(name), [2, 3, 2, 1])
+        x, y, w, h = rect
+        rnd = random.Random(310 + len(name))
+        for _ in range(w * h // 40):
+            vx, vy = x + rnd.randrange(w), y + rnd.randrange(h)
+            s.set(vx, vy, MAGENTA[0])
+            if rnd.random() < 0.3:
+                g.set(vx, vy, MAGENTA[1])
+    # Zifferblatt auf dem Panzer
+    tx, ty, tw, th = upper.faces["top"]
+    for yy in range(th):
+        for xx in range(tw):
+            d = math.hypot(xx - 11.5, yy - 11.5)
+            a = math.degrees(math.atan2(yy - 11.5, xx - 11.5))
+            if 9.6 <= d <= 10.6:
+                s.set(tx + xx, ty + yy, BRASS[1])
+            if 7.5 <= d <= 9.2 and abs(((a + 360 + 15) % 30) - 15) < 4:
+                s.set(tx + xx, ty + yy, MAGENTA[1])
+                g.set(tx + xx, ty + yy, MAGENTA[2])
+    for i in range(1, 8):
+        s.set(tx + 11, ty + 11 - i, BRASS[2])
+        s.set(tx + 11 + i // 2, ty + 11 + i // 3, BRASS[2])
+    fill_face(s, upper.faces["bottom"], FLESH, 320, [2, 2, 1])
+    lower = Cube(0, 34, 22, 6, 23)
+    for name, rect in lower.each():
+        fill_face(s, rect, CHITIN, 331 + len(name), [2, 3, 2, 1])
+    fill_face(s, lower.faces["top"], FLESH, 340, [2, 3, 1])
+    core = Cube(96, 0, 8, 8, 8)
+    for name, rect in core.each():
+        x, y, w, h = rect
+        for yy in range(h):
+            for xx in range(w):
+                d = math.hypot(xx - (w - 1) / 2, yy - (h - 1) / 2)
+                c = (255, 255, 255, 255) if d < 1.2 else MAGENTA[2] if d < 2.4 else MAGENTA[1] if d < 3.4 else MAGENTA[0]
+                s.set(x + xx, y + yy, c)
+                g.set(x + xx, y + yy, c)
+        s.line(x + w // 2, y + 1, x + w // 2, y + h // 2, (20, 10, 20, 255))
+    tooth = Cube(96, 16, 2, 4, 2)
+    for name, rect in tooth.each():
+        fill_face(s, rect, [(230, 222, 200, 255), (200, 190, 168, 255)], 350)
+    orb = Cube(96, 24, 3, 3, 3)
+    for name, rect in orb.each():
+        fill_face(s, rect, [GLOW[1], CHRON[2]], 360)
+        fill_face(g, rect, [GLOW[2], CHRON[3]], 361)
+    for u in (96, 104):
+        tendril = Cube(u, 32, 2, 7, 2)
+        for name, rect in tendril.each():
+            fill_face(s, rect, CHITIN[1:], 370 + u, [2, 2, 1])
+            x, y, w, h = rect
+            if name not in ("top", "bottom") and u == 104:
+                for xx in range(x, x + w):
+                    g.set(xx, y + h - 1, MAGENTA[2])
+                    s.set(xx, y + h - 1, MAGENTA[1])
+    return s, g
+
+
+# ------------------------------------------------------------------------------------------
 # Oberfläche
 # ------------------------------------------------------------------------------------------
 
@@ -1276,6 +1452,11 @@ def main(preview=None):
     GUI.mkdir(parents=True, exist_ok=True)
     clockmaker_gui().save(GUI / "clockmaker_bench.png")
     temporal_workbench_gui().save(GUI / "temporal_workbench.png")
+    entity_dir = TEX / "entity"
+    for name, fn in (("clockmaker", clockmaker_textures), ("chronophage", chronophage_textures)):
+        tex, glow = fn()
+        tex.save(entity_dir / f"{name}.png")
+        glow.save(entity_dir / f"{name}_glow.png")
     armor_dir = ROOT / "src/main/resources/assets/minecraft/textures/models/armor"
     for layer in (1, 2):
         armor_layer(layer).save(armor_dir / f"timemod_chrono_layer_{layer}.png")

@@ -33,6 +33,11 @@ public abstract class LivingEntityMixin implements TimeHitQueue {
     }
 
     @Override
+    public boolean timemod$isReleasingHits() {
+        return timemod$releasing;
+    }
+
+    @Override
     public void timemod$releaseHits() {
         if (!timemod$hasPendingHits()) {
             return;

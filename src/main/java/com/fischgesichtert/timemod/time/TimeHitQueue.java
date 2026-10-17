@@ -9,4 +9,7 @@ public interface TimeHitQueue {
 
     /** Wendet alle gesammelten Treffer an (ohne Unverwundbarkeits-Pause dazwischen). */
     void timemod$releaseHits();
+
+    /** Werden gerade die im Stillstand gesammelten Treffer ausgeteilt? (für Bosse, die das spüren) */
+    boolean timemod$isReleasingHits();
 }

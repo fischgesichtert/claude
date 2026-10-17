@@ -131,7 +131,11 @@ public abstract class TimeEngine {
         if (zones.isEmpty() || isOutsideTime(entity)) {
             return null;
         }
-        return resolveFor(entity, TimeFilter.categoryOf(entity));
+        TimeZone zone = resolveFor(entity, TimeFilter.categoryOf(entity));
+        if (zone != null && entity instanceof StopResistant && zone.isStop() && !zone.isRewind()) {
+            return null;
+        }
+        return zone;
     }
 
     public static boolean isOutsideTime(Entity entity) {

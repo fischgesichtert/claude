@@ -66,6 +66,8 @@ ITEMS = [
      "Das tickende Herz des Uhrmachers. Es schlägt noch.", "The ticking heart of the Clockmaker. It still beats."),
     ("phage_heart", "generated", "Phagenherz", "Phage Heart",
      "Hat unzählige Sekunden gefressen – und gibt sie nur widerwillig her.", "It devoured countless seconds – and gives them back only grudgingly."),
+    ("clockmaker_spawn_egg", "spawn_egg", "Uhrmacher-Spawn-Ei", "Clockmaker Spawn Egg", None, None),
+    ("chronophage_spawn_egg", "spawn_egg", "Chronophagen-Spawn-Ei", "Chronophage Spawn Egg", None, None),
     ("time_core_fragment", "generated", "Zeitkern-Fragment", "Time Core Fragment",
      "Ein Splitter aus dem Herzen der Zeit. Vier davon wecken etwas in den Chrono-Ruinen.", "A shard from the heart of time. Four of them wake something in the Chrono Ruins."),
     ("chronite_plate", "generated", "Chronit-Platte", "Chronite Plate",
@@ -191,6 +193,23 @@ LANG_EXTRA = {
         "message.timemod.altar.clockmaker": "Der Altar ruht. Ein Uhrwerk könnte ihn wecken …",
         "message.timemod.altar.phage": "Vier leere Sockel. Es fehlen Zeitkern-Fragmente …",
         "item.timemod.workshop_map": "Karte zur Zeitlosen Werkstatt",
+        "entity.timemod.clockmaker": "Der Uhrmacher",
+        "entity.timemod.chronophage": "Der Chronophage",
+        "entity.timemod.gear_saw": "Zahnrad-Säge",
+        "entity.timemod.time_leech": "Zeitegel",
+        "boss.timemod.clockmaker.awakens": "Der Uhrmacher erwacht",
+        "boss.timemod.clockmaker.awakens.hint": "Nur in Zeitlupe zeigt er seine Schwachstelle",
+        "boss.timemod.chronophage.awakens": "Der Chronophage erwacht",
+        "boss.timemod.chronophage.awakens.hint": "Halte die Zeit an, wenn sein Maul offen steht",
+        "message.timemod.altar.busy": "Der Altar ist noch an seinen Wächter gebunden.",
+        "message.timemod.altar.phage.more": "Der Altar verlangt %s Zeitkern-Fragmente.",
+        "subtitles.timemod.clockmaker_roar": "Uhrmacher brüllt",
+        "subtitles.timemod.gear_saw": "Zahnrad-Säge kreischt",
+        "subtitles.timemod.phage_roar": "Chronophage grollt",
+        "subtitles.timemod.phage_open": "Chronophage öffnet sein Maul",
+        "subtitles.timemod.phage_bite": "Chronophage beißt",
+        "subtitles.timemod.phage_drain": "Zeit wird gefressen",
+        "subtitles.timemod.boss_awaken": "Etwas erwacht",
         "book.timemod.astronomer.title": "Notizen des Astronomen",
         "book.timemod.astronomer.page1": "Seit Jahren beobachte ich den Himmel. Doch nicht immer ist es der Himmel von heute. Manchmal leuchten Sterne, die längst erloschen sind – oder solche, die erst noch entstehen werden.",
         "book.timemod.astronomer.page2": "Tief unter der Erde, wo der Wächter schläft, hat jemand die Zeit selbst angezapft. Die Ruinen dort summen noch. Vier Splitter, sagt man, wecken ihren Hunger.",
@@ -260,6 +279,23 @@ LANG_EXTRA = {
         "message.timemod.altar.clockmaker": "The altar rests. A clockwork might wake it …",
         "message.timemod.altar.phage": "Four empty sockets. Time core fragments are missing …",
         "item.timemod.workshop_map": "Map to the Timeless Workshop",
+        "entity.timemod.clockmaker": "The Clockmaker",
+        "entity.timemod.chronophage": "The Chronophage",
+        "entity.timemod.gear_saw": "Gear Saw",
+        "entity.timemod.time_leech": "Time Leech",
+        "boss.timemod.clockmaker.awakens": "The Clockmaker awakens",
+        "boss.timemod.clockmaker.awakens.hint": "Only in slow motion does he show his weak spot",
+        "boss.timemod.chronophage.awakens": "The Chronophage awakens",
+        "boss.timemod.chronophage.awakens.hint": "Stop time while its maw is open",
+        "message.timemod.altar.busy": "The altar is still bound to its guardian.",
+        "message.timemod.altar.phage.more": "The altar demands %s time core fragments.",
+        "subtitles.timemod.clockmaker_roar": "Clockmaker roars",
+        "subtitles.timemod.gear_saw": "Gear saw screeches",
+        "subtitles.timemod.phage_roar": "Chronophage rumbles",
+        "subtitles.timemod.phage_open": "Chronophage opens its maw",
+        "subtitles.timemod.phage_bite": "Chronophage bites",
+        "subtitles.timemod.phage_drain": "Time is devoured",
+        "subtitles.timemod.boss_awaken": "Something awakens",
         "book.timemod.astronomer.title": "The Astronomer's Notes",
         "book.timemod.astronomer.page1": "For years I have watched the sky. But it is not always today's sky. Sometimes stars shine that died long ago – or ones that are yet to be born.",
         "book.timemod.astronomer.page2": "Deep below, where the Warden sleeps, someone tapped into time itself. The ruins still hum. Four shards, they say, wake its hunger.",
@@ -276,6 +312,9 @@ LANG_EXTRA = {
 
 def item_models():
     for item_id, kind, *_ in ITEMS:
+        if kind == "spawn_egg":
+            write(ASSETS / f"models/item/{item_id}.json", {"parent": "minecraft:item/template_spawn_egg"})
+            continue
         parent = "minecraft:item/handheld" if kind == "handheld" else "minecraft:item/generated"
         write(ASSETS / f"models/item/{item_id}.json", {"parent": parent, "textures": {"layer0": t(f"item/{item_id}")}})
     for block_id in BLOCKS:
@@ -524,8 +563,24 @@ def structure_loot():
     ])
 
 
+def boss_loot():
+    write(DATA / f"{NS}/loot_tables/entities/clockmaker.json", {"type": "minecraft:entity", "pools": [
+        {"rolls": 1, "entries": [entry(t("clockwork_core"))]},
+        {"rolls": 1, "entries": [entry(t("brass_block"), 1, 2, 4)]},
+        {"rolls": 1, "entries": [entry(t("clockwork"), 1, 1, 3)]},
+        {"rolls": 1, "entries": [entry(t("chronite_crystal"), 1, 2, 5)]},
+    ]})
+    write(DATA / f"{NS}/loot_tables/entities/chronophage.json", {"type": "minecraft:entity", "pools": [
+        {"rolls": 1, "entries": [entry(t("phage_heart"))]},
+        {"rolls": 1, "entries": [entry("minecraft:echo_shard", 1, 2, 5)]},
+        {"rolls": 1, "entries": [entry(t("time_dust"), 1, 6, 12)]},
+        {"rolls": 1, "entries": [entry(t("time_core_fragment"), 1, 1, 2)]},
+    ]})
+
+
 def loot_tables():
     structure_loot()
+    boss_loot()
     for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar",
                  "lifetime_extractor"):
         self_drop(name)

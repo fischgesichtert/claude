@@ -13,7 +13,8 @@
       "com.fischgesichtert.timemod.gametest.ProgressionTests",
       "com.fischgesichtert.timemod.gametest.ModuleTests",
       "com.fischgesichtert.timemod.gametest.ArmorAndExtractorTests",
-      "com.fischgesichtert.timemod.gametest.StructureTests"
+      "com.fischgesichtert.timemod.gametest.StructureTests",
+      "com.fischgesichtert.timemod.gametest.BossTests"
     ]
   },
   "depends": {

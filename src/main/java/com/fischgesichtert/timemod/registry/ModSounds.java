@@ -17,6 +17,13 @@ public final class ModSounds {
     public static final SoundEvent SLOW_MOTION = register("slow_motion");
     public static final SoundEvent REWIND = register("rewind");
     public static final SoundEvent ZONE_HUM = register("zone_hum");
+    public static final SoundEvent CLOCKMAKER_ROAR = register("clockmaker_roar");
+    public static final SoundEvent GEAR_SAW = register("gear_saw");
+    public static final SoundEvent PHAGE_ROAR = register("phage_roar");
+    public static final SoundEvent PHAGE_OPEN = register("phage_open");
+    public static final SoundEvent PHAGE_BITE = register("phage_bite");
+    public static final SoundEvent PHAGE_DRAIN = register("phage_drain");
+    public static final SoundEvent BOSS_AWAKEN = register("boss_awaken");
 
     private ModSounds() {
     }

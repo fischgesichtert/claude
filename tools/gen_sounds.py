@@ -307,6 +307,85 @@ def zone_hum():
     return normalize(fft_filter(hum, low=900), -10)
 
 
+# ---------------------------------------------------------------------------------------------
+# Bosse
+# ---------------------------------------------------------------------------------------------
+
+def clockmaker_roar():
+    """Uhrmacher: mechanisches Brüllen – tiefe Dampfhorn-Stimme, rasselnde Zahnräder, Glocke."""
+    x = t(2.2)
+    pitch = 70 + 18 * np.sin(2 * np.pi * 0.7 * x) - 15 * x
+    phase = 2 * np.pi * np.cumsum(pitch) / SR
+    voice = sum(a * np.sin(k * phase) for k, a in ((1, 1.0), (2, 0.7), (3, 0.5), (5, 0.3), (7, 0.2)))
+    voice = svf_sweep(saturate(voice, 3.0), 300, 1200, q=3.0) * env_ad(len(x), 0.08, 1.6, curve=2.0)
+    rattle = silence(2.2)
+    for i in range(26):
+        place(rattle, tick(freq=2600 + 400 * RNG.random(), body=500, level=0.5), 0.05 + i * 0.075 + RNG.uniform(0, 0.02))
+    out = mix(normalize(voice, -3), normalize(rattle, -10), normalize(bell(98, 2.0), -12))
+    return normalize(trim(reverb(out, 1.6, 0.3)), -1)
+
+
+def gear_saw():
+    """Zahnrad-Säge: kreischende, sich drehende Metallscheibe."""
+    x = t(0.9)
+    whine = sweep(900, 1500, 0.9) * (0.6 + 0.4 * np.sin(2 * np.pi * 38 * x))
+    grit = fft_filter(noise(0.9), high=2500) * 0.35 * (0.5 + 0.5 * np.sin(2 * np.pi * 38 * x))
+    out = (whine + grit) * env_ad(len(x), 0.02, 0.7, curve=2.5)
+    return normalize(fade(out, 0.01, 0.15), -3)
+
+
+def phage_roar():
+    """Chronophage: tiefes, gurgelndes Grollen, zeitverzerrt (rückwärts anschwellend)."""
+    x = t(2.6)
+    growl = noise(2.6) * (0.6 + 0.4 * np.sin(2 * np.pi * 23 * x))
+    growl = svf_sweep(growl, 120, 480, q=5.0) * 2.5
+    tone = sweep(55, 38, 2.6) * 0.6
+    body = saturate(growl + tone, 2.0) * env_ad(len(x), 0.4, 2.0, curve=2.0)
+    swell = reverb(body[: int(0.9 * SR)], 1.0, 0.8)[::-1][-int(0.6 * SR):] * 0.5
+    out = np.concatenate([swell, body])
+    return normalize(trim(reverb(out, 2.2, 0.35, brightness=2500)), -1)
+
+
+def phage_open():
+    """Das Maul öffnet sich: Uhrwerk spult hoch, endet in einem hohlen Seufzen."""
+    x = t(1.6)
+    rise = sweep(200, 1400, 1.6) * np.linspace(0.2, 1.0, len(x)) ** 2
+    ticks = silence(1.6)
+    for i in range(22):
+        place(ticks, tick(level=0.6), 1.5 * (i / 22) ** 0.6)
+    breath = svf_sweep(noise(1.6), 300, 2000, q=2.0) * np.linspace(0, 1, len(x)) * 0.5
+    return normalize(fade(mix(normalize(rise, -6), normalize(ticks, -8), breath), 0.02, 0.2), -2)
+
+
+def phage_bite():
+    """Zuschnappen: zwei Kiefer schlagen zusammen."""
+    out = silence(0.5)
+    place(out, normalize(boom(0.4, 160, 60), -4), 0.0)
+    place(out, tick(freq=1800, body=300, level=1.2), 0.02)
+    crack = fft_filter(noise(0.08), high=1500) * np.exp(-t(0.08) / 0.01)
+    place(out, crack, 0.03)
+    return normalize(out, -1)
+
+
+def phage_drain():
+    """Zeit wird gesaugt: rückwärts laufende Glocke, absinkender Ton."""
+    src = mix(bell(660, 1.2), bell(990, 1.0) * 0.5)
+    reversed_bell = src[::-1] * 0.8
+    sink = sweep(1200, 180, 1.2) * env_ad(int(1.2 * SR), 0.05, 1.0, curve=2.0) * 0.5
+    return normalize(fade(mix(reversed_bell, sink), 0.01, 0.1), -2)
+
+
+def boss_awaken():
+    """Erwachen eines Bosses: Rückwärtsschwall, Einschlag, tiefer Glockenschlag."""
+    total = silence(4.0)
+    swell = reverb(np.concatenate([bell(196, 0.5), silence(0.1)]), 1.5, 0.9)[::-1][-int(1.0 * SR):]
+    swell *= np.linspace(0.1, 1.0, len(swell)) ** 2
+    place(total, normalize(swell, -5), 0.0)
+    place(total, normalize(boom(2.0, 80, 24), -1), 1.0)
+    place(total, normalize(bell(65.4, 2.8), -6), 1.05)
+    return normalize(trim(total), -1)
+
+
 SOUNDS = {
     "time_stop": time_stop,
     "time_resume": time_resume,
@@ -318,6 +397,13 @@ SOUNDS = {
     "slow_motion": slow_motion,
     "rewind": rewind,
     "zone_hum": zone_hum,
+    "clockmaker_roar": clockmaker_roar,
+    "gear_saw": gear_saw,
+    "phage_roar": phage_roar,
+    "phage_open": phage_open,
+    "phage_bite": phage_bite,
+    "phage_drain": phage_drain,
+    "boss_awaken": boss_awaken,
 }
 
 

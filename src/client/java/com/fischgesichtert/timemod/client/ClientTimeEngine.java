@@ -87,6 +87,10 @@ public final class ClientTimeEngine extends TimeEngine {
             return;
         }
         TimeZone zone = resolveEntity(entity);
+        if (zone != null && zone.isRewind()) {
+            // Beim Zurückspulen bewegt der Server alles; der Client gleitet normal hinterher
+            zone = null;
+        }
         float rate = zone == null ? 1.0F : (float) effectiveFactor(zone);
         float phase = zone == null ? 0.0F : (float) zone.phase();
         setRenderTime(entity, rate, phase);

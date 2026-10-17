@@ -1,6 +1,7 @@
 package com.fischgesichtert.timemod.gametest;
 
 import com.fischgesichtert.timemod.rewind.ChronoJournal;
+import com.fischgesichtert.timemod.rewind.RewindSession;
 import com.fischgesichtert.timemod.time.ServerTimeEngine;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +108,50 @@ public class RewindTests implements FabricGameTest {
                 helper.fail("Das zweite Schwein sollte leben");
             }
             TimeEquivalenceTests.assertSameSnapshot(helper, "Zurückspulen um 40 Ticks", before[0], rewound);
+            helper.succeed();
+        });
+    }
+
+    /** Sichtbares Zurückspulen (3 Ticks pro Tick) muss am Ende denselben Stand ergeben wie sofortiges. */
+    @GameTest(template = ARENA, timeoutTicks = 120, setupTicks = 20, batch = "timemod_rewind_animated")
+    public void animatedRewindRestoresEverything(GameTestHelper helper) {
+        for (int x = 20; x <= 26; x++) {
+            for (int z = 4; z <= 10; z++) {
+                helper.setBlock(new BlockPos(x, 2, z), Blocks.STONE);
+            }
+        }
+        Pig doomed = helper.spawn(EntityType.PIG, new Vec3(30.5, 2, 12.5));
+        ChronoJournal journal = ServerTimeEngine.of(helper.getLevel()).journal();
+        journal.clearAnchors();
+        journal.addAnchor(Vec3.atCenterOf(helper.absolutePos(new BlockPos(20, 6, 8))), 40);
+        journal.setRecording(true);
+        String[] before = new String[1];
+        helper.runAtTickTime(10, () -> before[0] = snapshot(helper));
+        helper.runAtTickTime(12, () -> helper.setBlock(new BlockPos(3, 9, 12), Blocks.SAND));
+        helper.runAtTickTime(14, doomed::kill);
+        helper.runAtTickTime(16, () -> {
+            BlockPos center = helper.absolutePos(new BlockPos(23, 2, 7));
+            helper.getLevel().explode(null, center.getX() + 0.5, center.getY() + 0.5, center.getZ() + 0.5, 2.0F, Level.ExplosionInteraction.TNT);
+        });
+        helper.runAtTickTime(18, () -> helper.spawnItem(Items.GOLD_INGOT, 9.5F, 3F, 9.5F));
+        String[] rewound = new String[1];
+        helper.runAtTickTime(40, () -> {
+            RewindSession session = journal.rewind(30, 3, null, null);
+            if (session == null) {
+                helper.fail("Zurückspulen hätte starten müssen");
+                return;
+            }
+            // Vergleich genau im Moment des Abschlusses, bevor die Welt normal weiterläuft
+            session.onFinish(() -> rewound[0] = snapshot(helper));
+        });
+        helper.runAtTickTime(70, () -> {
+            if (journal.session() != null || rewound[0] == null) {
+                helper.fail("Das Zurückspulen sollte längst fertig sein");
+                return;
+            }
+            journal.setRecording(false);
+            journal.clearAnchors();
+            TimeEquivalenceTests.assertSameSnapshot(helper, "sichtbares Zurückspulen um 30 Ticks", before[0], rewound[0]);
             helper.succeed();
         });
     }

@@ -1,7 +1,9 @@
 package com.fischgesichtert.timemod.client;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.client.effect.RewindEffect;
 import com.fischgesichtert.timemod.client.effect.TimeStopEffect;
+import com.fischgesichtert.timemod.registry.ModSounds;
 import com.fischgesichtert.timemod.network.TimeNetworking;
 import com.fischgesichtert.timemod.time.TimeLevel;
 import com.fischgesichtert.timemod.time.TimeZone;
@@ -20,7 +22,8 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 public class TimeModClient implements ClientModInitializer {
-    private StopAmbienceSound ambience;
+    private ConditionalLoopSound stopAmbience;
+    private ConditionalLoopSound rewindLoop;
 
     @Override
     public void onInitializeClient() {
@@ -38,6 +41,7 @@ public class TimeModClient implements ClientModInitializer {
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> TimeStopEffect.clear());
         WorldRenderEvents.END.register(TimeStopEffect::render);
+        ClientTickEvents.END_CLIENT_TICK.register(client -> ClientClock.tick());
         ClientTickEvents.END_CLIENT_TICK.register(this::tickAmbience);
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
@@ -54,12 +58,17 @@ public class TimeModClient implements ClientModInitializer {
 
     private void tickAmbience(Minecraft mc) {
         if (mc.level == null) {
-            ambience = null;
+            stopAmbience = null;
+            rewindLoop = null;
             return;
         }
-        if (TimeStopEffect.cameraStillness() > 0.0F && (ambience == null || ambience.isStopped())) {
-            ambience = new StopAmbienceSound();
-            mc.getSoundManager().play(ambience);
+        if (TimeStopEffect.cameraStillness() > 0.0F && (stopAmbience == null || stopAmbience.isStopped())) {
+            stopAmbience = new ConditionalLoopSound(ModSounds.STOP_AMBIENCE, 0.9F, () -> TimeStopEffect.cameraStillness() > 0.0F);
+            mc.getSoundManager().play(stopAmbience);
+        }
+        if (RewindEffect.cameraInRewind() && (rewindLoop == null || rewindLoop.isStopped())) {
+            rewindLoop = new ConditionalLoopSound(ModSounds.REWIND, 0.7F, RewindEffect::cameraInRewind);
+            mc.getSoundManager().play(rewindLoop);
         }
     }
 }

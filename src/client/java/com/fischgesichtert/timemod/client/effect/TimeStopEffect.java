@@ -1,42 +1,32 @@
 package com.fischgesichtert.timemod.client.effect;
 
 import com.fischgesichtert.timemod.TimeMod;
+import com.fischgesichtert.timemod.client.ClientClock;
 import com.fischgesichtert.timemod.time.TimeZone;
 import com.fischgesichtert.timemod.time.ZoneShape;
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.EffectInstance;
-import net.minecraft.client.renderer.PostChain;
-import net.minecraft.client.renderer.PostPass;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 /**
  * Bildeffekt des Zeitstopps: Eine invertierte Kugelwelle rast vom Zentrum nach außen und lässt
  * alles, was sie überstreicht, ergrauen. Beim Weiterlaufen der Zeit zieht sie sich zusammen.
+ * Die Welle läuft in Spielzeit, damit sie auch in langsamen Aufnahmen sichtbar ist.
  */
 public final class TimeStopEffect {
-    private static final ResourceLocation SHADER = TimeMod.id("shaders/post/time_stop.json");
-    /** Ausbreitungsgeschwindigkeit der Welle in Blöcken pro Sekunde. */
+    private static final PostEffect SHADER = new PostEffect(TimeMod.id("shaders/post/time_stop.json"));
+    /** Ausbreitungsgeschwindigkeit der Welle in Blöcken pro Sekunde (Spielzeit). */
     private static final double WAVE_SPEED = 28.0;
     private static final double RESUME_SPEED = 45.0;
 
     private static final Map<Integer, Wave> WAVES = new HashMap<>();
-    @Nullable
-    private static PostChain chain;
-    private static boolean failed;
-    private static int width = -1;
-    private static int height = -1;
 
     private TimeStopEffect() {
     }
@@ -45,8 +35,8 @@ public final class TimeStopEffect {
         final Vec3 center;
         final double radius;
         final boolean global;
-        final long start = System.nanoTime();
-        long resumeStart = -1;
+        final double start = ClientClock.seconds();
+        double resumeStart = -1;
 
         Wave(Vec3 center, double radius, boolean global) {
             this.center = center;
@@ -54,16 +44,12 @@ public final class TimeStopEffect {
             this.global = global;
         }
 
-        double seconds(long from) {
-            return (System.nanoTime() - from) / 1.0E9;
-        }
-
-        /** Aktueller Radius der Wellenfront. */
         double front() {
+            double now = ClientClock.seconds();
             if (resumeStart >= 0) {
-                return Math.max(0.0, radius - seconds(resumeStart) * RESUME_SPEED);
+                return Math.max(0.0, radius - (now - resumeStart) * RESUME_SPEED);
             }
-            return Math.min(radius + 4.0, seconds(start) * WAVE_SPEED);
+            return Math.min(radius + 4.0, (now - start) * WAVE_SPEED);
         }
 
         boolean finished() {
@@ -74,7 +60,7 @@ public final class TimeStopEffect {
     /** Wird aufgerufen, wenn sich die Zonenliste ändert. */
     public static void onZonesChanged(List<TimeZone> before, List<TimeZone> after) {
         for (TimeZone zone : after) {
-            if (zone.isStop() && !WAVES.containsKey(zone.id())) {
+            if (zone.isStop() && !zone.isRewind() && !WAVES.containsKey(zone.id())) {
                 Center c = center(zone.shape());
                 WAVES.put(zone.id(), new Wave(c.pos, c.radius, zone.shape().isGlobal()));
             }
@@ -87,8 +73,9 @@ public final class TimeStopEffect {
             }
         }
         for (int id : ended) {
-            WAVES.get(id).resumeStart = System.nanoTime();
+            WAVES.get(id).resumeStart = ClientClock.seconds();
         }
+        RewindEffect.onZonesChanged(after);
     }
 
     private record Center(Vec3 pos, double radius) {
@@ -121,30 +108,30 @@ public final class TimeStopEffect {
             return 0.0F;
         }
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
-        float best = 0.0F;
         for (Wave wave : WAVES.values()) {
             double d = cam.distanceTo(wave.center);
             if (d <= wave.radius && wave.front() >= d) {
-                best = Math.max(best, 1.0F);
+                return 1.0F;
             }
         }
-        return best;
+        return 0.0F;
     }
 
     public static void clear() {
         WAVES.clear();
+        RewindEffect.clear();
     }
 
-    /** Am Ende des Welt-Renderns: Effekt über das Bild legen (die Hand bleibt farbig). */
+    public static void reset() {
+        SHADER.reset();
+        RewindEffect.reset();
+    }
+
+    /** Am Ende des Welt-Renderns: Effekte über das Bild legen (die Hand bleibt farbig). */
     public static void render(WorldRenderContext context) {
+        RewindEffect.render(context);
         WAVES.values().removeIf(Wave::finished);
-        if (WAVES.isEmpty() || failed) {
-            return;
-        }
-        Minecraft mc = Minecraft.getInstance();
-        RenderTarget main = mc.getMainRenderTarget();
-        PostChain post = chain(mc, main);
-        if (post == null) {
+        if (WAVES.isEmpty()) {
             return;
         }
         Vec3 cam = context.camera().getPosition();
@@ -158,10 +145,9 @@ public final class TimeStopEffect {
         Matrix4f viewProj = new Matrix4f(context.projectionMatrix()).mul(context.matrixStack().last().pose());
         Matrix4f inverse = viewProj.invert(new Matrix4f());
         Vec3 rel = wave.center.subtract(cam);
-        float time = (float) wave.seconds(wave.start);
+        float time = (float) (ClientClock.seconds() - wave.start);
 
-        for (PostPass pass : post.passes) {
-            EffectInstance effect = pass.getEffect();
+        SHADER.process(context.tickDelta(), effect -> {
             effect.safeGetUniform("InvViewProj").set(inverse);
             effect.safeGetUniform("ZoneCenter").set((float) rel.x, (float) rel.y, (float) rel.z);
             effect.safeGetUniform("ZoneRadius").set((float) wave.radius);
@@ -171,9 +157,7 @@ public final class TimeStopEffect {
             effect.safeGetUniform("CameraInside").set(cameraInside ? 1.0F : 0.0F);
             effect.safeGetUniform("Flash").set(flash);
             effect.safeGetUniform("Time").set(time);
-        }
-        post.process(context.tickDelta());
-        main.bindWrite(false);
+        });
     }
 
     private static Wave nearest(Vec3 cam) {
@@ -187,35 +171,5 @@ public final class TimeStopEffect {
             }
         }
         return best;
-    }
-
-    @Nullable
-    private static PostChain chain(Minecraft mc, RenderTarget main) {
-        if (chain == null) {
-            try {
-                chain = new PostChain(mc.getTextureManager(), mc.getResourceManager(), main, SHADER);
-            } catch (IOException | RuntimeException e) {
-                TimeMod.LOGGER.error("Zeitstopp-Shader konnte nicht geladen werden", e);
-                failed = true;
-                return null;
-            }
-        }
-        if (main.width != width || main.height != height) {
-            width = main.width;
-            height = main.height;
-            chain.resize(width, height);
-        }
-        return chain;
-    }
-
-    /** Nach einem Ressourcen-Neuladen muss der Shader neu aufgebaut werden. */
-    public static void reset() {
-        if (chain != null) {
-            chain.close();
-            chain = null;
-        }
-        failed = false;
-        width = -1;
-        height = -1;
     }
 }

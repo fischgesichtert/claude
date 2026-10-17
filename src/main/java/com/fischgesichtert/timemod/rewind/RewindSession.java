@@ -47,6 +47,7 @@ public final class RewindSession {
     @Nullable
     private TimeZone zone;
     private final Set<BlockPos> touched = new HashSet<>();
+    private final List<Runnable> onFinish = new java.util.ArrayList<>();
 
     /** Bereich, auf den das Zurückspulen wirkt. */
     public record Region(Vec3 center, double radius) {
@@ -74,6 +75,15 @@ public final class RewindSession {
 
     public boolean isFinished() {
         return finished;
+    }
+
+    /** Wird direkt nach dem Abschluss ausgeführt (bevor die Welt weitertickt). */
+    public void onFinish(Runnable action) {
+        if (finished) {
+            action.run();
+        } else {
+            onFinish.add(action);
+        }
     }
 
     /** Fortschritt 0..1 (für Anzeigen). */
@@ -312,5 +322,7 @@ public final class RewindSession {
         }
         journal.restartAfterRewind();
         TimeMod.LOGGER.info("Zurückgespult: {} Ticks", done);
+        onFinish.forEach(Runnable::run);
+        onFinish.clear();
     }
 }

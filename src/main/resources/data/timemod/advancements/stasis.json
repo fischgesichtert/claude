@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:stasis_watch"
+    },
+    "title": {
+      "translate": "advancements.timemod.stasis.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.stasis.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:stasis_watch"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:condenser"
+}

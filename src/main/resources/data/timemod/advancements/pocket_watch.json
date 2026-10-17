@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:pocket_watch"
+    },
+    "title": {
+      "translate": "advancements.timemod.pocket_watch.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.pocket_watch.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:pocket_watch"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:clockwork"
+}

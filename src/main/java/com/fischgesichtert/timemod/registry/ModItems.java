@@ -5,6 +5,7 @@ import com.fischgesichtert.timemod.armor.ChronoArmorItem;
 import com.fischgesichtert.timemod.armor.ChronoUpgradeTemplate;
 import com.fischgesichtert.timemod.energy.ChrononCellItem;
 import com.fischgesichtert.timemod.item.BrakeSpringItem;
+import com.fischgesichtert.timemod.item.ChronikItem;
 import com.fischgesichtert.timemod.item.ChronoDebugWandItem;
 import com.fischgesichtert.timemod.item.ChronoKnifeItem;
 import com.fischgesichtert.timemod.item.GrowthHourglassItem;
@@ -31,6 +32,9 @@ import net.minecraft.world.level.block.Block;
 public final class ModItems {
     /** Reihenfolge im Kreativ-Reiter. */
     static final List<Item> TAB_ORDER = new ArrayList<>();
+
+    // Handbuch
+    public static final Item CHRONIK = register("chronik", new ChronikItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 
     // Werkzeuge
     public static final Item POCKET_WATCH = register("pocket_watch", new PocketWatchItem(new Item.Properties()));

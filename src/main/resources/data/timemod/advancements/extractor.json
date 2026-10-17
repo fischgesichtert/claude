@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:lifetime_extractor"
+    },
+    "title": {
+      "translate": "advancements.timemod.extractor.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.extractor.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:lifetime_extractor"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:chronophage"
+}

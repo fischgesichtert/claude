@@ -1,0 +1,30 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:filter_growth"
+    },
+    "title": {
+      "translate": "advancements.timemod.module.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.module.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "timemod:modules"
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:workbench"
+}

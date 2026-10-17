@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:recall_watch"
+    },
+    "title": {
+      "translate": "advancements.timemod.recall.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.recall.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:recall_watch"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:pocket_watch"
+}

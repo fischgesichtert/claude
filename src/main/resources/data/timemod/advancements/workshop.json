@@ -1,0 +1,36 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:clockmaker_altar"
+    },
+    "title": {
+      "translate": "advancements.timemod.workshop.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.workshop.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "structure": "timemod:timeless_workshop"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:clock_tower"
+}

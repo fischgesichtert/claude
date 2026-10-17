@@ -1,0 +1,34 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:clockwork_core"
+    },
+    "title": {
+      "translate": "advancements.timemod.clockmaker.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.clockmaker.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "timemod:clockmaker"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:workshop"
+}

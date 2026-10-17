@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:chronik"
+    },
+    "title": {
+      "translate": "advancements.timemod.root.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.root.description"
+    },
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false,
+    "background": "timemod:textures/block/deepslate_chronite_ore.png"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:chronik"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

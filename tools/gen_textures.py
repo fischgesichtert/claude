@@ -1263,6 +1263,70 @@ def chronophage_textures():
 
 
 # ------------------------------------------------------------------------------------------
+# Handbuch „Die Chronik“
+# ------------------------------------------------------------------------------------------
+
+LEATHER = [(46, 22, 44, 255), (60, 30, 58, 255), (74, 38, 70, 255)]
+PARCHMENT = (236, 222, 190, 255)
+
+
+def chronik_item():
+    s = Sprite()
+    s.rect(2, 1, 13, 14, LEATHER[1])
+    s.rect(3, 2, 12, 13, LEATHER[2])
+    s.rect(2, 1, 3, 14, LEATHER[0])
+    s.rect(13, 2, 14, 14, PARCHMENT)
+    s.line(13, 2, 13, 14, (200, 184, 150, 255))
+    clock_face(s, 8.0, 7.5, 3.6, hands=((0, -0.8), (0.5, 0.2)))
+    for x, y in ((3, 1), (12, 1), (3, 14), (12, 14)):
+        s.set(x, y, BRASS[3])
+    s.outline()
+    return s
+
+
+def chronik_gui():
+    w, h = 292, 180
+    img = Image.new("RGBA", (512, 256), T)
+    px = img.load()
+    rnd = random.Random(501)
+    for y in range(h):
+        for x in range(w):
+            corner = min(x, w - 1 - x) + min(y, h - 1 - y)
+            if corner < 3:
+                continue
+            px[x, y] = LEATHER[rnd.choice((0, 1, 1, 2))]
+    for (x0, y0) in ((0, 0), (w - 14, 0), (0, h - 14), (w - 14, h - 14)):
+        for y in range(14):
+            for x in range(14):
+                if (x < 3 or y < 3 or x > 10 or y > 10) and px[x0 + x, y0 + y][3] > 0:
+                    px[x0 + x, y0 + y] = BRASS[2] if (x + y) % 5 else BRASS[3]
+    for page_x0, page_x1 in ((12, 145), (147, 280)):
+        for y in range(8, h - 8):
+            for x in range(page_x0, page_x1):
+                spine = abs(x - 146) / 20.0
+                shade = int(18 * max(0.0, 1.0 - spine))
+                edge = 6 if (y < 10 or y > h - 11) else 0
+                n = rnd.randint(-4, 4)
+                r, g, b, a = PARCHMENT
+                px[x, y] = (r - shade - edge + n, g - shade - edge + n, b - shade - edge + n, 255)
+        # blasses Zifferblatt als Wasserzeichen
+        cx = (page_x0 + page_x1) / 2
+        cy = h / 2 + 6
+        for y in range(h):
+            for x in range(page_x0, page_x1):
+                d = math.hypot(x - cx, y - cy)
+                if 38 <= d <= 40 or (d < 36 and (int(math.degrees(math.atan2(y - cy, x - cx)) + 360) % 30) < 2 and d > 30):
+                    r, g, b, a = px[x, y]
+                    px[x, y] = (r - 10, g - 10, b - 6, 255)
+        for x in range(page_x0 + 8, page_x1 - 8):
+            r, g, b, a = px[x, 11]
+            px[x, 11] = (min(255, r - 40), min(255, g - 55), b - 90, 255)
+    for y in range(8, h - 8):
+        px[146, y] = (120, 96, 70, 255)
+    return img
+
+
+# ------------------------------------------------------------------------------------------
 # Oberfläche
 # ------------------------------------------------------------------------------------------
 
@@ -1412,7 +1476,7 @@ ITEMS = {
     "pocket_time_cell": pocket_time_cell, "chronite_time_cell": chronite_time_cell,
     "clockwork_core": clockwork_core, "phage_heart": phage_heart,
     "chrono_helmet": chrono_helmet, "chrono_chestplate": chrono_chestplate, "chrono_leggings": chrono_leggings, "chrono_boots": chrono_boots,
-    "chronite_plate": chronite_plate, "time_core_fragment": time_core_fragment, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
+    "chronite_plate": chronite_plate, "time_core_fragment": time_core_fragment, "chronik": chronik_item, "chrono_upgrade_template": chrono_upgrade_template, "paradox_time_cell": paradox_time_cell,
     "blank_module": lambda: module("blank"),
     **{f"filter_{n}": (lambda n=n: module("filter", n)) for n in
        ("animals", "monsters", "villagers", "players", "projectiles", "items", "vehicles", "growth", "environment", "fluids", "redstone", "machines")},
@@ -1452,6 +1516,7 @@ def main(preview=None):
     GUI.mkdir(parents=True, exist_ok=True)
     clockmaker_gui().save(GUI / "clockmaker_bench.png")
     temporal_workbench_gui().save(GUI / "temporal_workbench.png")
+    chronik_gui().save(GUI.parent / "chronik.png")
     entity_dir = TEX / "entity"
     for name, fn in (("clockmaker", clockmaker_textures), ("chronophage", chronophage_textures)):
         tex, glow = fn()

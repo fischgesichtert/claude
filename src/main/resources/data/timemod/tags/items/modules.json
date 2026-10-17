@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "timemod:filter_animals",
+    "timemod:filter_monsters",
+    "timemod:filter_villagers",
+    "timemod:filter_players",
+    "timemod:filter_projectiles",
+    "timemod:filter_items",
+    "timemod:filter_vehicles",
+    "timemod:filter_growth",
+    "timemod:filter_environment",
+    "timemod:filter_fluids",
+    "timemod:filter_redstone",
+    "timemod:filter_machines",
+    "timemod:radius_module",
+    "timemod:duration_module",
+    "timemod:strength_module",
+    "timemod:efficiency_module"
+  ]
+}

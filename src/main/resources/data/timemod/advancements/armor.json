@@ -1,0 +1,47 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:chrono_chestplate"
+    },
+    "title": {
+      "translate": "advancements.timemod.armor.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.armor.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:chrono_helmet"
+            ]
+          },
+          {
+            "items": [
+              "timemod:chrono_chestplate"
+            ]
+          },
+          {
+            "items": [
+              "timemod:chrono_leggings"
+            ]
+          },
+          {
+            "items": [
+              "timemod:chrono_boots"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:chronophage"
+}

@@ -4,7 +4,11 @@ Weltgenerierung und Übersetzungen. Eine Quelle der Wahrheit statt hunderter Han
 Aufruf: python3 -I tools/gen_assets.py
 """
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from chronik_text import ADVANCEMENTS, CHAPTERS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / "src/main/resources"
@@ -66,6 +70,7 @@ ITEMS = [
      "Das tickende Herz des Uhrmachers. Es schlägt noch.", "The ticking heart of the Clockmaker. It still beats."),
     ("phage_heart", "generated", "Phagenherz", "Phage Heart",
      "Hat unzählige Sekunden gefressen – und gibt sie nur widerwillig her.", "It devoured countless seconds – and gives them back only grudgingly."),
+    ("chronik", "generated", "Die Chronik", "The Chronicle", "Das Handbuch der Zeit. Rechtsklick zum Lesen.", "The handbook of time. Right-click to read."),
     ("clockmaker_spawn_egg", "spawn_egg", "Uhrmacher-Spawn-Ei", "Clockmaker Spawn Egg", None, None),
     ("chronophage_spawn_egg", "spawn_egg", "Chronophagen-Spawn-Ei", "Chronophage Spawn Egg", None, None),
     ("time_core_fragment", "generated", "Zeitkern-Fragment", "Time Core Fragment",
@@ -658,6 +663,7 @@ def recipes():
     shapeless("chronite_seed", [t("raw_chronite"), t("time_sand"), "minecraft:bone_meal"], t("chronite_seed"))
     shapeless("time_dust", [t("chronite_crystal")], t("time_dust"), 4)
     shaped("time_condenser", ["BGB", "GCG", "BFB"], {"B": t("brass_ingot"), "G": t("time_glass"), "C": t("clockwork"), "F": "minecraft:blast_furnace"}, t("time_condenser"))
+    shapeless("chronik", ["minecraft:book", t("brass_nugget")], t("chronik"))
     shaped("chrono_knife", ["C", "I", "B"], {"C": t("chronite_crystal"), "I": "minecraft:iron_ingot", "B": t("brass_ingot")}, t("chrono_knife"), 4)
 
     # Präzisionsteile (Uhrmacher-Werkbank)
@@ -731,6 +737,10 @@ def tags():
     tag("minecraft/tags/blocks/needs_diamond_tool.json", [t("deepslate_chronite_ore"), t("temporal_workbench"), t("lifetime_extractor")])
     tag("minecraft/tags/items/trimmable_armor.json", [t(f"chrono_{p}") for p in ("helmet", "chestplate", "leggings", "boots")])
     tag("c/tags/items/brass_ingots.json", [t("brass_ingot")])
+    tag(f"{NS}/tags/items/modules.json", [t(n) for n in (
+        "filter_animals", "filter_monsters", "filter_villagers", "filter_players", "filter_projectiles", "filter_items", "filter_vehicles",
+        "filter_growth", "filter_environment", "filter_fluids", "filter_redstone", "filter_machines",
+        "radius_module", "duration_module", "strength_module", "efficiency_module")])
     tag("c/tags/items/brass_nuggets.json", [t("brass_nugget")])
     tag("c/tags/items/brass_blocks.json", [t("brass_block")])
     tag("c/tags/items/raw_chronite_ores.json", [t("raw_chronite")])
@@ -800,6 +810,37 @@ def worldgen():
 # Übersetzungen
 # ------------------------------------------------------------------------------------------
 
+def advancements():
+    for adv_id, parent, icon, frame, criterion, *_ in ADVANCEMENTS:
+        kind, value = criterion
+        if kind == "item":
+            trigger = {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": [value]}]}}
+        elif kind == "items":
+            trigger = {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": [v]} for v in value]}}
+        elif kind == "tag":
+            trigger = {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"tag": value}]}}
+        elif kind == "structure":
+            trigger = {"trigger": "minecraft:location", "conditions": {"player": [
+                {"condition": "minecraft:entity_properties", "entity": "this", "predicate": {"location": {"structure": value}}}]}}
+        else:
+            trigger = {"trigger": "minecraft:player_killed_entity", "conditions": {"entity": [
+                {"condition": "minecraft:entity_properties", "entity": "this", "predicate": {"type": value}}]}}
+        display = {
+            "icon": {"item": icon},
+            "title": {"translate": f"advancements.{NS}.{adv_id}.title"},
+            "description": {"translate": f"advancements.{NS}.{adv_id}.description"},
+            "frame": frame, "show_toast": True, "announce_to_chat": True, "hidden": False,
+        }
+        adv = {"display": display, "criteria": {"done": trigger}}
+        if parent is None:
+            display["background"] = "timemod:textures/block/deepslate_chronite_ore.png"
+            display["announce_to_chat"] = False
+            display["show_toast"] = False
+        else:
+            adv["parent"] = t(parent)
+        write(DATA / f"{NS}/advancements/{adv_id}.json", adv)
+
+
 def lang():
     for code, idx in (("de_de", 0), ("en_us", 1)):
         path = ASSETS / f"lang/{code}.json"
@@ -812,6 +853,14 @@ def lang():
         for block_id, names in BLOCKS.items():
             data[f"block.{NS}.{block_id}"] = names[idx]
         data.update(LANG_EXTRA[code])
+        for key, (de_title, de_text, en_title, en_text) in CHAPTERS.items():
+            data[f"chronik.{NS}.{key}.title"] = de_title if idx == 0 else en_title
+            data[f"chronik.{NS}.{key}.text"] = de_text if idx == 0 else en_text
+        data[f"chronik.{NS}.title"] = "Die Chronik" if idx == 0 else "The Chronicle"
+        data[f"chronik.{NS}.subtitle"] = "Inhalt" if idx == 0 else "Contents"
+        for adv_id, *_rest, de_title, de_desc, en_title, en_desc in ADVANCEMENTS:
+            data[f"advancements.{NS}.{adv_id}.title"] = de_title if idx == 0 else en_title
+            data[f"advancements.{NS}.{adv_id}.description"] = de_desc if idx == 0 else en_desc
         write(path, dict(sorted(data.items())))
 
 
@@ -822,6 +871,7 @@ def main():
     recipes()
     tags()
     worldgen()
+    advancements()
     lang()
     print("Assets erzeugt.")
 

@@ -13,7 +13,9 @@ import com.fischgesichtert.timemod.client.render.SpinningItemRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import com.fischgesichtert.timemod.client.render.TemporalWorkbenchRenderer;
 import com.fischgesichtert.timemod.client.render.TimeCondenserRenderer;
+import com.fischgesichtert.timemod.client.screen.ChronikScreen;
 import com.fischgesichtert.timemod.client.screen.ClockmakerScreen;
+import com.fischgesichtert.timemod.item.ChronikItem;
 import com.fischgesichtert.timemod.client.screen.TemporalWorkbenchScreen;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModBlocks;
@@ -49,6 +51,7 @@ public class TimeModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         MenuScreens.register(ModMenus.CLOCKMAKER, ClockmakerScreen::new);
+        ChronikItem.opener = () -> Minecraft.getInstance().setScreen(new ChronikScreen());
         MenuScreens.register(ModMenus.TEMPORAL_WORKBENCH, TemporalWorkbenchScreen::new);
         BlockEntityRenderers.register(ModBlockEntities.TEMPORAL_WORKBENCH, TemporalWorkbenchRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.TEMPORAL_WORKBENCH, RenderType.cutout());

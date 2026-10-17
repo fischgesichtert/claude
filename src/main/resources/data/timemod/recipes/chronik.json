@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "timemod:brass_nugget"
+    }
+  ],
+  "result": {
+    "item": "timemod:chronik",
+    "count": 1
+  }
+}

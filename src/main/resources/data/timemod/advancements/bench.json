@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:clockmaker_bench"
+    },
+    "title": {
+      "translate": "advancements.timemod.bench.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.bench.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:clockmaker_bench"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:brass"
+}

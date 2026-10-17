@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "item": "timemod:time_condenser"
+    },
+    "title": {
+      "translate": "advancements.timemod.condenser.title"
+    },
+    "description": {
+      "translate": "advancements.timemod.condenser.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "timemod:time_condenser"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "parent": "timemod:chronite"
+}

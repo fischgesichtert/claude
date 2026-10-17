@@ -363,4 +363,40 @@ public class ProgressionTests implements FabricGameTest {
             helper.succeed();
         });
     }
+
+    /** Alle Advancements laden (ein Fehler im JSON würde sonst nur geloggt). */
+    @GameTest(template = EMPTY_STRUCTURE)
+    public void allAdvancementsLoad(GameTestHelper helper) {
+        var server = helper.getLevel().getServer();
+        Set<String> files = server.getResourceManager()
+            .listResources("advancements", id -> id.getNamespace().equals("timemod") && id.getPath().endsWith(".json")).keySet().stream()
+            .map(id -> id.getPath().substring("advancements/".length(), id.getPath().length() - ".json".length()))
+            .collect(Collectors.toSet());
+        Set<String> loaded = server.getAdvancements().getAllAdvancements().stream().map(a -> a.getId())
+            .filter(id -> id.getNamespace().equals("timemod")).map(ResourceLocation::getPath).collect(Collectors.toSet());
+        if (files.isEmpty()) {
+            helper.fail("Keine Advancement-Dateien gefunden");
+        }
+        files.removeAll(loaded);
+        if (!files.isEmpty()) {
+            helper.fail("Nicht geladene Advancements: " + files);
+        }
+        helper.succeed();
+    }
+
+    /** Neue Spieler bekommen die Chronik – aber nur einmal. */
+    @GameTest(template = EMPTY_STRUCTURE)
+    public void newPlayersGetTheChronikOnce(GameTestHelper helper) {
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        int count = player.getInventory().countItem(ModItems.CHRONIK);
+        if (count != 1) {
+            helper.fail("Beim ersten Betreten muss genau eine Chronik im Inventar liegen, gefunden: " + count);
+        }
+        com.fischgesichtert.timemod.item.ChronikGift.give(player);
+        if (player.getInventory().countItem(ModItems.CHRONIK) != 1) {
+            helper.fail("Die Chronik darf nur einmal geschenkt werden");
+        }
+        player.discard();
+        helper.succeed();
+    }
 }

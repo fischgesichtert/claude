@@ -2,6 +2,7 @@ package com.fischgesichtert.timemod;
 
 import com.fischgesichtert.timemod.armor.ChronoArmorItem;
 import com.fischgesichtert.timemod.command.ChronoCommand;
+import com.fischgesichtert.timemod.item.ChronikGift;
 import com.fischgesichtert.timemod.network.TimeNetworking;
 import com.fischgesichtert.timemod.registry.ModBlockEntities;
 import com.fischgesichtert.timemod.registry.ModBlocks;
@@ -45,6 +46,7 @@ public class TimeMod implements ModInitializer {
         RecordingDemand.init();
         TimeNetworking.init();
         TimeImmunity.register(ChronoArmorItem::hasFullSet);
+        ChronikGift.init();
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> ChronoCommand.register(dispatcher));
         LOGGER.info("TIME geladen – die Zeit gehört dir.");
     }

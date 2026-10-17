@@ -1,0 +1,7 @@
+{
+  "type": "timemod:timeless_citadel",
+  "biomes": "#timemod:has_structure/timeless_citadel",
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "terrain_adaptation": "none"
+}

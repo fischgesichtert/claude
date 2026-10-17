@@ -11,10 +11,10 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 
-/** Die vier Strukturen der Stufe III. Wo genau sie entstehen, entscheidet die Art. */
+/** Die Strukturen von TIME. Wo genau sie entstehen, entscheidet die Art. */
 public class TimeStructure extends Structure {
     public enum Kind {
-        CLOCK_TOWER, OBSERVATORY, CHRONO_RUINS, TIMELESS_WORKSHOP
+        CLOCK_TOWER, OBSERVATORY, CHRONO_RUINS, TIMELESS_WORKSHOP, TIMELESS_CITADEL
     }
 
     @FunctionalInterface
@@ -49,6 +49,7 @@ public class TimeStructure extends Structure {
             case OBSERVATORY -> onSurface(context, ObservatoryPiece.SIZE, 28, true, ObservatoryPiece::new);
             case CHRONO_RUINS -> underground(context, ChronoRuinsPiece.SIZE, -50, -38, ChronoRuinsPiece::new);
             case TIMELESS_WORKSHOP -> underground(context, TimelessWorkshopPiece.SIZE, -28, 8, TimelessWorkshopPiece::new);
+            case TIMELESS_CITADEL -> floating(context, TimelessCitadelPiece.SIZE, 70, 86, TimelessCitadelPiece::new);
         };
     }
 
@@ -103,6 +104,23 @@ public class TimeStructure extends Structure {
         BlockPos origin = new BlockPos(chunk.getMinBlockX(), y, chunk.getMinBlockZ());
         BlockPos center = origin.offset(size / 2, 2, size / 2);
         return Optional.of(new GenerationStub(center, builder -> builder.addPiece(factory.create(origin, orientation, seed))));
+    }
+
+    /** Frei schwebend in fester Höhe (äußeres End); das Biom entscheidet, ob hier eine entsteht. */
+    private static Optional<GenerationStub> floating(GenerationContext context, int size, int minY, int maxY, PieceFactory factory) {
+        ChunkPos chunk = context.chunkPos();
+        int cx = chunk.getMinBlockX() + size / 2;
+        int cz = chunk.getMinBlockZ() + size / 2;
+        int y = minY + context.random().nextInt(maxY - minY + 1);
+        var biome = context.biomeSource().getNoiseBiome(QuartPos.fromBlock(cx), QuartPos.fromBlock(64), QuartPos.fromBlock(cz),
+            context.randomState().sampler());
+        if (!context.validBiome().test(biome)) {
+            return reject("Biom " + biome.unwrapKey().map(k -> k.location().getPath()).orElse("?"));
+        }
+        Direction orientation = Direction.Plane.HORIZONTAL.getRandomDirection(context.random());
+        long seed = context.random().nextLong();
+        BlockPos origin = new BlockPos(chunk.getMinBlockX(), y, chunk.getMinBlockZ());
+        return Optional.of(new GenerationStub(new BlockPos(cx, y + 10, cz), builder -> builder.addPiece(factory.create(origin, orientation, seed))));
     }
 
     public Kind kind() {

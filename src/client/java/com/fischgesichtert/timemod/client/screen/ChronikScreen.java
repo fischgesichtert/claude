@@ -48,6 +48,7 @@ public class ChronikScreen extends Screen {
         new Chapter("places", List.of(Items.FILLED_MAP, Items.SPYGLASS, ModItems.TIME_CORE_FRAGMENT, ModItems.CLOCKMAKER_ALTAR)),
         new Chapter("clockmaker", List.of(ModItems.CLOCKMAKER_ALTAR, ModItems.CLOCKWORK, ModItems.SLOW_PENDULUM, ModItems.CLOCKWORK_CORE)),
         new Chapter("chronophage", List.of(ModItems.PHAGE_ALTAR, ModItems.TIME_CORE_FRAGMENT, ModItems.STASIS_WATCH, ModItems.PHAGE_HEART)),
+        new Chapter("paradox", List.of(ModItems.PARADOX_ALTAR, ModItems.PARADOX_TIME_CELL, ModItems.CHRONO_CHESTPLATE, ModItems.HEART_OF_TIME)),
         new Chapter("tier4", List.of(ModItems.HEART_OF_TIME, Items.NETHER_STAR, ModItems.STRENGTH_MODULE, ModItems.CHRONOS_WATCH)),
         new Chapter("future", List.of(Items.CLOCK, ModItems.CHRONITE_CRYSTAL, Items.ENDER_EYE)));
 

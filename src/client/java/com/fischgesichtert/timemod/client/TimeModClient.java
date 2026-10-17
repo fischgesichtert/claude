@@ -10,6 +10,7 @@ import com.fischgesichtert.timemod.client.model.ClockmakerModel;
 import com.fischgesichtert.timemod.client.render.ChronoKnifeRenderer;
 import com.fischgesichtert.timemod.client.render.ChronophageRenderer;
 import com.fischgesichtert.timemod.client.render.ClockmakerRenderer;
+import com.fischgesichtert.timemod.client.render.ParadoxRenderer;
 import com.fischgesichtert.timemod.client.render.SpinningItemRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import com.fischgesichtert.timemod.client.render.TemporalWorkbenchRenderer;
@@ -62,6 +63,8 @@ public class TimeModClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(ChronophageModel.LAYER, ChronophageModel::createBodyLayer);
         EntityRendererRegistry.register(ModEntities.CLOCKMAKER, ClockmakerRenderer::new);
         EntityRendererRegistry.register(ModEntities.CHRONOPHAGE, ChronophageRenderer::new);
+        EntityRendererRegistry.register(ModEntities.PARADOX, context -> new ParadoxRenderer<>(context, false));
+        EntityRendererRegistry.register(ModEntities.PARADOX_ECHO, context -> new ParadoxRenderer<>(context, true));
         EntityRendererRegistry.register(ModEntities.GEAR_SAW, ctx -> new SpinningItemRenderer<>(ctx, 1.6F, 45.0F, false));
         EntityRendererRegistry.register(ModEntities.TIME_LEECH, ctx -> new SpinningItemRenderer<>(ctx, 0.9F, -12.0F, true));
         BlockEntityRenderers.register(ModBlockEntities.TIME_CONDENSER, TimeCondenserRenderer::new);

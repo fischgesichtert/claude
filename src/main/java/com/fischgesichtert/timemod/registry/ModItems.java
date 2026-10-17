@@ -111,6 +111,8 @@ public final class ModItems {
     public static final Item EFFICIENCY_MODULE = module("efficiency_module", ModuleItem.Kind.EFFICIENCY, 0);
 
     // Stufe IV: Herr der Zeit
+    public static final Item PARADOX_ALTAR = block(ModBlocks.PARADOX_ALTAR);
+    public static final Item PARADOX_SPAWN_EGG = register("paradox_spawn_egg", new SpawnEggItem(ModEntities.PARADOX, 0x2A1446, 0x6FE3FF, new Item.Properties()));
     public static final Item HEART_OF_TIME = register("heart_of_time", new Item(new Item.Properties().stacksTo(16).rarity(Rarity.EPIC).fireResistant()));
     public static final Item CHRONOS_WATCH = register("chronos_watch", new ChronosWatchItem(new Item.Properties().rarity(Rarity.EPIC)));
 

@@ -92,12 +92,14 @@ CHAPTERS = {
         "• Verfallene Uhrtürme stehen einsam in Ebenen und Wäldern. Oben im Uhrenraum liegt oft eine Karte zur Zeitlosen Werkstatt.\n\n"
         "• Vergessene Observatorien thronen auf Bergen. Lies die Notizen des Astronomen.\n\n"
         "• Chrono-Ruinen liegen im Deep Dark, voller Chronit. In ihren Truhen: Zeitkern-Fragmente. Achtung, der Wächter schläft nicht tief.\n\n"
-        "• Die Zeitlose Werkstatt hat keine Tür. Grab dich hinein – und weck den Uhrmacher.",
+        "• Die Zeitlose Werkstatt hat keine Tür. Grab dich hinein – und weck den Uhrmacher.\n\n"
+        "• Die Zeitlose Zitadelle schwebt weit draußen im äußeren End. Dort wartet dein eigenes Echo.",
         "Places of Time",
         "• Decayed clock towers stand alone on plains and in forests. Up in the clock room there is often a map to the Timeless Workshop.\n\n"
         "• Forgotten observatories crown the mountains. Read the astronomer's notes.\n\n"
         "• Chrono ruins lie in the deep dark, full of chronite. In their chests: time core fragments. Careful, the Warden sleeps lightly.\n\n"
-        "• The Timeless Workshop has no door. Dig your way in – and wake the Clockmaker.",
+        "• The Timeless Workshop has no door. Dig your way in – and wake the Clockmaker.\n\n"
+        "• The Timeless Citadel floats far out in the outer End. Your own echo waits there.",
     ),
     "clockmaker": (
         "Der Uhrmacher",
@@ -122,6 +124,24 @@ CHAPTERS = {
         "It slows you down, drinks Chronon from your tools and sends time leeches after you. Its maw is mostly closed: almost nothing gets through. And it rewinds every wound as soon as the maw closes again.\n\n"
         "Listen closely: before the maw opens, its clockwork winds up. Stop time right then! All hits during the stop land together when time moves on – and those wounds it cannot undo.\n\n"
         "Reward: the phage heart.",
+    ),
+    "paradox": (
+        "Paradox – dein Echo",
+        "Weit draußen im äußeren End schwebt die Zeitlose Zitadelle: eine Insel mit einem Platz wie ein Zifferblatt, ein Turm aus Purpur und ganz oben eine Arena mit dem Spiegel-Altar.\n\n"
+        "Opfere dem Spiegel eine Paradox-Zeitzelle mit mindestens 50k Chronon. Dann tritt dir dein eigenes Echo gegenüber, mit Kopien deiner Rüstung und deiner besten Waffe.\n\n"
+        "• Es hält die Zeit an und legt einen Kranz aus Messern um dich. Sobald die Zeit weiterläuft, fliegen sie los. In voller Chrono-Rüstung bewegst du dich trotzdem.\n"
+        "• Es springt hinter dich und wirft Messerfächer.\n"
+        "• Es spiegelt deine Zeitzonen: Wer es verlangsamt oder anhält, trifft sich selbst. Zurückspulen heilt es.\n"
+        "• Ab der Hälfte ruft es zerbrechliche Echos.\n\n"
+        "Besiegt lässt es das Herz der Zeit zurück, den Kern der Chronos-Uhr.",
+        "Paradox – Your Echo",
+        "Far out in the outer End floats the Timeless Citadel: an island with a plaza like a clock face, a tower of purpur and, at the very top, an arena with the Mirror Altar.\n\n"
+        "Offer the mirror a Paradox time cell holding at least 50k chronon. Then your own echo faces you, with copies of your armor and your best weapon.\n\n"
+        "• It stops time and lays a ring of knives around you. As soon as time moves on, they fly. In full Chrono armor you can still move.\n"
+        "• It blinks behind you and throws fans of knives.\n"
+        "• It mirrors your time zones: slow or stop it and you hit yourself. Rewinding heals it.\n"
+        "• Below half health it calls fragile echoes.\n\n"
+        "Defeated, it leaves the Heart of Time behind, the core of the Chronos Watch.",
     ),
     "tier4": (
         "Stufe IV – Herr der Zeit",
@@ -200,6 +220,10 @@ ADVANCEMENTS = [
      "Nach JoJo-Regel", "Besitze die volle Chrono-Rüstung", "By the JoJo Rule", "Own the full set of Chrono armor"),
     ("extractor", "chronophage", "timemod:lifetime_extractor", "goal", ("item", "timemod:lifetime_extractor"),
      "Lebenszeit", "Baue einen Lebenszeit-Extraktor", "Lifetime", "Build a lifetime extractor"),
-    ("chronos", "chronophage", "timemod:chronos_watch", "challenge", ("item", "timemod:chronos_watch"),
+    ("citadel", "chronophage", "minecraft:purpur_pillar", "task", ("structure", "timemod:timeless_citadel"),
+     "Zeitlose Zitadelle", "Finde die Zeitlose Zitadelle im äußeren End", "Timeless Citadel", "Find the Timeless Citadel in the outer End"),
+    ("paradox", "citadel", "timemod:heart_of_time", "challenge", ("kill", "timemod:paradox"),
+     "Ich bin du", "Besiege Paradox, dein eigenes Echo", "I Am You", "Defeat Paradox, your own echo"),
+    ("chronos", "paradox", "timemod:chronos_watch", "challenge", ("item", "timemod:chronos_watch"),
      "Herr der Zeit", "Baue die Chronos-Uhr", "Lord of Time", "Build the Chronos Watch"),
 ]

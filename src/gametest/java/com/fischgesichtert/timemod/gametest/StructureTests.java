@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.entity.ChestBlockEntity;
 
 /** Alle vier Strukturen lassen sich erzeugen und enthalten ihr Herzstück und Beute-Truhen. */
 public class StructureTests implements FabricGameTest {
-    private record Expectation(String name, Block marker, String loot) {
+    private record Expectation(String name, Block marker, String loot, int maxY) {
     }
 
     @GameTest(template = EMPTY_STRUCTURE, timeoutTicks = 400)
@@ -21,10 +21,11 @@ public class StructureTests implements FabricGameTest {
         ServerLevel level = helper.getLevel();
         MinecraftServer server = level.getServer();
         Expectation[] expected = {
-            new Expectation("clock_tower", Blocks.BELL, "timemod:chests/clock_tower_top"),
-            new Expectation("observatory", Blocks.LECTERN, "timemod:chests/observatory"),
-            new Expectation("chrono_ruins", ModBlocks.PHAGE_ALTAR, "timemod:chests/chrono_ruins"),
-            new Expectation("timeless_workshop", ModBlocks.CLOCKMAKER_ALTAR, "timemod:chests/timeless_workshop"),
+            new Expectation("clock_tower", Blocks.BELL, "timemod:chests/clock_tower_top", 40),
+            new Expectation("observatory", Blocks.LECTERN, "timemod:chests/observatory", 40),
+            new Expectation("chrono_ruins", ModBlocks.PHAGE_ALTAR, "timemod:chests/chrono_ruins", 40),
+            new Expectation("timeless_workshop", ModBlocks.CLOCKMAKER_ALTAR, "timemod:chests/timeless_workshop", 40),
+            new Expectation("timeless_citadel", ModBlocks.PARADOX_ALTAR, "timemod:chests/timeless_citadel", 160),
         };
         BlockPos base = helper.absolutePos(BlockPos.ZERO).offset(400, 0, 400);
         for (int i = 0; i < expected.length; i++) {
@@ -48,7 +49,7 @@ public class StructureTests implements FabricGameTest {
             BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
             for (int x = minX; x < minX + 48; x++) {
                 for (int z = minZ; z < minZ + 48; z++) {
-                    for (int y = level.getMinBuildHeight(); y < 40; y++) {
+                    for (int y = level.getMinBuildHeight(); y < e.maxY(); y++) {
                         pos.set(x, y, z);
                         if (level.getBlockState(pos).is(e.marker())) {
                             marker = true;

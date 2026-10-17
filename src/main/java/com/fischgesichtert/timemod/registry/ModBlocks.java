@@ -55,6 +55,9 @@ public final class ModBlocks {
     public static final Block PHAGE_ALTAR = register("phage_altar", new BossAltarBlock("message.timemod.altar.phage",
         BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.SCULK_CATALYST)
             .lightLevel(s -> 8).noOcclusion()));
+    public static final Block PARADOX_ALTAR = register("paradox_altar", new BossAltarBlock("message.timemod.altar.paradox",
+        BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).strength(-1.0F, 3600000.0F).noLootTable().sound(SoundType.AMETHYST)
+            .lightLevel(s -> 12).noOcclusion()));
 
     private ModBlocks() {
     }

@@ -24,6 +24,9 @@ public final class ModSounds {
     public static final SoundEvent PHAGE_BITE = register("phage_bite");
     public static final SoundEvent PHAGE_DRAIN = register("phage_drain");
     public static final SoundEvent BOSS_AWAKEN = register("boss_awaken");
+    public static final SoundEvent PARADOX_VOICE = register("paradox_voice");
+    public static final SoundEvent PARADOX_BLINK = register("paradox_blink");
+    public static final SoundEvent ECHO_SHATTER = register("echo_shatter");
 
     private ModSounds() {
     }

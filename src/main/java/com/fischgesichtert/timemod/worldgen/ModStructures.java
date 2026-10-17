@@ -15,11 +15,13 @@ public final class ModStructures {
     public static final StructurePieceType OBSERVATORY_PIECE = piece("observatory", ObservatoryPiece::new);
     public static final StructurePieceType CHRONO_RUINS_PIECE = piece("chrono_ruins", ChronoRuinsPiece::new);
     public static final StructurePieceType TIMELESS_WORKSHOP_PIECE = piece("timeless_workshop", TimelessWorkshopPiece::new);
+    public static final StructurePieceType TIMELESS_CITADEL_PIECE = piece("timeless_citadel", TimelessCitadelPiece::new);
 
     public static final StructureType<TimeStructure> CLOCK_TOWER = type("clock_tower", TimeStructure.Kind.CLOCK_TOWER);
     public static final StructureType<TimeStructure> OBSERVATORY = type("observatory", TimeStructure.Kind.OBSERVATORY);
     public static final StructureType<TimeStructure> CHRONO_RUINS = type("chrono_ruins", TimeStructure.Kind.CHRONO_RUINS);
     public static final StructureType<TimeStructure> TIMELESS_WORKSHOP = type("timeless_workshop", TimeStructure.Kind.TIMELESS_WORKSHOP);
+    public static final StructureType<TimeStructure> TIMELESS_CITADEL = type("timeless_citadel", TimeStructure.Kind.TIMELESS_CITADEL);
 
     private ModStructures() {
     }
@@ -33,6 +35,7 @@ public final class ModStructures {
             case OBSERVATORY -> OBSERVATORY;
             case CHRONO_RUINS -> CHRONO_RUINS;
             case TIMELESS_WORKSHOP -> TIMELESS_WORKSHOP;
+            case TIMELESS_CITADEL -> TIMELESS_CITADEL;
         };
     }
 

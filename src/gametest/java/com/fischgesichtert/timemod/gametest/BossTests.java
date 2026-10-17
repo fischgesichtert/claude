@@ -1,7 +1,10 @@
 package com.fischgesichtert.timemod.gametest;
 
+import com.fischgesichtert.timemod.energy.Chronon;
+import com.fischgesichtert.timemod.entity.ThrownChronoKnife;
 import com.fischgesichtert.timemod.entity.boss.ChronophageBoss;
 import com.fischgesichtert.timemod.entity.boss.ClockmakerBoss;
+import com.fischgesichtert.timemod.entity.boss.ParadoxBoss;
 import com.fischgesichtert.timemod.registry.ModBlocks;
 import com.fischgesichtert.timemod.registry.ModEntities;
 import com.fischgesichtert.timemod.registry.ModItems;
@@ -15,13 +18,16 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** Bosse: Zeitsprung und Schwachstelle des Uhrmachers, Rückspul-Heilung des Chronophagen, Altäre. */
+/** Bosse: Zeitsprung und Schwachstelle des Uhrmachers, Rückspul-Heilung des Chronophagen, Paradox, Altäre. */
 public class BossTests implements FabricGameTest {
     private static final String ARENA = "timemod-gametest:arena";
 
@@ -149,6 +155,143 @@ public class BossTests implements FabricGameTest {
         helper.getLevel().getEntitiesOfClass(ChronophageBoss.class, new AABB(helper.absolutePos(phageAltar)).inflate(10)).forEach(e -> e.discard());
         player.discard();
         helper.succeed();
+    }
+
+    /** Der Spiegel-Altar will eine geladene Paradox-Zelle; Paradox trägt dann Kopien deiner Rüstung und Waffe. */
+    @GameTest(template = ARENA, timeoutTicks = 40, setupTicks = 5, batch = "timemod_paradox_altar")
+    public void mirrorAltarSummonsYourEcho(GameTestHelper helper) {
+        BlockPos altar = new BlockPos(12, 2, 8);
+        helper.setBlock(altar, ModBlocks.PARADOX_ALTAR);
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
+        Vec3 near = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(12, 2, 4)));
+        player.teleportTo(near.x, near.y, near.z);
+        player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.DIAMOND_CHESTPLATE));
+        player.getInventory().setItem(4, new ItemStack(Items.DIAMOND_SWORD));
+        ItemStack weak = new ItemStack(ModItems.PARADOX_TIME_CELL);
+        Chronon.set(weak, 10_000);
+        player.setItemInHand(InteractionHand.MAIN_HAND, weak);
+        use(helper, player, altar);
+        AABB area = new AABB(helper.absolutePos(altar)).inflate(12);
+        if (!helper.getLevel().getEntitiesOfClass(ParadoxBoss.class, area).isEmpty() || player.getMainHandItem().isEmpty()) {
+            helper.fail("Mit nur 10k Chronon darf der Spiegel nichts wecken");
+        }
+        ItemStack full = new ItemStack(ModItems.PARADOX_TIME_CELL);
+        Chronon.set(full, 60_000);
+        player.setItemInHand(InteractionHand.MAIN_HAND, full);
+        use(helper, player, altar);
+        var bosses = helper.getLevel().getEntitiesOfClass(ParadoxBoss.class, area);
+        if (bosses.size() != 1 || !player.getMainHandItem().isEmpty()) {
+            helper.fail("Eine volle Paradox-Zelle weckt genau ein Paradox und wird verbraucht");
+            return;
+        }
+        ParadoxBoss boss = bosses.get(0);
+        if (!boss.getItemBySlot(EquipmentSlot.CHEST).is(Items.DIAMOND_CHESTPLATE) || !boss.getMainHandItem().is(Items.DIAMOND_SWORD)) {
+            helper.fail("Paradox muss Rüstung und beste Waffe kopieren, trägt " + boss.getItemBySlot(EquipmentSlot.CHEST) + " / " + boss.getMainHandItem());
+        }
+        if (!player.getUUID().equals(boss.echoOf()) || player.getInventory().getItem(4).isEmpty()) {
+            helper.fail("Paradox ist das Echo des Spielers – und die Originale bleiben beim Spieler");
+        }
+        boss.discard();
+        player.discard();
+        helper.succeed();
+    }
+
+    /** Paradox hält die Zeit an (selbst bleibt es beweglich); der Messerkranz hängt in der Luft, bis die Zeit weiterläuft. */
+    @GameTest(template = ARENA, timeoutTicks = 120, setupTicks = 5, batch = "timemod_paradox_stop")
+    public void paradoxStopsTimeWithKnifeRing(GameTestHelper helper) {
+        ParadoxBoss boss = helper.spawn(ModEntities.PARADOX, new Vec3(12.5, 2, 8.5));
+        boss.setNoAi(true);
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
+        Vec3 at = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(12, 2, 14)));
+        player.teleportTo(at.x, at.y, at.z);
+        ServerTimeEngine engine = ServerTimeEngine.of(helper.getLevel());
+        boss.timeStop();
+        AABB area = new AABB(helper.absolutePos(new BlockPos(12, 3, 11))).inflate(16);
+        java.util.List<Vec3> frozenAt = new java.util.ArrayList<>();
+        StringBuilder problems = new StringBuilder();
+        helper.runAfterDelay(3, () -> {
+            if (engine.zones().stream().noneMatch(z -> boss.getUUID().equals(z.owner()) && z.isStop())) {
+                problems.append("Paradox muss eine Stopp-Zone anlegen. ");
+            }
+            if (engine.isFrozen(boss)) {
+                problems.append("Paradox selbst lässt sich nicht anhalten. ");
+            }
+            if (!engine.isFrozen(player)) {
+                problems.append("Der Spieler (ohne Chrono-Rüstung) muss im Stillstand einfrieren. ");
+            }
+            boss.knifeRing(player, ParadoxBoss.KNIFE_RING);
+        });
+        helper.runAfterDelay(8, () -> helper.getLevel().getEntitiesOfClass(ThrownChronoKnife.class, area).forEach(k -> frozenAt.add(k.position())));
+        helper.runAfterDelay(20, () -> {
+            var knives = helper.getLevel().getEntitiesOfClass(ThrownChronoKnife.class, area);
+            if (knives.size() != ParadoxBoss.KNIFE_RING || frozenAt.size() != ParadoxBoss.KNIFE_RING) {
+                problems.append("Der Messerkranz muss aus ").append(ParadoxBoss.KNIFE_RING).append(" Messern bestehen, gefunden ").append(knives.size()).append(". ");
+            }
+            for (var knife : knives) {
+                if (frozenAt.stream().noneMatch(p -> p.distanceToSqr(knife.position()) < 1.0E-6)) {
+                    problems.append("Im Stillstand müssen die Messer in der Luft hängen bleiben. ");
+                    break;
+                }
+            }
+        });
+        helper.runAfterDelay(ParadoxBoss.STOP_TICKS + 12, () -> {
+            var knives = helper.getLevel().getEntitiesOfClass(ThrownChronoKnife.class, area);
+            boolean moved = knives.isEmpty() || knives.stream().anyMatch(k -> frozenAt.stream().noneMatch(p -> p.distanceToSqr(k.position()) < 1.0E-6));
+            if (!moved) {
+                problems.append("Nach dem Stillstand müssen die Messer losfliegen. ");
+            }
+            knives.forEach(k -> k.discard());
+            boss.discard();
+            player.discard();
+            if (problems.length() > 0) {
+                helper.fail(problems.toString());
+            }
+            helper.succeed();
+        });
+    }
+
+    /** Wer Paradox verlangsamt, wird selbst langsamer: Es spiegelt die Zone auf den Spieler. */
+    @GameTest(template = ARENA, timeoutTicks = 60, setupTicks = 5, batch = "timemod_paradox_mirror")
+    public void paradoxMirrorsYourTime(GameTestHelper helper) {
+        ParadoxBoss boss = helper.spawn(ModEntities.PARADOX, new Vec3(12.5, 2, 8.5));
+        boss.setNoAi(true);
+        ServerPlayer player = helper.makeMockServerPlayerInLevel();
+        player.setGameMode(GameType.SURVIVAL);
+        Vec3 at = Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(12, 2, 16)));
+        player.teleportTo(at.x, at.y, at.z);
+        ServerTimeEngine engine = ServerTimeEngine.of(helper.getLevel());
+        engine.addZone(new ZoneShape.Sphere(boss.position(), 4), 0.5, TimeFilter.DEFAULT, player.getUUID(), 200);
+        helper.runAfterDelay(15, () -> {
+            boolean mirrored = engine.zones().stream().anyMatch(z -> boss.getUUID().equals(z.owner()) && z.isTargeted()
+                && player.getUUID().equals(z.targetUuid()) && z.factor() == 0.5);
+            engine.removeZonesOwnedBy(player.getUUID());
+            engine.removeZonesOwnedBy(boss.getUUID());
+            boss.discard();
+            player.discard();
+            if (!mirrored) {
+                helper.fail("Paradox muss die Zeitlupe auf den Spieler spiegeln");
+            }
+            helper.succeed();
+        });
+    }
+
+    /** Besiegt hinterlässt Paradox das Herz der Zeit. */
+    @GameTest(template = ARENA, timeoutTicks = 60, setupTicks = 5, batch = "timemod_paradox_loot")
+    public void paradoxDropsHeartOfTime(GameTestHelper helper) {
+        ParadoxBoss boss = helper.spawn(ModEntities.PARADOX, new Vec3(12.5, 2, 8.5));
+        boss.setNoAi(true);
+        boss.kill();
+        helper.runAfterDelay(5, () -> {
+            AABB area = new AABB(helper.absolutePos(new BlockPos(12, 2, 8))).inflate(6);
+            boolean heart = helper.getLevel().getEntitiesOfClass(ItemEntity.class, area).stream().anyMatch(e -> e.getItem().is(ModItems.HEART_OF_TIME));
+            if (!heart) {
+                helper.fail("Paradox muss das Herz der Zeit fallen lassen");
+            }
+            helper.getLevel().getEntitiesOfClass(ItemEntity.class, area).forEach(ItemEntity::discard);
+            helper.succeed();
+        });
     }
 
     private static void use(GameTestHelper helper, ServerPlayer player, BlockPos altar) {

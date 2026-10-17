@@ -1128,8 +1128,24 @@ def time_core_fragment():
     return s
 
 
+PURPUR = [(90, 56, 104, 255), (128, 86, 142, 255), (164, 118, 176, 255), (196, 152, 206, 255)]
+MIRROR = [(120, 120, 170, 255), (170, 176, 220, 255), (214, 222, 248, 255), (246, 248, 255, 255)]
+
+
 def altar_side(kind):
     s = Sprite()
+    if kind == "paradox":
+        noise_fill(s, PURPUR[:3], 111, weights=[2, 3, 1])
+        s.rect(0, 0, 15, 1, GOLD[2])
+        s.rect(0, 14, 15, 15, GOLD[1])
+        # schmaler Spiegel mit Spiegelung
+        s.rect(5, 3, 10, 12, OUT)
+        for y in range(4, 12):
+            for x in range(6, 10):
+                s.set(x, y, MIRROR[min(3, (x + y) // 5)])
+        s.line(6, 10, 8, 4, MIRROR[3])
+        s.set(9, 5, CHRON[3])
+        return s
     if kind == "clockmaker":
         noise_fill(s, BLACKSTONE, 101, weights=[2, 3, 1])
         s.rect(0, 0, 15, 1, BRASS[3])
@@ -1151,6 +1167,20 @@ def altar_side(kind):
 
 def altar_top(kind):
     s = Sprite()
+    if kind == "paradox":
+        noise_fill(s, PURPUR[:3], 113)
+        s.shade_disc(7.5, 7.5, 6.6, [GOLD[1], GOLD[2], GOLD[3]])
+        for y in range(16):
+            for x in range(16):
+                d = ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** 0.5
+                if d <= 5.4:
+                    light = ((7.5 - x) + (7.5 - y)) / 11
+                    s.set(x, y, MIRROR[max(0, min(3, int(round(1.5 + 1.6 * light))))])
+        s.line(4, 9, 8, 5, MIRROR[3])
+        s.line(5, 10, 9, 6, (255, 255, 255, 255))
+        s.set(10, 10, CHRON[2])
+        s.set(11, 9, GLOW[1])
+        return s
     if kind == "clockmaker":
         noise_fill(s, BLACKSTONE, 105)
         clock_face(s, 7.5, 7.5, 6.0, face=[(200, 196, 180, 255), (232, 226, 210, 255)], hands=((0, -0.9), (-0.55, -0.45)), glow=OUT)
@@ -1167,7 +1197,33 @@ def altar_top(kind):
 
 def altar_bottom(kind):
     s = Sprite()
-    noise_fill(s, BLACKSTONE if kind == "clockmaker" else DEEP, 109)
+    noise_fill(s, {"clockmaker": BLACKSTONE, "phage": DEEP, "paradox": PURPUR[:3]}[kind], 109)
+    return s
+
+
+def paradox_glow():
+    """Leuchtschicht für Paradox (Spieler-UV 64×64): violette Augen, ein Zifferblatt auf der Brust, Linien auf Armen und Beinen."""
+    s = Sprite(64, 64)
+    violet = (210, 130, 255, 255)
+    cyan = (110, 235, 255, 255)
+    for x in (9, 10, 13, 14):
+        s.set(x, 12, violet)
+    s.set(14, 13, (150, 90, 220, 255))
+    s.set(13, 14, (120, 70, 190, 160))
+    # Brust: Zifferblatt
+    for y in range(20, 32):
+        for x in range(20, 28):
+            d = ((x - 23.5) ** 2 + (y - 24.5) ** 2) ** 0.5
+            if 2.2 <= d <= 3.0:
+                s.set(x, y, cyan)
+    s.line(23, 24, 23, 22, violet)
+    s.line(24, 24, 25, 25, violet)
+    # Arme und Beine: leuchtende Linien (Vorderseiten, Haut-Layout ab 1.8)
+    for x0, y0 in ((45, 21), (37, 53)):
+        s.line(x0, y0, x0, y0 + 9, cyan)
+    for x0, y0 in ((5, 21), (21, 53)):
+        for y in range(y0, y0 + 10, 2):
+            s.set(x0, y, cyan)
     return s
 
 
@@ -1584,7 +1640,7 @@ BLOCKS = {
     "chrono_pillar_side": pillar_side, "chrono_pillar_top": pillar_top, "chrono_pillar_core": pillar_core,
     "lifetime_extractor_side": extractor_side, "lifetime_extractor_top": lambda: extractor_top(False),
     "lifetime_extractor_top_active": lambda: extractor_top(True), "lifetime_extractor_bottom": extractor_bottom,
-    **{f"{k}_altar_{part}": (lambda k=k, f=f: f(k)) for k in ("clockmaker", "phage")
+    **{f"{k}_altar_{part}": (lambda k=k, f=f: f(k)) for k in ("clockmaker", "phage", "paradox")
        for part, f in (("side", altar_side), ("top", altar_top), ("bottom", altar_bottom))},
 }
 
@@ -1609,6 +1665,7 @@ def main(preview=None):
     temporal_workbench_gui().save(GUI / "temporal_workbench.png")
     chronik_gui().save(GUI.parent / "chronik.png")
     chronos_ring().save(TEX / "misc" / "chronos_ring.png")
+    paradox_glow().save(TEX / "entity" / "paradox_glow.png")
     entity_dir = TEX / "entity"
     for name, fn in (("clockmaker", clockmaker_textures), ("chronophage", chronophage_textures)):
         tex, glow = fn()

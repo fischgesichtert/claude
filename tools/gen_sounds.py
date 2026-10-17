@@ -386,6 +386,39 @@ def boss_awaken():
     return normalize(trim(total), -1)
 
 
+def paradox_voice():
+    """Paradox: verstimmter, rückwärts anschwellender Akkord, darüber ein Flüstern – die eigene Stimme, verzerrt."""
+    x = t(2.4)
+    chord = sum(np.sin(2 * np.pi * f * x * (1 + 0.004 * np.sin(2 * np.pi * 0.7 * x + i))) for i, f in enumerate((220.0, 261.6, 329.6, 415.3)))
+    chord *= env_ad(len(x), 0.6, 1.8, curve=1.8)
+    swell = reverb(chord[: int(1.0 * SR)], 1.2, 0.9)[::-1][-int(0.7 * SR):] * np.linspace(0.1, 1, int(0.7 * SR)) ** 2
+    whisper = svf_sweep(noise(2.4), 2400, 900, q=6.0) * (0.5 + 0.5 * np.sin(2 * np.pi * 5.5 * x)) * env_ad(len(x), 0.3, 1.6, curve=2.0)
+    body = mix(normalize(chord, -6), normalize(whisper, -12))
+    out = np.concatenate([normalize(swell, -8), body])
+    return normalize(trim(reverb(out, 2.0, 0.4, brightness=4000)), -1)
+
+
+def paradox_blink():
+    """Zeitsprung: kurzer Wusch nach oben, am Ende ein rückwärts gezogener Glockenton."""
+    w = svf_sweep(noise(0.4), 500, 7000, q=4.0) * env_ad(int(0.4 * SR), 0.02, 0.3, curve=3.0)
+    ping = bell(1318.5, 0.5)[::-1] * 0.6
+    out = silence(0.7)
+    place(out, normalize(ping, -8), 0.0)
+    place(out, normalize(w, -3), 0.42)
+    return normalize(fade(out, 0.005, 0.08), -1)
+
+
+def echo_shatter():
+    """Ein Echo zerspringt: viele kurze, hohe Glasklänge und ein heller Rauschstoß."""
+    out = silence(0.8)
+    for i in range(9):
+        f = RNG.uniform(1800, 5200)
+        place(out, bell(f, 0.35) * RNG.uniform(0.3, 0.8), RNG.uniform(0.0, 0.12))
+    burst = fft_filter(noise(0.15), low=2500) * np.exp(-t(0.15) / 0.04)
+    place(out, burst * 0.6, 0.0)
+    return normalize(fade(reverb(out, 0.8, 0.25, brightness=9000), 0.002, 0.1), -2)
+
+
 SOUNDS = {
     "time_stop": time_stop,
     "time_resume": time_resume,
@@ -404,6 +437,9 @@ SOUNDS = {
     "phage_bite": phage_bite,
     "phage_drain": phage_drain,
     "boss_awaken": boss_awaken,
+    "paradox_voice": paradox_voice,
+    "paradox_blink": paradox_blink,
+    "echo_shatter": echo_shatter,
 }
 
 

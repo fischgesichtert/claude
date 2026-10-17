@@ -121,6 +121,7 @@ ITEMS = [
     ("heart_of_time", "generated", "Herz der Zeit", "Heart of Time",
      "Schlägt im Takt aller Uhren der Welt.", "It beats in time with every clock in the world."),
     ("chronos_watch", "generated", "Chronos-Uhr", "Chronos Watch", None, None),
+    ("paradox_spawn_egg", "spawn_egg", "Paradox-Spawn-Ei", "Paradox Spawn Egg", None, None),
 ]
 
 # Chronos-Uhr: Modi, Meisterschaft, Radialmenü und HUD
@@ -170,6 +171,19 @@ LANG_CHRONOS = {
         "chronos.timemod.hud.scrubbing": "Spule zurück … loslassen zum Anhalten",
         "chronos.timemod.hud.rewinding": "Spule zurück …",
         "chronos.timemod.hud.cooldown": "lädt nach",
+        "entity.timemod.paradox": "Paradox",
+        "entity.timemod.paradox.echo_of": "Paradox – Echo von %s",
+        "entity.timemod.paradox_echo": "Echo",
+        "boss.timemod.paradox.awakens": "Paradox erwacht",
+        "boss.timemod.paradox.awakens.hint": "Es kennt jede deiner Bewegungen – denn es sind deine",
+        "boss.timemod.paradox.later": "„Ich bin du – nur später.“",
+        "boss.timemod.paradox.defeated": "„Dann … bist du jetzt … ich.“",
+        "message.timemod.altar.paradox": "Ein Spiegel ohne Spiegelbild. Er hungert nach einem Paradox …",
+        "message.timemod.altar.paradox.charge": "Der Spiegel verlangt eine Paradox-Zeitzelle mit mindestens %s Chronon.",
+        "message.timemod.paradox.mirror": "Paradox spiegelt deine Zeit!",
+        "subtitles.timemod.paradox_voice": "Paradox spricht",
+        "subtitles.timemod.paradox_blink": "Paradox springt durch die Zeit",
+        "subtitles.timemod.echo_shatter": "Ein Echo zerspringt",
     },
     "en_us": {
         "chronos.timemod.mode.stop": "Time stop",
@@ -216,6 +230,19 @@ LANG_CHRONOS = {
         "chronos.timemod.hud.scrubbing": "Rewinding … release to stop",
         "chronos.timemod.hud.rewinding": "Rewinding …",
         "chronos.timemod.hud.cooldown": "recharging",
+        "entity.timemod.paradox": "Paradox",
+        "entity.timemod.paradox.echo_of": "Paradox – Echo of %s",
+        "entity.timemod.paradox_echo": "Echo",
+        "boss.timemod.paradox.awakens": "Paradox awakens",
+        "boss.timemod.paradox.awakens.hint": "It knows every move you make – because they are yours",
+        "boss.timemod.paradox.later": "\"I am you – just later.\"",
+        "boss.timemod.paradox.defeated": "\"Then … you are … me now.\"",
+        "message.timemod.altar.paradox": "A mirror without a reflection. It hungers for a paradox …",
+        "message.timemod.altar.paradox.charge": "The mirror demands a Paradox time cell holding at least %s chronon.",
+        "message.timemod.paradox.mirror": "Paradox mirrors your time!",
+        "subtitles.timemod.paradox_voice": "Paradox speaks",
+        "subtitles.timemod.paradox_blink": "Paradox blinks through time",
+        "subtitles.timemod.echo_shatter": "An echo shatters",
     },
 }
 
@@ -233,6 +260,7 @@ BLOCKS = {
     "lifetime_extractor": ("Lebenszeit-Extraktor", "Lifetime Extractor"),
     "clockmaker_altar": ("Uhrwerk-Altar", "Clockwork Altar"),
     "phage_altar": ("Phagen-Altar", "Phage Altar"),
+    "paradox_altar": ("Spiegel-Altar", "Mirror Altar"),
 }
 
 LANG_EXTRA = {
@@ -566,7 +594,7 @@ def block_models():
                     "north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}}},
             ],
         })
-    for altar in ("clockmaker_altar", "phage_altar"):
+    for altar in ("clockmaker_altar", "phage_altar", "paradox_altar"):
         sides = {"north": {"texture": "#side"}, "south": {"texture": "#side"}, "east": {"texture": "#side"}, "west": {"texture": "#side"}}
         write(ASSETS / f"models/block/{altar}.json", {
             "parent": "minecraft:block/block",
@@ -668,6 +696,19 @@ def structure_loot():
     ])
 
 
+def citadel_loot():
+    chest_loot("timeless_citadel", [
+        {"rolls": 1, "entries": [entry(t("paradox_time_cell"), 1), entry(t("chronite_time_cell"), 3), entry(t("chronite_plate"), 2)]},
+        {"rolls": {"type": "minecraft:uniform", "min": 4, "max": 7}, "entries": [
+            entry(t("chronite_crystal"), 10, 2, 6), entry(t("time_dust"), 8, 3, 8), entry(t("time_core_fragment"), 3, 1, 2),
+            entry("minecraft:ender_pearl", 6, 1, 4), entry("minecraft:diamond", 4, 1, 3), entry("minecraft:echo_shard", 4, 1, 3),
+            entry("minecraft:golden_apple", 3), entry("minecraft:enchanted_golden_apple", 1), entry("minecraft:netherite_scrap", 2),
+            entry(t("chrono_knife"), 5, 4, 12), entry(t("strength_module"), 2), entry(t("efficiency_module"), 2),
+            entry("minecraft:book", 3, 1, 1, [{"function": "minecraft:enchant_with_levels", "levels": 30, "treasure": True}]),
+        ]},
+    ])
+
+
 def boss_loot():
     write(DATA / f"{NS}/loot_tables/entities/clockmaker.json", {"type": "minecraft:entity", "pools": [
         {"rolls": 1, "entries": [entry(t("clockwork_core"))]},
@@ -681,10 +722,18 @@ def boss_loot():
         {"rolls": 1, "entries": [entry(t("time_dust"), 1, 6, 12)]},
         {"rolls": 1, "entries": [entry(t("time_core_fragment"), 1, 1, 2)]},
     ]})
+    write(DATA / f"{NS}/loot_tables/entities/paradox.json", {"type": "minecraft:entity", "pools": [
+        {"rolls": 1, "entries": [entry(t("heart_of_time"))]},
+        {"rolls": 1, "entries": [entry(t("chronite_crystal"), 1, 4, 8)]},
+        {"rolls": 1, "entries": [entry(t("time_core_fragment"), 1, 1, 2)]},
+        {"rolls": 1, "entries": [entry("minecraft:echo_shard", 1, 2, 4)]},
+    ]})
+    write(DATA / f"{NS}/loot_tables/entities/paradox_echo.json", {"type": "minecraft:entity", "pools": []})
 
 
 def loot_tables():
     structure_loot()
+    citadel_loot()
     boss_loot()
     for name in ("brass_block", "clockmaker_bench", "time_sand", "time_condenser", "time_field_projector", "temporal_workbench", "chrono_pillar",
                  "lifetime_extractor"):
@@ -908,6 +957,9 @@ def worldgen():
     structure("chrono_ruins", "underground_structures", "none", ["minecraft:deep_dark"], 20, 6, 1017003)
     structure("timeless_workshop", "underground_structures", "none", ["#minecraft:is_overworld"], 40, 14, 1017004)
     write(DATA / f"{NS}/tags/worldgen/structure/on_workshop_maps.json", {"replace": False, "values": [t("timeless_workshop")]})
+    # Stufe IV: schwebt im äußeren End
+    structure("timeless_citadel", "surface_structures", "none",
+              ["minecraft:end_highlands", "minecraft:end_midlands", "minecraft:end_barrens", "minecraft:small_end_islands"], 36, 12, 1017005)
 
 
 # ------------------------------------------------------------------------------------------

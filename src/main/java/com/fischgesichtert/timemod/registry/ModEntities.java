@@ -6,6 +6,8 @@ import com.fischgesichtert.timemod.entity.ThrownChronoKnife;
 import com.fischgesichtert.timemod.entity.TimeLeech;
 import com.fischgesichtert.timemod.entity.boss.ChronophageBoss;
 import com.fischgesichtert.timemod.entity.boss.ClockmakerBoss;
+import com.fischgesichtert.timemod.entity.boss.ParadoxBoss;
+import com.fischgesichtert.timemod.entity.boss.ParadoxEcho;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.minecraft.core.Registry;
@@ -31,6 +33,12 @@ public final class ModEntities {
     public static final EntityType<ChronophageBoss> CHRONOPHAGE = register("chronophage",
         FabricEntityTypeBuilder.<ChronophageBoss>create(MobCategory.MONSTER, ChronophageBoss::new)
             .dimensions(EntityDimensions.fixed(2.4F, 2.2F)).fireImmune().trackRangeChunks(10).build());
+    public static final EntityType<ParadoxBoss> PARADOX = register("paradox",
+        FabricEntityTypeBuilder.<ParadoxBoss>create(MobCategory.MONSTER, ParadoxBoss::new)
+            .dimensions(EntityDimensions.fixed(0.6F, 1.8F)).fireImmune().trackRangeChunks(10).build());
+    public static final EntityType<ParadoxEcho> PARADOX_ECHO = register("paradox_echo",
+        FabricEntityTypeBuilder.<ParadoxEcho>create(MobCategory.MONSTER, ParadoxEcho::new)
+            .dimensions(EntityDimensions.fixed(0.6F, 1.8F)).fireImmune().trackRangeChunks(8).build());
 
     private ModEntities() {
     }
@@ -42,5 +50,7 @@ public final class ModEntities {
     public static void init() {
         FabricDefaultAttributeRegistry.register(CLOCKMAKER, ClockmakerBoss.createAttributes());
         FabricDefaultAttributeRegistry.register(CHRONOPHAGE, ChronophageBoss.createAttributes());
+        FabricDefaultAttributeRegistry.register(PARADOX, ParadoxBoss.createAttributes());
+        FabricDefaultAttributeRegistry.register(PARADOX_ECHO, ParadoxEcho.createAttributes());
     }
 }
